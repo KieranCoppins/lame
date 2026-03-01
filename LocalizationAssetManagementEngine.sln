@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.Frontend", "Lame.Frontend\Lame.Frontend.csproj", "{23C5036F-DD4D-4A94-B27A-13D558DFFFB2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.DomainModel", "Lame.DomainModel\Lame.DomainModel.csproj", "{927B31A8-289F-4FD8-AD80-7A16575F136B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.Backend.Assets", "Lame.Backend.Assets\Lame.Backend.Assets.csproj", "{02897B7B-37F0-437F-973F-02C36A992B46}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.Backend.Assets.LocalEF", "Lame.Backend.Assets.LocalEF\Lame.Backend.Assets.LocalEF.csproj", "{F89E8924-5DE8-44C5-8298-966054464C56}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.Backend.EntityFramework", "Lame.Backend.EntityFramework\Lame.Backend.EntityFramework.csproj", "{DB294B8E-26D4-4407-9F89-B3CC4F83500E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.Backend.Translations", "Lame.Backend.Translations\Lame.Backend.Translations.csproj", "{C016878F-86C8-435D-9192-BA24AECA66E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.Backend.Translations.LocalEF", "Lame.Backend.Translations.LocalEF\Lame.Backend.Translations.LocalEF.csproj", "{F099D775-6138-4B6B-9902-2D3C83753B9A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{23C5036F-DD4D-4A94-B27A-13D558DFFFB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23C5036F-DD4D-4A94-B27A-13D558DFFFB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23C5036F-DD4D-4A94-B27A-13D558DFFFB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23C5036F-DD4D-4A94-B27A-13D558DFFFB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{927B31A8-289F-4FD8-AD80-7A16575F136B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{927B31A8-289F-4FD8-AD80-7A16575F136B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{927B31A8-289F-4FD8-AD80-7A16575F136B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{927B31A8-289F-4FD8-AD80-7A16575F136B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02897B7B-37F0-437F-973F-02C36A992B46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02897B7B-37F0-437F-973F-02C36A992B46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02897B7B-37F0-437F-973F-02C36A992B46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02897B7B-37F0-437F-973F-02C36A992B46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F89E8924-5DE8-44C5-8298-966054464C56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F89E8924-5DE8-44C5-8298-966054464C56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F89E8924-5DE8-44C5-8298-966054464C56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F89E8924-5DE8-44C5-8298-966054464C56}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB294B8E-26D4-4407-9F89-B3CC4F83500E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB294B8E-26D4-4407-9F89-B3CC4F83500E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB294B8E-26D4-4407-9F89-B3CC4F83500E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB294B8E-26D4-4407-9F89-B3CC4F83500E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C016878F-86C8-435D-9192-BA24AECA66E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C016878F-86C8-435D-9192-BA24AECA66E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C016878F-86C8-435D-9192-BA24AECA66E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C016878F-86C8-435D-9192-BA24AECA66E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F099D775-6138-4B6B-9902-2D3C83753B9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F099D775-6138-4B6B-9902-2D3C83753B9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F099D775-6138-4B6B-9902-2D3C83753B9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F099D775-6138-4B6B-9902-2D3C83753B9A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

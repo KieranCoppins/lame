@@ -1,0 +1,15 @@
+﻿<Window x:Class="Lame.Frontend.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Lame.Frontend"
+        xmlns:views="clr-namespace:Lame.Frontend.Views"
+        mc:Ignorable="d"
+        Title="L.A.M.E" Height="450" Width="800">
+    
+    <Grid>
+        <views:AssetLibraryView/>
+    </Grid>
+</Window>
+ 
