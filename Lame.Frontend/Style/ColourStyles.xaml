@@ -7,4 +7,5 @@
     <SolidColorBrush x:Key="Brush.SubduedWhite" Color="#EFF6FF" />
     <SolidColorBrush x:Key="Brush.DarkGrey" Color="#6B7280" />
     <SolidColorBrush x:Key="Brush.LightGrey" Color="#E5E7EB" />
+    <SolidColorBrush x:Key="Brush.LightestGrey" Color="#f9fafb" />
 </ResourceDictionary>

@@ -29,6 +29,7 @@
 
     <ItemGroup>
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.3" />
+      <PackageReference Include="Panlingo.LanguageCode" Version="0.7.2" />
     </ItemGroup>
 
 </Project>

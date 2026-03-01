@@ -145,6 +145,40 @@
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
                     <TextBlock Text="Localizations" Style="{StaticResource Header2}"/>
+                    
+                    <ItemsControl ItemsSource="{Binding Translations}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource CardBorderStyle}"
+                                        Background="{StaticResource Brush.LightestGrey}">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Language}"
+                                                   Style="{StaticResource Header3}"
+                                                   Margin="0"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding CreatedAt}" 
+                                                       Style="{StaticResource Subtitle}"
+                                                       Margin="0, 8"/>
+                                            <TextBlock Text="•" 
+                                                       Style="{StaticResource Subtitle}"/>
+                                            <TextBlock Text="{Binding Version}"
+                                                       Style="{StaticResource Subtitle}"
+                                                       Margin="0, 8"/>
+                                            
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding Content}"
+                                                   Style="{StaticResource Body}"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
             </Border>
         </StackPanel>

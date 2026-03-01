@@ -38,7 +38,7 @@ public class AssetLibraryViewModel : BaseViewModel
         Assets = [];
     }
     
-    public async Task LoadAssets()
+    private async Task LoadAssets()
     {
         var assets = await _assets.Get();
         Assets.Clear();
