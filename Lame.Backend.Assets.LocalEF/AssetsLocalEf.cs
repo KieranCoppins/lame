@@ -14,19 +14,21 @@ public class AssetsLocalEf : IAssets
         _context = context;
     }
 
-    public Task<List<Asset>> Get()
+    public Task<List<AssetDto>> Get()
     {
         // TODO consider pagination if the dataset grows large
         return _context.Assets
-            .Select(entity => (Asset)entity)
+            .Include(entity => entity.Translations)
+            .Select(entity => MapToDto(entity))
             .ToListAsync();
     }
 
-    public Task<Asset?> Get(Guid id)
+    public Task<AssetDto?> Get(Guid id)
     {
         return _context.Assets
+            .Include(entity => entity.Translations)
             .Where(entity => entity.Id == id)
-            .Select(entity => (Asset)entity)
+            .Select(entity => MapToDto(entity))
             .FirstOrDefaultAsync();
     }
 
@@ -38,20 +40,7 @@ public class AssetsLocalEf : IAssets
 
     public async Task Update(Asset asset)
     {
-        var existingEntity = await _context.Assets.FindAsync(asset.Id);
-        if (existingEntity == null)
-        {
-            throw new InvalidOperationException($"Asset with ID {asset.Id} not found.");
-        }
-
-        existingEntity.ContextNotes = asset.ContextNotes;
-        existingEntity.AssetType = asset.AssetType;
-        existingEntity.InternalName = asset.InternalName;
-        existingEntity.LastUpdatedAt = asset.LastUpdatedAt;
-        existingEntity.CreatedAt = asset.CreatedAt;
-        existingEntity.Status = asset.Status;
-
-        _context.Assets.Update(existingEntity);
+        _context.Assets.Update(MapToEntity(asset));
         await _context.SaveChangesAsync();
     }
 
@@ -77,6 +66,21 @@ public class AssetsLocalEf : IAssets
             LastUpdatedAt = asset.LastUpdatedAt,
             CreatedAt = asset.CreatedAt,
             Status = asset.Status,
+        };
+    }
+    
+    private static AssetDto MapToDto(AssetEntity entity)
+    {
+        return new AssetDto()
+        {
+            Id = entity.Id,
+            AssetType = entity.AssetType,
+            ContextNotes = entity.ContextNotes,
+            InternalName = entity.InternalName,
+            LastUpdatedAt = entity.LastUpdatedAt,
+            CreatedAt = entity.CreatedAt,
+            Status = entity.Status,
+            NumTranslations = entity.Translations.Count,
         };
     }
 }

@@ -29,6 +29,14 @@ public class TranslationsLocalEF : ITranslations
             .FirstOrDefaultAsync();
     }
 
+    public Task<List<Translation>> GetForAsset(Guid assetId)
+    {
+        return _context.Translations
+            .Where(entity => entity.AssetId == assetId)
+            .Select(entity => (Translation)entity)
+            .ToListAsync();
+    }
+
     public Task Create(Translation translation)
     {
         _context.Translations.Add(MapToEntity(translation));

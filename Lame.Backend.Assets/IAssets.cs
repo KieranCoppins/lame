@@ -7,8 +7,8 @@ namespace Lame.Backend.Assets;
 /// </summary>
 public interface IAssets
 {
-    Task<List<Asset>> Get();
-    Task<Asset?> Get(Guid id);
+    Task<List<AssetDto>> Get();
+    Task<AssetDto?> Get(Guid id);
     Task Create(Asset asset);
     Task Update(Asset asset);
     Task Delete(Guid id);

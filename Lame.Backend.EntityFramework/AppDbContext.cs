@@ -38,7 +38,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<TranslationEntity>()
             .HasOne(t => t.Asset)
             .WithMany(sc => sc.Translations)
-            .HasForeignKey(t => t.ContentId)
+            .HasForeignKey(t => t.AssetId)
             .OnDelete(DeleteBehavior.Cascade);
         
     }

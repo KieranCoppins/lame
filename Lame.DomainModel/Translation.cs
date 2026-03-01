@@ -8,9 +8,9 @@ public class Translation
     public Guid Id { get; set; }
     
     /// <summary>
-    /// The ID of the source content that this translation is for
+    /// The ID of the asset that this translation is for
     /// </summary>
-    public Guid ContentId { get; set; }
+    public Guid AssetId { get; set; }
     
     /// <summary>
     /// The translated content itself

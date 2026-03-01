@@ -17,10 +17,8 @@ public class AssetLibraryViewModel
         Assets = [];
     }
     
-    public async void LoadAssets()
+    public async Task LoadAssets()
     {
-        CreateDummyData();
-        
         var assets = await _assets.Get();
         Assets.Clear();
         foreach (var asset in assets)
