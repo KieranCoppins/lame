@@ -1,9 +1,23 @@
 ﻿<Application x:Class="Lame.Frontend.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:Lame.Frontend"
-             StartupUri="MainWindow.xaml">
+             xmlns:viewModels="clr-namespace:Lame.Frontend.ViewModels"
+             xmlns:views="clr-namespace:Lame.Frontend.Views">
     <Application.Resources>
-
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Style/ColourStyles.xaml"/>
+                <ResourceDictionary Source="Style/TextStyles.xaml"/>
+                <ResourceDictionary Source="Style/ButtonStyles.xaml"/>
+                <ResourceDictionary Source="Style/PanelStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            
+            <DataTemplate DataType="{x:Type viewModels:AssetLibraryViewModel}">
+                <views:AssetLibraryView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:AssetDetailsViewModel}">
+                <views:AssetDetailsView />
+            </DataTemplate>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

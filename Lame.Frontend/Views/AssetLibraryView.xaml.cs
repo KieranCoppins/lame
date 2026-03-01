@@ -10,9 +10,5 @@ public partial class AssetLibraryView : UserControl
     public AssetLibraryView()
     {
         InitializeComponent();
-        var viewModel = new AssetLibraryViewModel(App.ServiceProvider.GetService<IAssets>());
-
-        DataContext = viewModel;
-        viewModel.LoadAssets();
     }
 }

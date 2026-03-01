@@ -4,30 +4,27 @@ using Lame.DomainModel;
 
 namespace Lame.Frontend.ViewModels;
 
-public class AssetViewModel : INotifyPropertyChanged
+public class AssetViewModel : BaseViewModel
 {
-    protected readonly AssetDto _asset;
+    public AssetDto Asset { get; }
     
-    public string InternalName => _asset.InternalName;
+    public string InternalName => Asset.InternalName;
     
-    public string AssetType => _asset.AssetType.ToString();
+    public string AssetType => Asset.AssetType.ToString();
     
     // TODO set the total number of supported translations somewhere globally through some config
-    public string Progress => $"{_asset.NumTranslations} / 15 ";
+    public string Progress => $"{Asset.NumTranslations} / 15 ";
 
-    public string LastModified => _asset.LastUpdatedAt.ToString("yyyy-mm-dd");
+    public string LastModified => Asset.LastUpdatedAt.ToString("yyyy-mm-dd");
     
-    public ICommand ViewDetailsCommand { get; }
+    public string CreatedAt => Asset.CreatedAt.ToString("yyyy-mm-dd");
+    
+    public string ContentContext => Asset.ContextNotes ?? "No context provided";
+    
+    public List<string> Tags => ["main-quest", "chapter-1", "intro", "quest"];
 
     public AssetViewModel(AssetDto asset)
     {
-        _asset = asset;
-    }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    protected virtual void OnPropertyChanged(string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        Asset = asset;
     }
 }

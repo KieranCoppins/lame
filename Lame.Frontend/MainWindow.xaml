@@ -9,7 +9,7 @@
         Title="L.A.M.E" Height="450" Width="800">
     
     <Grid>
-        <views:AssetLibraryView/>
+        <ContentControl Content="{Binding CurrentView}"/>
     </Grid>
 </Window>
  
