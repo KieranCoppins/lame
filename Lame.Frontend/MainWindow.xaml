@@ -3,13 +3,80 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Lame.Frontend"
-        xmlns:views="clr-namespace:Lame.Frontend.Views"
         mc:Ignorable="d"
         Title="L.A.M.E" Height="450" Width="800">
     
     <Grid>
-        <ContentControl Content="{Binding CurrentView}"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        
+        <Border Grid.Column="0" 
+                BorderBrush="{StaticResource Brush.LightGrey}" 
+                BorderThickness="0,0,1,0"
+                Padding="16">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>  
+                    <RowDefinition Height="Auto"/> 
+                </Grid.RowDefinitions>
+                
+                <StackPanel Grid.Row="0">
+                    <TextBlock Text="LAME"
+                               Style="{StaticResource Header1}"
+                               Margin="0"/>
+                    <WrapPanel>
+                        <TextBlock Text="Localization Asset Management Engine"
+                                   Style="{StaticResource Subtitle}"
+                                   FontSize="10"
+                                   Margin="0"/>
+                    </WrapPanel>
+                    
+                    <Border Style="{StaticResource SectionLineBorderStyle}"/>
+                    
+                    <RadioButton Content="Dashboard"
+                                 GroupName="SidebarNavigation"
+                                 Style="{StaticResource NavigationButton}"
+                                 IsChecked="{Binding CurrentPage, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Dashboard}"
+                                 Command="{Binding NavigateToDashboardCommand}"/>
+                    <RadioButton Content="Asset Library"
+                                 GroupName="SidebarNavigation"
+                                 Style="{StaticResource NavigationButton}"
+                                 IsChecked="{Binding CurrentPage, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Library}"
+                                 Command="{Binding NavigateToLibraryCommand}"/>
+                    <RadioButton Content="Create Asset"
+                                 GroupName="SidebarNavigation"
+                                 Style="{StaticResource NavigationButton}"
+                                 IsChecked="{Binding CurrentPage, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=CreateAsset}"
+                                 Command="{Binding NavigateToCreateAssetCommand}"/>
+                </StackPanel>
+                
+                <StackPanel Grid.Row="2">
+                    <RadioButton Content="Settings"
+                                 GroupName="SidebarNavigation"
+                                 Style="{StaticResource NavigationButton}"
+                                 IsChecked="{Binding CurrentPage, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Settings}"
+                                 Command="{Binding NavigateToLibraryCommand}"/>
+                    <Border Style="{StaticResource SectionLineBorderStyle}"
+                            VerticalAlignment="Bottom">
+                        <StackPanel>
+                            <TextBlock Text="Version: 1.0.0"
+                                       Style="{StaticResource Subtitle}"
+                                       FontSize="10"
+                                       Margin="0"/>
+                            <TextBlock Text="By Kieran Coppins"
+                                       Style="{StaticResource Subtitle}"
+                                       FontSize="10"
+                                       Margin="0, 8"/> 
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Border>
+        
+        <ContentControl Grid.Column="1" Content="{Binding CurrentView}"/>
     </Grid>
 </Window>
  

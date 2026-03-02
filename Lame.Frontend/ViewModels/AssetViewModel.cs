@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel;
 using System.Windows.Input;
 using Lame.DomainModel;
+using Lame.Frontend.Enums;
 
 namespace Lame.Frontend.ViewModels;
 
-public class AssetViewModel : BaseViewModel
+public class AssetViewModel : PageViewModel
 {
     public AssetDto Asset { get; }
     
@@ -26,5 +27,6 @@ public class AssetViewModel : BaseViewModel
     public AssetViewModel(AssetDto asset)
     {
         Asset = asset;
+        Page = AppPage.Library;
     }
 }

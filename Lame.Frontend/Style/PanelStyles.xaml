@@ -2,23 +2,100 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Style x:Key="CardBorderStyle" TargetType="Border">
         <Setter Property="Background" Value="{StaticResource Brush.White}"/>
-        <Setter Property="CornerRadius" Value="8"/>
-        <Setter Property="Padding" Value="24"/>
+        <Setter Property="CornerRadius">
+            <Setter.Value>
+                <CornerRadius BottomLeft="{StaticResource CornerRadius.Standard}"
+                              TopLeft="{StaticResource CornerRadius.Standard}"
+                              TopRight="{StaticResource CornerRadius.Standard}"
+                              BottomRight="{StaticResource CornerRadius.Standard}"/>
+            </Setter.Value>
+        </Setter>
+        
+        <Setter Property="Padding">
+            <Setter.Value>
+                <Thickness Left="{StaticResource Padding.Standard}"
+                           Top="{StaticResource Padding.Standard}"
+                           Right="{StaticResource Padding.Standard}"
+                           Bottom="{StaticResource Padding.Standard}"/>
+            </Setter.Value>
+        </Setter>
         <Setter Property="BorderBrush" Value="{StaticResource Brush.LightGrey}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Margin" Value="0 16"/>
+        <Setter Property="BorderThickness">
+            <Setter.Value>
+                <Thickness Left="{StaticResource BorderThickness.Standard}"
+                           Top="{StaticResource BorderThickness.Standard}"
+                           Right="{StaticResource BorderThickness.Standard}"
+                           Bottom="{StaticResource BorderThickness.Standard}"/>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Margin">
+            <Setter.Value>
+                <Thickness Left="0"
+                           Top="{StaticResource Margin.Standard}"
+                           Right="0"
+                           Bottom="{StaticResource Margin.Standard}"/>
+            </Setter.Value>
+        </Setter>
     </Style>
     
     <Style x:Key="ChipBorderStyle" TargetType="Border">
-        <Setter Property="Background" Value="{StaticResource Brush.SubduedWhite}"/>
-        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="Background" Value="{StaticResource Brush.SubduedWhite}"/> 
+        <Setter Property="CornerRadius">
+            <Setter.Value>
+                <CornerRadius BottomLeft="{StaticResource CornerRadius.Rounded}"
+                              TopLeft="{StaticResource CornerRadius.Rounded}"
+                              TopRight="{StaticResource CornerRadius.Rounded}"
+                              BottomRight="{StaticResource CornerRadius.Rounded}"/>
+            </Setter.Value>
+        </Setter>
         <Setter Property="Padding" Value="10, 4"/>
     </Style>
     
     <Style x:Key="SectionLineBorderStyle" TargetType="Border">
         <Setter Property="BorderBrush" Value="{StaticResource Brush.LightGrey}"/>
-        <Setter Property="BorderThickness" Value="0,1,0,0"/>
-        <Setter Property="Margin" Value="0,16,0,0"/>
-        <Setter Property="Padding" Value="0,16,0,0"/>
+        <Setter Property="BorderThickness">
+            <Setter.Value>
+                <Thickness Left="0"
+                           Top="{StaticResource BorderThickness.Standard}"
+                           Right="0"
+                           Bottom="0"/>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Margin">
+            <Setter.Value>
+                <Thickness Left="0"
+                           Top="{StaticResource Margin.Standard}"
+                           Right="0"
+                           Bottom="0"/>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Padding">
+            <Setter.Value>
+                <Thickness Left="0"
+                           Top="{StaticResource Margin.Standard}"
+                           Right="0"
+                           Bottom="0"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+    <Style x:Key="DataTable" TargetType="DataGrid">
+        <Setter Property="HeadersVisibility" Value="Column"/> 
+        <Setter Property="GridLinesVisibility" Value="None"/> 
+        <Setter Property="IsReadOnly" Value="True"/> 
+        <Setter Property="AutoGenerateColumns" Value="False"/> 
+        
+        <Setter Property="Background" Value="{StaticResource Brush.White}"/> 
+        <Setter Property="RowBackground" Value="{StaticResource Brush.White}"/> 
+        <Setter Property="AlternatingRowBackground" Value="{StaticResource Brush.LightestGrey}"/> 
+        <Setter Property="BorderBrush" Value="{StaticResource Brush.LightGrey}"/> 
+        <Setter Property="BorderThickness">
+            <Setter.Value>
+                <Thickness Left="{StaticResource BorderThickness.Standard}"
+                           Top="{StaticResource BorderThickness.Standard}"
+                           Right="{StaticResource BorderThickness.Standard}"
+                           Bottom="{StaticResource BorderThickness.Standard}"/>
+            </Setter.Value>
+        </Setter>
     </Style>
 </ResourceDictionary>

@@ -4,8 +4,8 @@ namespace Lame.Frontend.Services;
 
 public interface INavigationService
 {
-    BaseViewModel CurrentViewModel { get; }
+    PageViewModel CurrentViewModel { get; }
     event Action CurrentViewModelChanged;
     
-    void NavigateTo<TViewModel>(Func<TViewModel> factory) where TViewModel : BaseViewModel;
+    void NavigateTo<TViewModel>(Func<TViewModel> factory) where TViewModel : PageViewModel;
 }

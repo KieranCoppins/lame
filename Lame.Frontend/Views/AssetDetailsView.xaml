@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:Lame.Frontend.Views"
              mc:Ignorable="d"
              d:DesignHeight="1080" d:DesignWidth="1920">
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Background="{StaticResource Brush.LightestGrey}">
     <Grid Margin="32">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -14,15 +14,13 @@
         
         <StackPanel>
             <!-- Back Button -->
-            <Button Command="{Binding ReturnToLibraryCommand}" Style="{StaticResource LinkButtonStyle}">
+            <Button Command="{Binding ReturnToLibraryCommand}" 
+                    Style="{StaticResource ClickableText}">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="←"
+                    <TextBlock Text="← Back to Asset Library"
                                FontSize="14"
-                               VerticalAlignment="Center"
-                               Margin="0,0,6,0"/>
-                    <TextBlock Text="Back to Asset Library"
-                               FontSize="14"
-                               VerticalAlignment="Center"/>
+                               Style="{StaticResource Link}"
+                               Foreground="{StaticResource Brush.Primary}"/>
                 </StackPanel>
             </Button>
 
@@ -86,7 +84,7 @@
                                         Margin="0,0,8,8">
                                     <TextBlock Text="{Binding}"
                                                Style="{StaticResource Body}"
-                                               Foreground="{StaticResource Brush.LinkBlue}"
+                                               Foreground="{StaticResource Brush.Primary}"
                                                Margin="0"/>
                                 </Border>
                             </DataTemplate>
@@ -135,9 +133,56 @@
                 <StackPanel>
                     <TextBlock Text="Linked Assets" Style="{StaticResource Header2}"/>
                     
+                    <ItemsControl ItemsSource="{Binding LinkedAssets}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource CardBorderStyle}"
+                                        Background="{StaticResource Brush.LightestGrey}"
+                                        Margin="0, 8">
+                                    <StackPanel>
+                                        <Button Style="{StaticResource ClickableText}"
+                                                Command="{Binding DataContext.ViewLinkedAssetDetails, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding}">
+                                            <TextBlock Text="{Binding InternalName}"
+                                                       Style="{StaticResource Link}"
+                                                       FontSize="14"
+                                                       Margin="0, 0, 0, 8"/>
+                                        </Button>
+                                        <WrapPanel>
+                                            <TextBlock Text="{Binding LastModified}" 
+                                                       Style="{StaticResource Subtitle}"
+                                                       Margin="0"/>
+                                            <TextBlock Text="•" 
+                                                       Style="{StaticResource Subtitle}"
+                                                       Margin="8, 0"/>
+                                            <TextBlock Text="{Binding AssetType}"
+                                                       Style="{StaticResource Subtitle}"
+                                                       Margin="0"/>
+                                            <TextBlock Text="•" 
+                                                       Style="{StaticResource Subtitle}"
+                                                       Margin="8, 0"/>
+                                            <TextBlock Text="{Binding Progress}"
+                                                       Style="{StaticResource Subtitle}"
+                                                       Margin="0"/>
+                                        </WrapPanel>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    
                     <Border Style="{StaticResource SectionLineBorderStyle}">
-                       <Button Content="Add New Link" 
-                               Style="{StaticResource LinkButtonStyle}"/>
+                       <Button Style="{StaticResource ClickableText}">
+                           <TextBlock Text="Add New Link"
+                                      Style="{StaticResource Link}"
+                                      Foreground="{StaticResource Brush.Primary}"/>
+                       </Button>
                     </Border>
                 </StackPanel>
             </Border>
@@ -156,22 +201,24 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border Style="{StaticResource CardBorderStyle}"
-                                        Background="{StaticResource Brush.LightestGrey}">
+                                        Background="{StaticResource Brush.LightestGrey}"
+                                        Margin="0, 8">
                                     <StackPanel>
                                         <TextBlock Text="{Binding Language}"
                                                    Style="{StaticResource Header3}"
-                                                   Margin="0"/>
-                                        <StackPanel Orientation="Horizontal">
+                                                   Margin="0, 0, 0, 8"/>
+                                        <WrapPanel>
                                             <TextBlock Text="{Binding CreatedAt}" 
                                                        Style="{StaticResource Subtitle}"
-                                                       Margin="0, 8"/>
+                                                       Margin="0"/>
                                             <TextBlock Text="•" 
-                                                       Style="{StaticResource Subtitle}"/>
+                                                       Style="{StaticResource Subtitle}"
+                                                       Margin="8, 0"/>
                                             <TextBlock Text="{Binding Version}"
                                                        Style="{StaticResource Subtitle}"
-                                                       Margin="0, 8"/>
+                                                       Margin="0"/>
                                             
-                                        </StackPanel>
+                                        </WrapPanel>
                                         <TextBlock Text="{Binding Content}"
                                                    Style="{StaticResource Body}"/>
                                     </StackPanel>

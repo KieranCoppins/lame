@@ -37,10 +37,17 @@ public partial class App : Application
         services.AddSingleton<MainWindowViewModel>();
         services.AddTransient<AssetLibraryViewModel>();
         services.AddTransient<AssetDetailsViewModel>();
+        services.AddTransient<DashboardViewModel>();
+        services.AddTransient<CreateAssetViewModel>();
         
         // Build the service provider
         ServiceProvider = services.BuildServiceProvider();
+    }
 
+    protected override void OnStartup(StartupEventArgs e)
+    {
+        base.OnStartup(e);
+        
         MainWindow = new MainWindow()
         {
             DataContext = ServiceProvider.GetRequiredService<MainWindowViewModel>()
@@ -49,6 +56,6 @@ public partial class App : Application
         
         // Navigate to initial view
         var navigation = ServiceProvider.GetRequiredService<INavigationService>();
-        navigation.NavigateTo(() => ServiceProvider.GetRequiredService<AssetLibraryViewModel>());
+        navigation.NavigateTo(() => ServiceProvider.GetRequiredService<DashboardViewModel>());
     }
 }

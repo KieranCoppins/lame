@@ -1,0 +1,9 @@
+﻿namespace Lame.Frontend.Enums;
+
+public enum AppPage
+{
+    None,
+    Dashboard,
+    Library,
+    CreateAsset,
+}

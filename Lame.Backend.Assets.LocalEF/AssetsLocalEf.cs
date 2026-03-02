@@ -32,6 +32,33 @@ public class AssetsLocalEf : IAssets
             .FirstOrDefaultAsync();
     }
 
+    public async Task<List<AssetDto>> GetLinkedAssets(Guid assetId)
+    {
+        var assetWithLinkedContent = await _context.Assets
+            .Include(entity => entity.Translations)
+            .Include(entity => entity.LinkedContent)
+            .Where(entity => entity.Id == assetId)
+            .FirstOrDefaultAsync();
+        
+        return assetWithLinkedContent?.LinkedContent.Select(MapToDto).ToList() ?? [];
+    }
+
+    public Task LinkAssets(Guid assetA, Guid assetB)
+    {
+        var assetAEntity = _context.Assets.Find(assetA);
+        var assetBEntity = _context.Assets.Find(assetB);
+
+        if (assetAEntity == null || assetBEntity == null)
+        {
+            return Task.CompletedTask;
+        }
+        
+        assetAEntity.LinkedContent.Add(assetBEntity);
+        assetBEntity.LinkedContent.Add(assetAEntity);
+        _context.Assets.UpdateRange(assetAEntity, assetBEntity);
+        return _context.SaveChangesAsync();
+    }
+
     public Task Create(Asset asset)
     {
         _context.Assets.Add(MapToEntity(asset));

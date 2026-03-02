@@ -1,8 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
+using Lame.Backend.Assets;
 using Lame.Backend.Translations;
 using Lame.DomainModel;
 using Lame.Frontend.Commands;
+using Lame.Frontend.Enums;
 using Lame.Frontend.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,37 +14,54 @@ public class AssetDetailsViewModel : AssetViewModel
 {
     
     public ObservableCollection<TranslationViewModel> Translations { get; }
+    public ObservableCollection<AssetViewModel> LinkedAssets { get; }
     
     public ICommand ReturnToLibraryCommand { get; }
+    public ICommand ViewLinkedAssetDetails { get; }
+    
     private readonly INavigationService _navigationService;
     private readonly ITranslations _translationsService;
+    private readonly IAssets _assetsService;
     
     public AssetDetailsViewModel(
         INavigationService navigationService, 
         IServiceProvider serviceProvider, 
         ITranslations translationsService, 
+        IAssets assetsService,
         AssetDto asset) : base(asset)
     {
         _navigationService = navigationService;
         _translationsService = translationsService;
+        _assetsService = assetsService;
 
         Translations = [];
+        LinkedAssets = [];
         
         ReturnToLibraryCommand = new RelayCommand(() =>
             _navigationService.NavigateTo(serviceProvider.GetRequiredService<AssetLibraryViewModel>));
+        
+        ViewLinkedAssetDetails = new RelayCommand<AssetViewModel>(linkedAsset =>
+            _navigationService.NavigateTo(() => ActivatorUtilities.CreateInstance<AssetDetailsViewModel>(serviceProvider, linkedAsset.Asset)));
         
         _navigationService.CurrentViewModelChanged += async () =>
         {
             if (_navigationService.CurrentViewModel == this)
             {
-                await LoadTranslations();
+                Task.WaitAll([
+                    LoadTranslations(),
+                    LoadLinkedAssets()
+                ]);
             }
         };
+
+        Page = AppPage.Library;
     }
 
     private async Task LoadTranslations()
     {
         // var translations = await _translationsService.GetForAsset(Asset.Id);
+        
+        // Dummy data for testing
         List<Translation> translations =
         [
             new()
@@ -83,6 +102,25 @@ public class AssetDetailsViewModel : AssetViewModel
         foreach (var translation in translations)
         {
             Translations.Add(new TranslationViewModel(translation));
+        }
+    }
+
+    private async Task LoadLinkedAssets()
+    {
+        // var linkedAssets = await _assetsService.GetLinkedAssets(Asset.Id);
+        
+        // Dummy data for testing
+        List<AssetDto> linkedAssets =
+        [
+            new() { Id = Guid.NewGuid(), InternalName = "ui_main_menu_title", AssetType = DomainModel.AssetType.Text },
+            new() { Id = Guid.NewGuid(), InternalName = "dialog_quest_01_intro", AssetType = DomainModel.AssetType.Text },
+            new() { Id = Guid.NewGuid(), InternalName = "voice_quest_01_intro", AssetType = DomainModel.AssetType.Audio },
+        ];
+        
+        LinkedAssets.Clear();
+        foreach (var linkedAsset in linkedAssets)
+        {
+            LinkedAssets.Add(new AssetViewModel(linkedAsset));
         }
     }
 }

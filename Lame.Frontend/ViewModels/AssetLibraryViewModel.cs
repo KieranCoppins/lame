@@ -4,12 +4,13 @@ using System.ComponentModel;
 using Lame.Backend.Assets;
 using Lame.DomainModel;
 using Lame.Frontend.Commands;
+using Lame.Frontend.Enums;
 using Lame.Frontend.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Lame.Frontend.ViewModels;
 
-public class AssetLibraryViewModel : BaseViewModel
+public class AssetLibraryViewModel : PageViewModel
 {
     public ObservableCollection<AssetViewModel> Assets { get; }
     
@@ -24,6 +25,8 @@ public class AssetLibraryViewModel : BaseViewModel
         _assets = assets;
         _navigationService = navigationService;
         _serviceProvider = serviceProvider;
+        
+        Assets = [];
 
         _navigationService.CurrentViewModelChanged += async () =>
         {
@@ -34,8 +37,7 @@ public class AssetLibraryViewModel : BaseViewModel
         };
 
         ViewAssetDetailsCommand = new RelayCommand<AssetViewModel>(OnViewAssetDetails);
-        
-        Assets = [];
+        Page = AppPage.Library;
     }
     
     private async Task LoadAssets()
