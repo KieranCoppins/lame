@@ -14,6 +14,8 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Lame.Backend.Assets.LocalEF\Lame.Backend.Assets.LocalEF.csproj" />
+      <ProjectReference Include="..\Lame.Backend.Tags.LocalEF\Lame.Backend.Tags.LocalEF.csproj" />
+      <ProjectReference Include="..\Lame.Backend.Tags\Lame.Backend.Tags.csproj" />
       <ProjectReference Include="..\Lame.Backend.Translations.LocalEF\Lame.Backend.Translations.LocalEF.csproj" />
       <ProjectReference Include="..\Lame.Backend.Translations\Lame.Backend.Translations.csproj" />
       <ProjectReference Include="..\Lame.DomainModel\Lame.DomainModel.csproj" />

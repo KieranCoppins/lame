@@ -5,78 +5,126 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="L.A.M.E" Height="450" Width="800">
-    
+
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="150"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="150" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        
-        <Border Grid.Column="0" 
-                BorderBrush="{StaticResource Brush.LightGrey}" 
+
+        <Border Grid.Column="0"
+                BorderBrush="{StaticResource Brush.LightGrey}"
                 BorderThickness="0,0,1,0"
                 Padding="16">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>  
-                    <RowDefinition Height="Auto"/> 
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                
+
                 <StackPanel Grid.Row="0">
                     <TextBlock Text="LAME"
                                Style="{StaticResource Header1}"
-                               Margin="0"/>
+                               Margin="0" />
                     <WrapPanel>
                         <TextBlock Text="Localization Asset Management Engine"
                                    Style="{StaticResource Subtitle}"
                                    FontSize="10"
-                                   Margin="0"/>
+                                   Margin="0" />
                     </WrapPanel>
-                    
-                    <Border Style="{StaticResource SectionLineBorderStyle}"/>
-                    
+
+                    <Border Style="{StaticResource SectionLineBorderStyle}" />
+
                     <RadioButton Content="Dashboard"
                                  GroupName="SidebarNavigation"
                                  Style="{StaticResource NavigationButton}"
                                  IsChecked="{Binding CurrentPage, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Dashboard}"
-                                 Command="{Binding NavigateToDashboardCommand}"/>
+                                 Command="{Binding NavigateToDashboardCommand}" />
                     <RadioButton Content="Asset Library"
                                  GroupName="SidebarNavigation"
                                  Style="{StaticResource NavigationButton}"
                                  IsChecked="{Binding CurrentPage, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Library}"
-                                 Command="{Binding NavigateToLibraryCommand}"/>
+                                 Command="{Binding NavigateToLibraryCommand}" />
                     <RadioButton Content="Create Asset"
                                  GroupName="SidebarNavigation"
                                  Style="{StaticResource NavigationButton}"
                                  IsChecked="{Binding CurrentPage, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=CreateAsset}"
-                                 Command="{Binding NavigateToCreateAssetCommand}"/>
+                                 Command="{Binding NavigateToCreateAssetCommand}" />
                 </StackPanel>
-                
+
                 <StackPanel Grid.Row="2">
                     <RadioButton Content="Settings"
                                  GroupName="SidebarNavigation"
                                  Style="{StaticResource NavigationButton}"
                                  IsChecked="{Binding CurrentPage, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Settings}"
-                                 Command="{Binding NavigateToLibraryCommand}"/>
+                                 Command="{Binding NavigateToLibraryCommand}" />
                     <Border Style="{StaticResource SectionLineBorderStyle}"
                             VerticalAlignment="Bottom">
                         <StackPanel>
                             <TextBlock Text="Version: 1.0.0"
                                        Style="{StaticResource Subtitle}"
                                        FontSize="10"
-                                       Margin="0"/>
+                                       Margin="0" />
                             <TextBlock Text="By Kieran Coppins"
                                        Style="{StaticResource Subtitle}"
                                        FontSize="10"
-                                       Margin="0, 8"/> 
+                                       Margin="0, 8" />
                         </StackPanel>
                     </Border>
                 </StackPanel>
             </Grid>
         </Border>
-        
-        <ContentControl Grid.Column="1" Content="{Binding CurrentView}"/>
+
+        <ScrollViewer Grid.Column="1"
+                      VerticalScrollBarVisibility="Auto"
+                      Background="{StaticResource Brush.LightestGrey}">
+            <ContentControl Content="{Binding CurrentView}" x:Name="MainWindowContent" />
+        </ScrollViewer>
+
+        <ItemsControl ItemsSource="{Binding Notifications}"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Top"
+                      IsHitTestVisible="False"
+                      Grid.Column="1"
+                      Panel.ZIndex="999"
+                      Margin="0,0,16,0">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel>
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Margin">
+                                    <Setter.Value>
+                                        <Thickness Left="{StaticResource Margin.Standard}"
+                                                   Top="0"
+                                                   Right="{StaticResource Margin.Standard}"
+                                                   Bottom="0" />
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </StackPanel.Style>
+                    </StackPanel>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border Style="{StaticResource NotificationBorder}"
+                            Background="{Binding Type, Converter={StaticResource NotificationTypeToBrushConverter}}"
+                            Width="300">
+                        <StackPanel>
+                            <TextBlock Text="{Binding Title}"
+                                       Style="{StaticResource NotificationText}"
+                                       Foreground="{StaticResource Brush.White}"
+                                       FontWeight="Bold" />
+                            <TextBlock Text="{Binding Message}"
+                                       Style="{StaticResource NotificationText}"
+                                       Foreground="{StaticResource Brush.White}" />
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
     </Grid>
 </Window>
- 

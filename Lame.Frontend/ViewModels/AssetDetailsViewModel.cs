@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Lame.Backend.Assets;
+using Lame.Backend.Tags;
 using Lame.Backend.Translations;
 using Lame.DomainModel;
 using Lame.Frontend.Commands;
@@ -15,27 +16,32 @@ public class AssetDetailsViewModel : AssetViewModel
     
     public ObservableCollection<TranslationViewModel> Translations { get; }
     public ObservableCollection<AssetViewModel> LinkedAssets { get; }
+    public ObservableCollection<TagViewModel> Tags { get; }
     
     public ICommand ReturnToLibraryCommand { get; }
     public ICommand ViewLinkedAssetDetails { get; }
     
     private readonly INavigationService _navigationService;
     private readonly ITranslations _translationsService;
+    private readonly ITags _tagsService;
     private readonly IAssets _assetsService;
     
     public AssetDetailsViewModel(
         INavigationService navigationService, 
         IServiceProvider serviceProvider, 
         ITranslations translationsService, 
+        ITags tagsService,
         IAssets assetsService,
         AssetDto asset) : base(asset)
     {
         _navigationService = navigationService;
         _translationsService = translationsService;
+        _tagsService = tagsService;
         _assetsService = assetsService;
 
         Translations = [];
         LinkedAssets = [];
+        Tags = [];
         
         ReturnToLibraryCommand = new RelayCommand(() =>
             _navigationService.NavigateTo(serviceProvider.GetRequiredService<AssetLibraryViewModel>));
@@ -49,7 +55,8 @@ public class AssetDetailsViewModel : AssetViewModel
             {
                 Task.WaitAll([
                     LoadTranslations(),
-                    LoadLinkedAssets()
+                    LoadLinkedAssets(),
+                    LoadTags()
                 ]);
             }
         };
@@ -59,45 +66,7 @@ public class AssetDetailsViewModel : AssetViewModel
 
     private async Task LoadTranslations()
     {
-        // var translations = await _translationsService.GetForAsset(Asset.Id);
-        
-        // Dummy data for testing
-        List<Translation> translations =
-        [
-            new()
-            {
-                Id = Guid.NewGuid(), AssetId = Asset.Id, Language = "en",
-                Content =
-                    "Welcome, brave adventurer! The kingdom needs your help. An ancient artifact has been stolen from the royal vault, and dark forces are gathering at the northern border.",
-                MajorVersion = 1, MinorVersion = 0,
-                CreatedAt = DateTime.Now
-            },
-            new()
-            {
-                Id = Guid.NewGuid(), AssetId = Asset.Id, Language = "es",
-                Content =
-                    "¡Bienvenido, valiente aventurero! El reino necesita tu ayuda. Un artefacto antiguo ha sido robado de la bóveda real...",
-                MajorVersion = 1, MinorVersion = 3,
-                CreatedAt = DateTime.Now
-            },
-            new()
-            {
-                Id = Guid.NewGuid(), AssetId = Asset.Id, Language = "fr",
-                Content =
-                    "Bienvenue, brave aventurier ! Le royaume a besoin de votre aide. Un artefact ancien a été volé...",
-                MajorVersion = 1, MinorVersion = 8,
-                CreatedAt = DateTime.Now
-            },
-            new()
-            {
-                Id = Guid.NewGuid(), AssetId = Asset.Id, Language = "de",
-                Content =
-                    "Willkommen, mutiger Abenteurer! Das Königreich braucht deine Hilfe. Ein uraltes Artefakt wurde...",
-                MajorVersion = 1, MinorVersion = 23,
-                CreatedAt = DateTime.Now
-            }
-        ];
-        
+        var translations = await _translationsService.GetForAsset(Asset.Id);
         Translations.Clear();
         foreach (var translation in translations)
         {
@@ -107,20 +76,21 @@ public class AssetDetailsViewModel : AssetViewModel
 
     private async Task LoadLinkedAssets()
     {
-        // var linkedAssets = await _assetsService.GetLinkedAssets(Asset.Id);
-        
-        // Dummy data for testing
-        List<AssetDto> linkedAssets =
-        [
-            new() { Id = Guid.NewGuid(), InternalName = "ui_main_menu_title", AssetType = DomainModel.AssetType.Text },
-            new() { Id = Guid.NewGuid(), InternalName = "dialog_quest_01_intro", AssetType = DomainModel.AssetType.Text },
-            new() { Id = Guid.NewGuid(), InternalName = "voice_quest_01_intro", AssetType = DomainModel.AssetType.Audio },
-        ];
-        
+        var linkedAssets = await _assetsService.GetLinkedAssets(Asset.Id);
         LinkedAssets.Clear();
         foreach (var linkedAsset in linkedAssets)
         {
             LinkedAssets.Add(new AssetViewModel(linkedAsset));
+        }
+    }
+
+    private async Task LoadTags()
+    {
+        var tags = await _tagsService.GetTagsForResource(Asset.Id);
+        Tags.Clear();
+        foreach (var tag in tags)
+        {
+            Tags.Add(new TagViewModel(tag));
         }
     }
 }

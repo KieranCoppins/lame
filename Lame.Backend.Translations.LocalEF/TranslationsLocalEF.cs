@@ -39,25 +39,14 @@ public class TranslationsLocalEF : ITranslations
 
     public Task Create(Translation translation)
     {
+        translation.CreatedAt = DateTime.UtcNow;
         _context.Translations.Add(MapToEntity(translation));
         return _context.SaveChangesAsync();
     }
 
     public async Task Update(Translation translation)
     {
-        var existingEntity = await _context.Translations.FindAsync(translation.Id);
-        if (existingEntity == null)
-        {
-            throw new InvalidOperationException($"Translation with ID {translation.Id} not found.");
-        }
-        
-        existingEntity.Content = translation.Content;
-        existingEntity.MajorVersion = translation.MajorVersion;
-        existingEntity.MinorVersion = translation.MinorVersion;
-        existingEntity.CreatedAt = translation.CreatedAt;
-        existingEntity.Language = translation.Language;
-        
-        _context.Translations.Update(existingEntity);
+        _context.Translations.Update(MapToEntity(translation));
         await _context.SaveChangesAsync();
     }
 
@@ -66,6 +55,7 @@ public class TranslationsLocalEF : ITranslations
         return new TranslationEntity()
         {
             Id =  translation.Id,
+            AssetId = translation.AssetId,
             CreatedAt =   translation.CreatedAt,
             Language =   translation.Language,
             Content =   translation.Content,

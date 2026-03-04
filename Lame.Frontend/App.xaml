@@ -8,14 +8,14 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Style/AtomicValues.xaml"/>
-                <ResourceDictionary Source="Style/ColourStyles.xaml"/>
-                <ResourceDictionary Source="Style/TextStyles.xaml"/>
-                <ResourceDictionary Source="Style/ButtonStyles.xaml"/>
-                <ResourceDictionary Source="Style/PanelStyles.xaml"/>
-                <ResourceDictionary Source="Style/InputStyles.xaml"/>
+                <ResourceDictionary Source="Style/AtomicValues.xaml" />
+                <ResourceDictionary Source="Style/ColourStyles.xaml" />
+                <ResourceDictionary Source="Style/TextStyles.xaml" />
+                <ResourceDictionary Source="Style/ButtonStyles.xaml" />
+                <ResourceDictionary Source="Style/PanelStyles.xaml" />
+                <ResourceDictionary Source="Style/InputStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            
+
             <DataTemplate DataType="{x:Type viewModels:AssetLibraryViewModel}">
                 <views:AssetLibraryView />
             </DataTemplate>
@@ -29,10 +29,11 @@
                 <views:CreateAssetView />
             </DataTemplate>
             <DataTemplate DataType="{x:Type viewModels:MainWindowViewModel}">
-                <local:MainWindow/>
+                <local:MainWindow />
             </DataTemplate>
-            
-            <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter"/>
+
+            <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
+            <converters:NotificationTypeToBrushConverter x:Key="NotificationTypeToBrushConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

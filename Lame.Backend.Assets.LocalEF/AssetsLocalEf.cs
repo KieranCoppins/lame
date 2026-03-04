@@ -61,6 +61,9 @@ public class AssetsLocalEf : IAssets
 
     public Task Create(Asset asset)
     {
+        asset.CreatedAt = DateTime.UtcNow;
+        asset.LastUpdatedAt = DateTime.UtcNow;
+        asset.Status = AssetStatus.Active;
         _context.Assets.Add(MapToEntity(asset));
         return _context.SaveChangesAsync();
     }

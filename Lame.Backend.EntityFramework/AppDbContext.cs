@@ -9,6 +9,8 @@ public class AppDbContext : DbContext
     public DbSet<AssetEntity> Assets { get; set; }
     public DbSet<TranslationEntity> Translations { get; set; }
     
+    public DbSet<TagEntity> Tags { get; set; }
+    
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
@@ -41,13 +43,28 @@ public class AppDbContext : DbContext
             .HasForeignKey(t => t.AssetId)
             .OnDelete(DeleteBehavior.Cascade);
         
+        // Tags Table
+        modelBuilder.Entity<TagEntity>()
+            .HasKey(t => t.Id);
+        
+        // Create many-to-many relationship between Assets and Tags
+        modelBuilder.Entity<AssetEntity>()
+            .HasMany(s => s.Tags)
+            .WithMany(t => t.Assets)
+            .UsingEntity(j => j.ToTable("AssetTags"));
+        
+        // Create many-to-many relationship between Translations and Tags
+        modelBuilder.Entity<TranslationEntity>()
+            .HasMany(s => s.Tags)
+            .WithMany(t => t.Translations)
+            .UsingEntity(j => j.ToTable("TranslationTags"));
     }
 
     public static string GetConnectionString()
     {
         var documentsFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         var lameFolder = Path.Combine(documentsFolder, "LAME");
-        Directory.CreateDirectory(lameFolder); // Ensure the folder exists
+        Directory.CreateDirectory(lameFolder);
         return Path.Combine(lameFolder, "local.db");
     }
 }

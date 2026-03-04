@@ -16,13 +16,11 @@ public class AssetViewModel : PageViewModel
     // TODO set the total number of supported translations somewhere globally through some config
     public string Progress => $"{Asset.NumTranslations} / 15 ";
 
-    public string LastModified => Asset.LastUpdatedAt.ToString("yyyy-mm-dd");
+    public string LastModified => Asset.LastUpdatedAt.ToString("yyyy-MM-dd");
     
-    public string CreatedAt => Asset.CreatedAt.ToString("yyyy-mm-dd");
+    public string CreatedAt => Asset.CreatedAt.ToString("yyyy-MM-dd");
     
     public string ContentContext => Asset.ContextNotes ?? "No context provided";
-    
-    public List<string> Tags => ["main-quest", "chapter-1", "intro", "quest"];
 
     public AssetViewModel(AssetDto asset)
     {

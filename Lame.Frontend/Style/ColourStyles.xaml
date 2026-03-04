@@ -1,6 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    
+
     <SolidColorBrush x:Key="Brush.Primary" Color="#2563EB" />
     <SolidColorBrush x:Key="Brush.PrimaryHover" Color="#1447e6" />
     <SolidColorBrush x:Key="Brush.PrimarySelected" Color="#eff6ff" />
@@ -11,4 +11,9 @@
     <SolidColorBrush x:Key="Brush.LightGrey" Color="#E5E7EB" />
     <SolidColorBrush x:Key="Brush.LighterGrey" Color="#f3f4f6" />
     <SolidColorBrush x:Key="Brush.LightestGrey" Color="#f9fafb" />
+
+    <SolidColorBrush x:Key="Brush.NotificationInfo" Color="#2196F3" />
+    <SolidColorBrush x:Key="Brush.NotificationSuccess" Color="#4CAF50" />
+    <SolidColorBrush x:Key="Brush.NotificationFailure" Color="#F44336" />
+    <SolidColorBrush x:Key="Brush.NotificationWarning" Color="#FF9800" />
 </ResourceDictionary>

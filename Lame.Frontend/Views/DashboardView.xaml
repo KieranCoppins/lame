@@ -3,23 +3,23 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:Lame.Frontend.Views"
-             xmlns:helpers="clr-namespace:Lame.Frontend.Helpers"
+             xmlns:viewModels="clr-namespace:Lame.Frontend.ViewModels"
              mc:Ignorable="d"
-             d:DesignHeight="1080" d:DesignWidth="1920">
+             d:DesignHeight="1080" d:DesignWidth="1920"
+             d:DataContext="{d:DesignInstance Type=viewModels:DashboardViewModel}">
     <ScrollViewer VerticalScrollBarVisibility="Auto" Background="{StaticResource Brush.LightestGrey}">
         <Grid Margin="32">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            
+
             <StackPanel>
                 <StackPanel>
                     <TextBlock Text="Dashboard"
-                               Style="{StaticResource Header1}"/>
+                               Style="{StaticResource Header1}" />
                     <TextBlock Text="Overview of your localization project"
                                Style="{StaticResource Subtitle}"
-                               Margin="0"/>
+                               Margin="0" />
                 </StackPanel>
             </StackPanel>
         </Grid>

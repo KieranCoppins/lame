@@ -6,12 +6,12 @@
 /// </summary>
 public class Asset
 {
-    public required Guid Id { get; set; }
+    public Guid Id { get; set; }
     
     /// <summary>
     /// Internal name of the content
     /// </summary>
-    public required string InternalName { get; set; }
+    public string InternalName { get; set; }
 
     /// <summary>
     /// The status of this content, allows soft deletion
@@ -21,7 +21,7 @@ public class Asset
     /// <summary>
     /// The type of this content
     /// </summary>
-    public required AssetType AssetType { get; set; }
+    public AssetType AssetType { get; set; }
     
     /// <summary>
     /// Context notes for the translators
