@@ -24,7 +24,7 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel Grid.Row="0">
-                    <TextBlock Text="LAME"
+                    <TextBlock Text="L.A.M.E"
                                Style="{StaticResource Header1}"
                                Margin="0" />
                     <WrapPanel>
