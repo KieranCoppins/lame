@@ -11,6 +11,7 @@
                 <ResourceDictionary Source="Style/AtomicValues.xaml" />
                 <ResourceDictionary Source="Style/ColourStyles.xaml" />
                 <ResourceDictionary Source="Style/TextStyles.xaml" />
+                <ResourceDictionary Source="Style/CustomControls.xaml" />
                 <ResourceDictionary Source="Style/ButtonStyles.xaml" />
                 <ResourceDictionary Source="Style/PanelStyles.xaml" />
                 <ResourceDictionary Source="Style/InputStyles.xaml" />

@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Windows.Input;
 using Lame.Backend.Assets;
 using Lame.Backend.Tags;
 using Lame.Backend.Translations;
@@ -26,8 +27,8 @@ public class CreateAssetViewModel : PageViewModel
 
         Page = AppPage.CreateAsset;
 
-        CreateAssetCommand = new RelayCommand(CreateAsset);
-        ClearFormCommand = new RelayCommand(ClearForm);
+        CreateAssetCommand = new AsyncRelayCommand(CreateAsset, () => !CreatingAsset);
+        ClearFormCommand = new RelayCommand(ClearForm, () => !CreatingAsset);
     }
 
     public Array AssetTypes => Enum.GetValues<AssetType>();
@@ -35,7 +36,14 @@ public class CreateAssetViewModel : PageViewModel
     public string InternalName
     {
         get;
-        set => SetField(ref field, value);
+        set
+        {
+            SetField(ref field, value);
+            if (string.IsNullOrWhiteSpace(value))
+                AddError("Asset Name is required.");
+            else
+                ClearError();
+        }
     } = string.Empty;
 
 
@@ -54,7 +62,14 @@ public class CreateAssetViewModel : PageViewModel
     public string EnglishContent
     {
         get;
-        set => SetField(ref field, value);
+        set
+        {
+            SetField(ref field, value);
+            if (string.IsNullOrWhiteSpace(value))
+                AddError("Content is required.");
+            else
+                ClearError();
+        }
     } = string.Empty;
 
     public string ContextNotes
@@ -63,15 +78,36 @@ public class CreateAssetViewModel : PageViewModel
         set => SetField(ref field, value);
     } = string.Empty;
 
+    public bool CreatingAsset
+    {
+        get;
+        set
+        {
+            SetField(ref field, value);
+            ((AsyncRelayCommand)CreateAssetCommand).RaiseCanExecuteChanged();
+        }
+    } = false;
+
     public ICommand CreateAssetCommand { get; }
     public ICommand ClearFormCommand { get; }
 
-    private async void CreateAsset()
+    private void ValidateForm()
     {
-        if (!ValidateForm()) return;
+        if (string.IsNullOrWhiteSpace(InternalName))
+            throw new ValidationException("Asset Name is required.");
+
+        if (string.IsNullOrWhiteSpace(EnglishContent))
+            throw new ValidationException("Content is required.");
+    }
+
+    private async Task CreateAsset()
+    {
+        CreatingAsset = true;
 
         try
         {
+            ValidateForm();
+
             var assetId = Guid.NewGuid();
             await _assets.Create(new Asset
             {
@@ -97,11 +133,11 @@ public class CreateAssetViewModel : PageViewModel
                 .Distinct()
                 .ToList();
 
-            Task.WaitAll(
-                tags
-                    .Select(async tag => _tags.AddTagToResource(await GetTagByName(tag), assetId, ResourceType.Asset))
-                    .ToArray()
-            );
+            foreach (var tagName in tags)
+            {
+                var tagEntity = await GetTagByName(tagName);
+                await _tags.AddTagToResource(tagEntity, assetId, ResourceType.Asset);
+            }
 
             _notificationService.EmitNotification(
                 new Notification
@@ -114,6 +150,17 @@ public class CreateAssetViewModel : PageViewModel
 
             ClearForm();
         }
+        catch (ValidationException ex)
+        {
+            _notificationService.EmitNotification(
+                new Notification
+                {
+                    Title = "Validation error",
+                    Message = ex.Message,
+                    Type = NotificationType.Failure
+                }
+            );
+        }
         catch (Exception ex)
         {
             _notificationService.EmitNotification(
@@ -125,6 +172,10 @@ public class CreateAssetViewModel : PageViewModel
                 }
             );
         }
+        finally
+        {
+            CreatingAsset = false;
+        }
     }
 
     private void ClearForm()
@@ -134,6 +185,9 @@ public class CreateAssetViewModel : PageViewModel
         Tags = string.Empty;
         EnglishContent = string.Empty;
         ContextNotes = string.Empty;
+
+        ClearError(nameof(InternalName));
+        ClearError(nameof(EnglishContent));
     }
 
     private async Task<Tag> GetTagByName(string tagName)
@@ -144,36 +198,5 @@ public class CreateAssetViewModel : PageViewModel
             return new Tag { Id = Guid.NewGuid(), Name = tagName };
 
         return existingTags[0];
-    }
-
-    private bool ValidateForm()
-    {
-        if (string.IsNullOrWhiteSpace(InternalName))
-        {
-            _notificationService.EmitNotification(
-                new Notification
-                {
-                    Title = "Validation error",
-                    Message = "Internal name is required.",
-                    Type = NotificationType.Warning
-                }
-            );
-            return false;
-        }
-
-        if (string.IsNullOrWhiteSpace(EnglishContent))
-        {
-            _notificationService.EmitNotification(
-                new Notification
-                {
-                    Title = "Validation error",
-                    Message = "English content is required.",
-                    Type = NotificationType.Warning
-                }
-            );
-            return false;
-        }
-
-        return true;
     }
 }

@@ -2,65 +2,92 @@
 using Lame.Backend.EntityFramework.Models;
 using Lame.DomainModel;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Lame.Backend.Translations.LocalEF;
 
 public class TranslationsLocalEF : ITranslations
 {
-    private readonly AppDbContext _context;
-    
-    public TranslationsLocalEF(AppDbContext context)
+    private readonly IServiceProvider _serviceProvider;
+
+    public TranslationsLocalEF(IServiceProvider serviceProvider)
     {
-        _context = context;
-    }
-    
-    public Task<List<Translation>> Get()
-    {
-        return _context.Translations
-            .Select(entity => (Translation)entity)
-            .ToListAsync();
+        _serviceProvider = serviceProvider;
     }
 
-    public Task<Translation?> Get(Guid id)
+    public async Task<List<Translation>> Get()
     {
-        return _context.Translations
-            .Where(entity => entity.Id == id)
-            .Select(entity => (Translation)entity)
-            .FirstOrDefaultAsync();
+        return await Task.Run(() =>
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            return context.Translations
+                .Select(entity => (Translation)entity)
+                .ToListAsync();
+        });
     }
 
-    public Task<List<Translation>> GetForAsset(Guid assetId)
+    public async Task<Translation?> Get(Guid id)
     {
-        return _context.Translations
-            .Where(entity => entity.AssetId == assetId)
-            .Select(entity => (Translation)entity)
-            .ToListAsync();
+        return await Task.Run(() =>
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            return context.Translations
+                .Where(entity => entity.Id == id)
+                .Select(entity => (Translation)entity)
+                .FirstOrDefaultAsync();
+        });
+    }
+
+    public async Task<List<Translation>> GetForAsset(Guid assetId)
+    {
+        return await Task.Run(() =>
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            return context.Translations
+                .Where(entity => entity.AssetId == assetId)
+                .Select(entity => (Translation)entity)
+                .ToListAsync();
+        });
     }
 
     public Task Create(Translation translation)
     {
-        translation.CreatedAt = DateTime.UtcNow;
-        _context.Translations.Add(MapToEntity(translation));
-        return _context.SaveChangesAsync();
+        return Task.Run(() =>
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            translation.CreatedAt = DateTime.UtcNow;
+            context.Translations.Add(MapToEntity(translation));
+            return context.SaveChangesAsync();
+        });
     }
 
-    public async Task Update(Translation translation)
+    public Task Update(Translation translation)
     {
-        _context.Translations.Update(MapToEntity(translation));
-        await _context.SaveChangesAsync();
+        return Task.Run(() =>
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            context.Translations.Update(MapToEntity(translation));
+            return context.SaveChangesAsync();
+        });
     }
 
     private static TranslationEntity MapToEntity(Translation translation)
     {
-        return new TranslationEntity()
+        return new TranslationEntity
         {
-            Id =  translation.Id,
+            Id = translation.Id,
             AssetId = translation.AssetId,
-            CreatedAt =   translation.CreatedAt,
-            Language =   translation.Language,
-            Content =   translation.Content,
-            MajorVersion =  translation.MajorVersion,
-            MinorVersion =  translation.MinorVersion,
+            CreatedAt = translation.CreatedAt,
+            Language = translation.Language,
+            Content = translation.Content,
+            MajorVersion = translation.MajorVersion,
+            MinorVersion = translation.MinorVersion
         };
     }
 }

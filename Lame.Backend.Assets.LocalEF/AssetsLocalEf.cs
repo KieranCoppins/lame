@@ -2,92 +2,138 @@
 using Lame.Backend.EntityFramework.Models;
 using Lame.DomainModel;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Lame.Backend.Assets.LocalEF;
 
 public class AssetsLocalEf : IAssets
 {
-    private readonly AppDbContext _context;
+    private readonly IServiceProvider _serviceProvider;
 
-    public AssetsLocalEf(AppDbContext context)
+    public AssetsLocalEf(IServiceProvider serviceProvider)
     {
-        _context = context;
+        _serviceProvider = serviceProvider;
     }
 
-    public Task<List<AssetDto>> Get()
+    public async Task<List<AssetDto>> Get()
     {
-        // TODO consider pagination if the dataset grows large
-        return _context.Assets
-            .Include(entity => entity.Translations)
-            .Select(entity => MapToDto(entity))
-            .ToListAsync();
+        return await Task.Run(async () =>
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            // TODO consider pagination if the dataset grows large
+            // TODO this is very expensive on the UI thread, consider moving to a background thread.
+            // This is only because we are running EF locally, in reality this would be a http request and would not block
+            // the thread.
+            var assets = await context.Assets
+                .Include(e => e.Translations)
+                .ToListAsync();
+
+            return assets.Select(MapToDto).ToList();
+        });
     }
 
-    public Task<AssetDto?> Get(Guid id)
+    public async Task<AssetDto?> Get(Guid id)
     {
-        return _context.Assets
-            .Include(entity => entity.Translations)
-            .Where(entity => entity.Id == id)
-            .Select(entity => MapToDto(entity))
-            .FirstOrDefaultAsync();
+        return await Task.Run(async () =>
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            var asset = await context.Assets
+                .Include(entity => entity.Translations)
+                .Where(entity => entity.Id == id)
+                .FirstOrDefaultAsync();
+
+            return asset == null ? null : MapToDto(asset);
+        });
     }
 
     public async Task<List<AssetDto>> GetLinkedAssets(Guid assetId)
     {
-        var assetWithLinkedContent = await _context.Assets
-            .Include(entity => entity.Translations)
-            .Include(entity => entity.LinkedContent)
-            .Where(entity => entity.Id == assetId)
-            .FirstOrDefaultAsync();
-        
-        return assetWithLinkedContent?.LinkedContent.Select(MapToDto).ToList() ?? [];
+        return await Task.Run(async () =>
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            var assetWithLinkedContent = await context.Assets
+                .Include(entity => entity.Translations)
+                .Include(entity => entity.LinkedContent)
+                .Where(entity => entity.Id == assetId)
+                .FirstOrDefaultAsync();
+
+            return assetWithLinkedContent?.LinkedContent.Select(MapToDto).ToList() ?? [];
+        });
     }
 
     public Task LinkAssets(Guid assetA, Guid assetB)
     {
-        var assetAEntity = _context.Assets.Find(assetA);
-        var assetBEntity = _context.Assets.Find(assetB);
-
-        if (assetAEntity == null || assetBEntity == null)
+        return Task.Run(() =>
         {
-            return Task.CompletedTask;
-        }
-        
-        assetAEntity.LinkedContent.Add(assetBEntity);
-        assetBEntity.LinkedContent.Add(assetAEntity);
-        _context.Assets.UpdateRange(assetAEntity, assetBEntity);
-        return _context.SaveChangesAsync();
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            var assetAEntity = context.Assets.Find(assetA);
+            var assetBEntity = context.Assets.Find(assetB);
+
+            if (assetAEntity == null || assetBEntity == null) return Task.CompletedTask;
+
+            assetAEntity.LinkedContent.Add(assetBEntity);
+            assetBEntity.LinkedContent.Add(assetAEntity);
+            context.Assets.UpdateRange(assetAEntity, assetBEntity);
+            return context.SaveChangesAsync();
+        });
     }
 
     public Task Create(Asset asset)
     {
-        asset.CreatedAt = DateTime.UtcNow;
-        asset.LastUpdatedAt = DateTime.UtcNow;
-        asset.Status = AssetStatus.Active;
-        _context.Assets.Add(MapToEntity(asset));
-        return _context.SaveChangesAsync();
-    }
-
-    public async Task Update(Asset asset)
-    {
-        _context.Assets.Update(MapToEntity(asset));
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task Delete(Guid id)
-    {
-        var sourceContent = await _context.Assets.FindAsync(id);
-        if (sourceContent != null)
+        return Task.Run(() =>
         {
-            sourceContent.Status = AssetStatus.Deleted;
-            _context.Assets.Update(sourceContent);
-            await _context.SaveChangesAsync();
-        }
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            asset.CreatedAt = DateTime.UtcNow;
+            asset.LastUpdatedAt = DateTime.UtcNow;
+            asset.Status = AssetStatus.Active;
+            context.Assets.Add(MapToEntity(asset));
+            return context.SaveChangesAsync();
+        });
+    }
+
+    public Task Update(Asset asset)
+    {
+        return Task.Run(() =>
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            context.Assets.Update(MapToEntity(asset));
+            return context.SaveChangesAsync();
+        });
+    }
+
+    public Task Delete(Guid id)
+    {
+        return Task.Run(async () =>
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            var sourceContent = await context.Assets.FindAsync(id);
+
+            if (sourceContent != null)
+            {
+                sourceContent.Status = AssetStatus.Deleted;
+                context.Assets.Update(sourceContent);
+                await context.SaveChangesAsync();
+            }
+        });
     }
 
     private static AssetEntity MapToEntity(Asset asset)
     {
-        return new AssetEntity()
+        return new AssetEntity
         {
             Id = asset.Id,
             AssetType = asset.AssetType,
@@ -95,13 +141,13 @@ public class AssetsLocalEf : IAssets
             InternalName = asset.InternalName,
             LastUpdatedAt = asset.LastUpdatedAt,
             CreatedAt = asset.CreatedAt,
-            Status = asset.Status,
+            Status = asset.Status
         };
     }
-    
+
     private static AssetDto MapToDto(AssetEntity entity)
     {
-        return new AssetDto()
+        return new AssetDto
         {
             Id = entity.Id,
             AssetType = entity.AssetType,
@@ -110,7 +156,7 @@ public class AssetsLocalEf : IAssets
             LastUpdatedAt = entity.LastUpdatedAt,
             CreatedAt = entity.CreatedAt,
             Status = entity.Status,
-            NumTranslations = entity.Translations.Count,
+            NumTranslations = entity.Translations.Count
         };
     }
 }

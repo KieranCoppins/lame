@@ -1,8 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
-using System.ComponentModel;
 using Lame.Backend.Assets;
-using Lame.DomainModel;
 using Lame.Frontend.Commands;
 using Lame.Frontend.Enums;
 using Lame.Frontend.Services;
@@ -12,10 +10,6 @@ namespace Lame.Frontend.ViewModels;
 
 public class AssetLibraryViewModel : PageViewModel
 {
-    public ObservableCollection<AssetViewModel> Assets { get; }
-    
-    public ICommand ViewAssetDetailsCommand { get; }
-    
     private readonly IAssets _assets;
     private readonly INavigationService _navigationService;
     private readonly IServiceProvider _serviceProvider;
@@ -25,44 +19,47 @@ public class AssetLibraryViewModel : PageViewModel
         _assets = assets;
         _navigationService = navigationService;
         _serviceProvider = serviceProvider;
-        
-        Assets = [];
 
-        _navigationService.CurrentViewModelChanged += async () =>
-        {
-            if (_navigationService.CurrentViewModel == this)
-            {
-                await LoadAssets();
-            }
-        };
+        Assets = [];
 
         ViewAssetDetailsCommand = new RelayCommand<AssetViewModel>(OnViewAssetDetails);
         Page = AppPage.Library;
     }
-    
+
+    public bool IsLoading
+    {
+        get;
+        private set => SetField(ref field, value);
+    }
+
+    public ObservableCollection<AssetViewModel> Assets { get; }
+
+    public ICommand ViewAssetDetailsCommand { get; }
+
+    public override void OnNavigatedTo()
+    {
+        base.OnNavigatedTo();
+        _ = LoadAssets();
+    }
+
     private async Task LoadAssets()
     {
-        var assets = await _assets.Get();
-        Assets.Clear();
-        foreach (var asset in assets)
+        IsLoading = true;
+        try
         {
-            Assets.Add(new AssetViewModel(asset));
+            var assets = await _assets.Get();
+            Assets.Clear();
+            foreach (var asset in assets) Assets.Add(new AssetViewModel(asset));
+        }
+        finally
+        {
+            IsLoading = false;
         }
     }
 
     private void OnViewAssetDetails(AssetViewModel asset)
     {
-        _navigationService.NavigateTo(() => ActivatorUtilities.CreateInstance<AssetDetailsViewModel>(_serviceProvider, asset.Asset));
-    }
-
-    private void CreateDummyData()
-    {
-        Task.WaitAll([
-        _assets.Create(new Asset { Id = Guid.NewGuid(), InternalName = "ui_main_menu_title", AssetType = AssetType.Text }),
-        _assets.Create(new Asset { Id = Guid.NewGuid(), InternalName = "dialog_quest_01_intro", AssetType = AssetType.Text }),
-        _assets.Create(new Asset { Id = Guid.NewGuid(), InternalName = "voice_quest_01_intro", AssetType = AssetType.Audio }),
-        _assets.Create(new Asset { Id = Guid.NewGuid(), InternalName = "ui_settings_graphics", AssetType = AssetType.Text }),
-        _assets.Create(new Asset { Id = Guid.NewGuid(), InternalName = "ui_inventory_empty", AssetType = AssetType.Text }),
-        ]);
+        _navigationService.NavigateTo(() =>
+            ActivatorUtilities.CreateInstance<AssetDetailsViewModel>(_serviceProvider, asset.Asset));
     }
 }

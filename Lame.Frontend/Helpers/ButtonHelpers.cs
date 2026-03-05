@@ -14,8 +14,12 @@ public static class ButtonHelpers
         );
 
     public static void SetHoverBackground(UIElement element, Brush value)
-        => element.SetValue(HoverBackgroundProperty, value);
+    {
+        element.SetValue(HoverBackgroundProperty, value);
+    }
 
     public static Brush GetHoverBackground(UIElement element)
-        => (Brush)element.GetValue(HoverBackgroundProperty);
+    {
+        return (Brush)element.GetValue(HoverBackgroundProperty);
+    }
 }

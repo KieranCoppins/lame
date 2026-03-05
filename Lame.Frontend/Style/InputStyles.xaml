@@ -2,99 +2,141 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:helpers="clr-namespace:Lame.Frontend.Helpers">
     <Style x:Key="InputBox" TargetType="Border">
-        <Setter Property="Background" Value="{StaticResource Brush.SubduedWhite}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource Brush.LightGrey}"/>
-        <Setter Property="Margin" Value="2"/>
-        <Setter Property="BorderThickness"> 
-            <Setter.Value> 
-                <Thickness Left="{StaticResource BorderThickness.Standard}" 
-                           Top="{StaticResource BorderThickness.Standard}" 
-                           Right="{StaticResource BorderThickness.Standard}" 
-                           Bottom="{StaticResource BorderThickness.Standard}"/> 
-            </Setter.Value> 
+        <Setter Property="Background" Value="{StaticResource Brush.SubduedWhite}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush.LightGrey}" />
+        <Setter Property="Margin" Value="2" />
+        <Setter Property="BorderThickness">
+            <Setter.Value>
+                <Thickness Left="{StaticResource BorderThickness.Standard}"
+                           Top="{StaticResource BorderThickness.Standard}"
+                           Right="{StaticResource BorderThickness.Standard}"
+                           Bottom="{StaticResource BorderThickness.Standard}" />
+            </Setter.Value>
         </Setter>
-        <Setter Property="Padding"> 
-            <Setter.Value> 
-                <Thickness Left="{StaticResource Padding.Medium}" 
-                           Top="{StaticResource Padding.Small}" 
-                           Right="{StaticResource Padding.Medium}" 
-                           Bottom="{StaticResource Padding.Small}"/> 
-            </Setter.Value> 
+        <Setter Property="Padding">
+            <Setter.Value>
+                <Thickness Left="{StaticResource Padding.Medium}"
+                           Top="{StaticResource Padding.Small}"
+                           Right="{StaticResource Padding.Medium}"
+                           Bottom="{StaticResource Padding.Small}" />
+            </Setter.Value>
         </Setter>
         <Setter Property="CornerRadius">
             <Setter.Value>
                 <CornerRadius BottomLeft="{StaticResource CornerRadius.Standard}"
                               TopLeft="{StaticResource CornerRadius.Standard}"
                               TopRight="{StaticResource CornerRadius.Standard}"
-                              BottomRight="{StaticResource CornerRadius.Standard}"/>
+                              BottomRight="{StaticResource CornerRadius.Standard}" />
             </Setter.Value>
         </Setter>
-        <Style.Triggers>
-            <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                <Setter Property="BorderBrush" Value="{StaticResource Brush.Primary}"/>
-                <Setter Property="Margin" Value="0"/>
-                <Setter Property="BorderThickness"> 
-                    <Setter.Value> 
-                        <Thickness Left="{StaticResource BorderThickness.Thick}" 
-                                   Top="{StaticResource BorderThickness.Thick}" 
-                                   Right="{StaticResource BorderThickness.Thick}" 
-                                   Bottom="{StaticResource BorderThickness.Thick}"/> 
-                    </Setter.Value> 
-                </Setter>
-            </Trigger>
-        </Style.Triggers>
     </Style>
-    
+
     <Style x:Key="BlankInput" TargetType="TextBox">
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="BorderThickness" Value="0"/> 
-        
+        <Setter Property="Background" Value="{StaticResource Brush.White}" />
+        <Setter Property="BorderThickness" Value="0" />
+
+        <Setter Property="Validation.ErrorTemplate">
+            <Setter.Value>
+                <ControlTemplate>
+                    <AdornedElementPlaceholder />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
-                    <Grid>
-                        <!-- Actual text input -->
-                        <ScrollViewer x:Name="PART_ContentHost"/>
+                    <StackPanel>
+                        <Border x:Name="ContainingBorder"
+                                Style="{StaticResource InputBox}"
+                                Background="{TemplateBinding Background}"
+                                MinHeight="{TemplateBinding MinHeight}">
+                            <Grid>
+                                <!-- Actual text input -->
+                                <ScrollViewer x:Name="PART_ContentHost" />
 
-                        <!-- Placeholder -->
-                        <TextBlock x:Name="PlaceholderText"
-                                   Text="{Binding 
-                                      Path=(helpers:TextBoxHelpers.Placeholder), 
-                                      RelativeSource={RelativeSource TemplatedParent}}"
-                                   Foreground="{StaticResource Brush.DarkGrey}"
-                                   Margin="2,0,0,0"
-                                   VerticalAlignment="Top"
-                                   IsHitTestVisible="False"
-                                   Visibility="Collapsed"/>
-                    </Grid>
+                                <!-- Placeholder -->
+                                <TextBlock x:Name="PlaceholderText"
+                                           Text="{Binding 
+                                          Path=(helpers:TextBoxHelpers.Placeholder), 
+                                          RelativeSource={RelativeSource TemplatedParent}}"
+                                           Foreground="{StaticResource Brush.DarkGrey}"
+                                           Margin="2,0,0,0"
+                                           VerticalAlignment="Top"
+                                           IsHitTestVisible="False"
+                                           Visibility="Collapsed" />
+                            </Grid>
+                        </Border>
+
+                        <TextBlock
+                            x:Name="ErrorTextBlock"
+                            Foreground="{StaticResource Brush.NotificationFailure}"
+                            FontSize="11"
+                            Margin="4,2,0,0"
+                            Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(Validation.Errors)[0].ErrorContent}"
+                            Visibility="Collapsed" />
+                    </StackPanel>
 
                     <ControlTemplate.Triggers>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
-                                <Condition Property="Text" Value=""/>
-                                <Condition Property="IsKeyboardFocusWithin" Value="False"/>
+                                <Condition Property="Text" Value="" />
+                                <Condition Property="IsKeyboardFocusWithin" Value="False" />
                             </MultiTrigger.Conditions>
                             <Setter TargetName="PlaceholderText"
                                     Property="Visibility"
-                                    Value="Visible"/>
+                                    Value="Visible" />
                         </MultiTrigger>
+
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                            <Setter TargetName="ContainingBorder" Property="BorderBrush"
+                                    Value="{StaticResource Brush.Primary}" />
+                            <Setter TargetName="ContainingBorder" Property="Margin" Value="0" />
+                            <Setter TargetName="ContainingBorder" Property="BorderThickness">
+                                <Setter.Value>
+                                    <Thickness Left="{StaticResource BorderThickness.Thick}"
+                                               Top="{StaticResource BorderThickness.Thick}"
+                                               Right="{StaticResource BorderThickness.Thick}"
+                                               Bottom="{StaticResource BorderThickness.Thick}" />
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+
+                        <Trigger Property="Validation.HasError" Value="True">
+                            <Setter TargetName="ContainingBorder"
+                                    Property="BorderBrush"
+                                    Value="{StaticResource Brush.NotificationFailure}" />
+                            <Setter TargetName="ContainingBorder" Property="Margin" Value="0" />
+                            <Setter TargetName="ContainingBorder" Property="BorderThickness">
+                                <Setter.Value>
+                                    <Thickness Left="{StaticResource BorderThickness.Thick}"
+                                               Top="{StaticResource BorderThickness.Thick}"
+                                               Right="{StaticResource BorderThickness.Thick}"
+                                               Bottom="{StaticResource BorderThickness.Thick}" />
+                                </Setter.Value>
+                            </Setter>
+
+
+                            <Setter TargetName="ErrorTextBlock" Property="Visibility" Value="Visible" />
+                        </Trigger>
+
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
-    
+
     <DataTemplate x:Key="TextComboBoxItemTemplate">
         <TextBlock Text="{Binding}"
                    Style="{StaticResource Body}" />
     </DataTemplate>
-    
+
     <Style x:Key="BlankComboBox" TargetType="ComboBox">
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="BorderBrush" Value="#D1D5DB"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Background" Value="White"/>
-        <Setter Property="Padding" Value="12,4"/>
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="BorderBrush" Value="#D1D5DB" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Background" Value="White" />
+        <Setter Property="Padding" Value="12,4" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ComboBox">
@@ -106,17 +148,17 @@
                             Background="Transparent"
                             BorderThickness="0"
                             HorizontalContentAlignment="Stretch">
-                            
+
                             <ToggleButton.Template>
                                 <ControlTemplate TargetType="ToggleButton">
                                     <!-- Just present the content, ignore system visual states -->
                                     <ContentPresenter Content="{TemplateBinding Content}"
                                                       ContentTemplate="{TemplateBinding ContentTemplate}"
                                                       HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
                                 </ControlTemplate>
                             </ToggleButton.Template>
-                            
+
                             <Border x:Name="Border"
                                     CornerRadius="8"
                                     BorderBrush="{TemplateBinding BorderBrush}"
@@ -130,13 +172,13 @@
                                         HorizontalAlignment="Left"
                                         Content="{TemplateBinding SelectionBoxItem}"
                                         ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                                        ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"/>
-                                    
+                                        ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}" />
+
                                     <Path Data="M 0 0 L 4 4 L 8 0 Z"
                                           Fill="Gray"
                                           HorizontalAlignment="Right"
                                           VerticalAlignment="Center"
-                                          Margin="8, 0"/>
+                                          Margin="8, 0" />
                                 </Grid>
                             </Border>
                         </ToggleButton>
@@ -158,7 +200,7 @@
 
                                 <ScrollViewer Margin="4"
                                               SnapsToDevicePixels="True">
-                                    <ItemsPresenter/>
+                                    <ItemsPresenter />
                                 </ScrollViewer>
                             </Border>
                         </Popup>
@@ -170,13 +212,13 @@
                         <Trigger Property="IsKeyboardFocusWithin" Value="True">
                             <Setter TargetName="Border"
                                     Property="BorderBrush"
-                                    Value="#3B82F6"/>
+                                    Value="#3B82F6" />
                             <Setter TargetName="Border"
                                     Property="BorderThickness"
-                                    Value="3"/>
+                                    Value="3" />
                             <Setter TargetName="Border"
                                     Property="Padding"
-                                    Value="0"/>
+                                    Value="0" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

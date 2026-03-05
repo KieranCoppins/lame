@@ -2,11 +2,19 @@
 
 namespace Lame.Frontend.ViewModels;
 
-public class PageViewModel : BaseViewModel
+public abstract class PageViewModel : BaseViewModel
 {
     public AppPage Page
     {
         get;
         protected set => SetField(ref field, value);
+    }
+
+    public virtual void OnNavigatedTo()
+    {
+    }
+
+    public virtual void OnNavigatedFrom()
+    {
     }
 }
