@@ -23,11 +23,30 @@ public class AssetsLocalEf : IAssets
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
             // TODO consider pagination if the dataset grows large
-            // TODO this is very expensive on the UI thread, consider moving to a background thread.
-            // This is only because we are running EF locally, in reality this would be a http request and would not block
-            // the thread.
             var assets = await context.Assets
                 .Include(e => e.Translations)
+                .ToListAsync();
+
+            return assets.Select(MapToDto).ToList();
+        });
+    }
+
+    public async Task<List<AssetDto>> Get(string searchTerm, int limit = 10)
+    {
+        return await Task.Run(async () =>
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            searchTerm = searchTerm.ToLower();
+
+            var assets = await context.Assets
+                .Include(e => e.Translations)
+                .Where(a => a.InternalName.ToLower().Contains(searchTerm))
+                .OrderBy(a => a.InternalName.ToLower() == searchTerm ? 0 :
+                    a.InternalName.ToLower().StartsWith(searchTerm) ? 1 : 2)
+                .ThenBy(a => a.InternalName)
+                .Take(limit)
                 .ToListAsync();
 
             return assets.Select(MapToDto).ToList();

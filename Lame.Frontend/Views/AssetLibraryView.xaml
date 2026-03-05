@@ -24,7 +24,9 @@
 
             <!-- Search bar -->
             <Border Style="{StaticResource CardBorderStyle}">
-                <TextBox Style="{StaticResource BlankInput}"
+                <TextBox Text="{Binding SearchQuery, Delay=500, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource BlankInput}"
+                         Background="{StaticResource Brush.LighterGrey}"
                          helpers:TextBoxHelpers.Placeholder="Search assets..." />
             </Border>
 
