@@ -31,7 +31,8 @@
             <!-- Assets Library Table -->
             <StackPanel>
                 <DataGrid ItemsSource="{Binding Assets}"
-                          Style="{StaticResource DataTable}">
+                          Style="{StaticResource DataTable}"
+                          PreviewMouseWheel="UIElement_OnPreviewMouseWheel">
                     <DataGrid.Columns>
                         <DataGridTemplateColumn Header="Asset" Width="2*">
                             <DataGridTemplateColumn.CellTemplate>

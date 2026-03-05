@@ -1,7 +1,6 @@
-﻿using System.Windows.Controls;
-using Lame.Backend.Assets;
-using Lame.Frontend.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
+﻿using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace Lame.Frontend.Views;
 
@@ -10,5 +9,21 @@ public partial class AssetLibraryView : UserControl
     public AssetLibraryView()
     {
         InitializeComponent();
+    }
+
+    private void UIElement_OnPreviewMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        if (e.Handled) return;
+
+        e.Handled = true;
+
+        var eventArg = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta)
+        {
+            RoutedEvent = MouseWheelEvent,
+            Source = sender
+        };
+
+        var parent = ((Control)sender).Parent as UIElement;
+        parent?.RaiseEvent(eventArg);
     }
 }
