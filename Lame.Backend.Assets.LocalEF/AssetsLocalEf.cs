@@ -77,8 +77,8 @@ public class AssetsLocalEf : IAssets
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
             var assetWithLinkedContent = await context.Assets
-                .Include(entity => entity.Translations)
                 .Include(entity => entity.LinkedContent)
+                .ThenInclude(entity => entity.Translations)
                 .Where(entity => entity.Id == assetId)
                 .FirstOrDefaultAsync();
 
@@ -88,13 +88,20 @@ public class AssetsLocalEf : IAssets
 
     public Task LinkAssets(Guid assetA, Guid assetB)
     {
-        return Task.Run(() =>
+        return Task.Run(async () =>
         {
             using var scope = _serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            var assetAEntity = context.Assets.Find(assetA);
-            var assetBEntity = context.Assets.Find(assetB);
+            var assetAEntity = await context.Assets
+                .Include(entity => entity.LinkedContent)
+                .Where(entity => entity.Id == assetA)
+                .FirstOrDefaultAsync();
+
+            var assetBEntity = await context.Assets
+                .Include(entity => entity.LinkedContent)
+                .Where(entity => entity.Id == assetB)
+                .FirstOrDefaultAsync();
 
             if (assetAEntity == null || assetBEntity == null) return Task.CompletedTask;
 

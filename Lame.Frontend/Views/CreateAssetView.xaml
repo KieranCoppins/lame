@@ -39,8 +39,7 @@
 
                     <TextBlock Text="Asset Type"
                                Style="{StaticResource FieldLabel}" />
-                    <ComboBox x:Name="AssetTypeComboBox"
-                              Style="{StaticResource BlankComboBox}"
+                    <ComboBox Style="{StaticResource BlankComboBox}"
                               ItemTemplate="{StaticResource TextComboBoxItemTemplate}"
                               ItemsSource="{Binding AssetTypes}"
                               SelectedItem="{Binding SelectedAssetType}" />
@@ -50,6 +49,74 @@
                     <TextBox Style="{StaticResource BlankInput}"
                              Text="{Binding Tags}"
                              helpers:TextBoxHelpers.Placeholder="e.g. main-menu, chapter-1, intro" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardBorderStyle}">
+                <StackPanel>
+                    <TextBlock Text="Linked Assets" Style="{StaticResource Header2}" />
+
+                    <ItemsControl ItemsSource="{Binding AssetsToLink}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource CardBorderStyle}"
+                                        Background="{StaticResource Brush.LightestGrey}"
+                                        Margin="0, 8">
+                                    <Grid>
+
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding InternalName}"
+                                                       Style="{StaticResource Link}"
+                                                       FontSize="14"
+                                                       Margin="0, 0, 0, 8" />
+                                            <WrapPanel>
+                                                <TextBlock Text="{Binding LastModified}"
+                                                           Style="{StaticResource Subtitle}"
+                                                           Margin="0" />
+                                                <TextBlock Text="•"
+                                                           Style="{StaticResource Subtitle}"
+                                                           Margin="8, 0" />
+                                                <TextBlock Text="{Binding AssetType}"
+                                                           Style="{StaticResource Subtitle}"
+                                                           Margin="0" />
+                                                <TextBlock Text="•"
+                                                           Style="{StaticResource Subtitle}"
+                                                           Margin="8, 0" />
+                                                <TextBlock Text="{Binding Progress}"
+                                                           Style="{StaticResource Subtitle}"
+                                                           Margin="0" />
+                                            </WrapPanel>
+                                        </StackPanel>
+
+                                        <Button Style="{StaticResource ClickableText}"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Top"
+                                                Command="{Binding DataContext.RemoveAssetLinkCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding}">
+                                            <TextBlock Text="Remove"
+                                                       Style="{StaticResource Link}"
+                                                       Margin="0" />
+                                        </Button>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Border Style="{StaticResource SectionLineBorderStyle}">
+                        <Button Style="{StaticResource ClickableText}"
+                                Command="{Binding OpenLinkAssetDialogCommand}">
+                            <TextBlock Text="Add New Link"
+                                       Style="{StaticResource Link}"
+                                       Foreground="{StaticResource Brush.Primary}" />
+                        </Button>
+                    </Border>
                 </StackPanel>
             </Border>
 

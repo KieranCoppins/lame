@@ -61,7 +61,6 @@
                                           Path=(helpers:TextBoxHelpers.Placeholder), 
                                           RelativeSource={RelativeSource TemplatedParent}}"
                                            Foreground="{StaticResource Brush.DarkGrey}"
-                                           Margin="2,0,0,0"
                                            VerticalAlignment="Top"
                                            IsHitTestVisible="False"
                                            Visibility="Collapsed" />
@@ -128,14 +127,16 @@
 
     <DataTemplate x:Key="TextComboBoxItemTemplate">
         <TextBlock Text="{Binding}"
-                   Style="{StaticResource Body}" />
+                   Style="{StaticResource Body}"
+                   Margin="0"
+                   Padding="0" />
     </DataTemplate>
 
     <Style x:Key="BlankComboBox" TargetType="ComboBox">
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="BorderBrush" Value="#D1D5DB" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="Background" Value="White" />
+        <Setter Property="Background" Value="{StaticResource Brush.White}" />
         <Setter Property="Padding" Value="12,4" />
         <Setter Property="Template">
             <Setter.Value>
@@ -147,7 +148,9 @@
                             IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
                             Background="Transparent"
                             BorderThickness="0"
-                            HorizontalContentAlignment="Stretch">
+                            HorizontalContentAlignment="Stretch"
+                            Margin="0"
+                            Padding="0">
 
                             <ToggleButton.Template>
                                 <ControlTemplate TargetType="ToggleButton">
@@ -159,28 +162,33 @@
                                 </ControlTemplate>
                             </ToggleButton.Template>
 
-                            <Border x:Name="Border"
-                                    CornerRadius="8"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    Background="{TemplateBinding Background}"
-                                    Padding="2">
-                                <Grid>
+                            <Grid>
+                                <Border x:Name="Border"
+                                        Style="{StaticResource InputBox}"
+                                        Background="{TemplateBinding Background}">
                                     <ContentPresenter
-                                        Margin="12,0,30,0"
+                                        Margin="0"
                                         VerticalAlignment="Center"
                                         HorizontalAlignment="Left"
                                         Content="{TemplateBinding SelectionBoxItem}"
                                         ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
                                         ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}" />
+                                </Border>
 
-                                    <Path Data="M 0 0 L 4 4 L 8 0 Z"
-                                          Fill="Gray"
-                                          HorizontalAlignment="Right"
-                                          VerticalAlignment="Center"
-                                          Margin="8, 0" />
-                                </Grid>
-                            </Border>
+                                <TextBox x:Name="PART_EditableTextBox"
+                                         Style="{StaticResource BlankInput}"
+                                         VerticalAlignment="Center"
+                                         Background="Transparent"
+                                         Visibility="Hidden"
+                                         Text="{TemplateBinding Text}"
+                                         helpers:TextBoxHelpers.Placeholder="{TemplateBinding helpers:TextBoxHelpers.Placeholder}" />
+
+                                <Path Data="M 0 0 L 4 4 L 8 0 Z"
+                                      Fill="Gray"
+                                      HorizontalAlignment="Right"
+                                      VerticalAlignment="Center"
+                                      Margin="8, 0" />
+                            </Grid>
                         </ToggleButton>
 
                         <!-- Dropdown Popup -->
@@ -217,8 +225,12 @@
                                     Property="BorderThickness"
                                     Value="3" />
                             <Setter TargetName="Border"
-                                    Property="Padding"
+                                    Property="Margin"
                                     Value="0" />
+                        </Trigger>
+                        <Trigger Property="IsEditable" Value="True">
+                            <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="Border" Property="Visibility" Value="Hidden" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

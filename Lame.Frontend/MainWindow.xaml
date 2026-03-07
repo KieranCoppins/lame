@@ -3,8 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:Lame.Frontend.ViewModels"
         mc:Ignorable="d"
-        Title="L.A.M.E" Height="450" Width="800">
+        Title="L.A.M.E" Height="450" Width="800"
+        d:DataContext="{d:DesignInstance Type=viewModels:MainWindowViewModel }">
 
     <Grid>
         <Grid.ColumnDefinitions>
@@ -76,11 +78,47 @@
             </Grid>
         </Border>
 
-        <ScrollViewer Grid.Column="1"
-                      VerticalScrollBarVisibility="Auto"
-                      Background="{StaticResource Brush.LightestGrey}">
-            <ContentControl Content="{Binding CurrentView}" x:Name="MainWindowContent" />
-        </ScrollViewer>
+        <Grid Grid.Column="1">
+            <ScrollViewer
+                VerticalScrollBarVisibility="Auto"
+                Background="{StaticResource Brush.LightestGrey}">
+                <ContentControl Content="{Binding CurrentView}" x:Name="MainWindowContent" />
+
+
+            </ScrollViewer>
+            <ContentControl
+                Content="{Binding ActiveDialog}">
+
+                <ContentControl.Style>
+                    <Style TargetType="ContentControl">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsDialogOpen}" Value="True">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ContentControl.Style>
+
+                <ContentControl.Template>
+                    <ControlTemplate TargetType="ContentControl">
+                        <Grid Background="#80000000" PreviewMouseDown="DialogBackground_OnPreviewMouseDown">
+                            <Border
+                                Style="{StaticResource CardBorderStyle}"
+                                Width="400"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center">
+
+                                <ContentPresenter Content="{TemplateBinding Content}"
+                                                  ContentTemplate="{TemplateBinding ContentTemplate}" />
+
+                            </Border>
+                        </Grid>
+                    </ControlTemplate>
+                </ContentControl.Template>
+
+            </ContentControl>
+        </Grid>
 
         <ItemsControl ItemsSource="{Binding Notifications}"
                       HorizontalAlignment="Right"

@@ -6,8 +6,10 @@ using Lame.Backend.Tags;
 using Lame.Backend.Tags.LocalEF;
 using Lame.Backend.Translations;
 using Lame.Backend.Translations.LocalEF;
+using Lame.Frontend.Factories;
 using Lame.Frontend.Services;
 using Lame.Frontend.ViewModels;
+using Lame.Frontend.ViewModels.Dialogs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -28,6 +30,7 @@ public partial class App : Application
         // Frontend Services
         services.AddSingleton<INavigationService, NavigationService>();
         services.AddSingleton<INotificationService, NotificationService>();
+        services.AddSingleton<IDialogService, DialogService>();
 
         // Backend Services
         services.AddScoped<IAssets, AssetsLocalEf>();
@@ -40,6 +43,10 @@ public partial class App : Application
         services.AddTransient<AssetDetailsViewModel>();
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<CreateAssetViewModel>();
+        services.AddTransient<LinkAssetsDialogViewModel>();
+
+        // Register Factories
+        services.AddSingleton<LinkAssetsDialogViewModelFactory>();
 
         // Build the service provider
         ServiceProvider = services.BuildServiceProvider();

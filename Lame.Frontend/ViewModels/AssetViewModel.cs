@@ -26,4 +26,9 @@ public class AssetViewModel : PageViewModel
 
     public string ContentContext =>
         string.IsNullOrEmpty(Asset.ContextNotes) ? "No context provided" : Asset.ContextNotes;
+
+    public override string ToString()
+    {
+        return InternalName;
+    }
 }

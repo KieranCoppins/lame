@@ -6,7 +6,9 @@ using Lame.Backend.Translations;
 using Lame.DomainModel;
 using Lame.Frontend.Commands;
 using Lame.Frontend.Enums;
+using Lame.Frontend.Factories;
 using Lame.Frontend.Services;
+using Lame.Frontend.ViewModels.Dialogs;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Lame.Frontend.ViewModels;
@@ -14,10 +16,14 @@ namespace Lame.Frontend.ViewModels;
 public class AssetDetailsViewModel : AssetViewModel
 {
     private readonly IAssets _assetsService;
+    private readonly IDialogService _dialogService;
 
     private readonly INavigationService _navigationService;
+    private readonly INotificationService _notificationService;
     private readonly ITags _tagsService;
     private readonly ITranslations _translationsService;
+
+    private LinkAssetsDialogViewModel? _linkAssetsDialogViewModel;
 
     public AssetDetailsViewModel(
         INavigationService navigationService,
@@ -25,12 +31,17 @@ public class AssetDetailsViewModel : AssetViewModel
         ITranslations translationsService,
         ITags tagsService,
         IAssets assetsService,
+        IDialogService dialogService,
+        INotificationService notificationService,
+        LinkAssetsDialogViewModelFactory linkAssetsDialogViewModelFactory,
         AssetDto asset) : base(asset)
     {
         _navigationService = navigationService;
         _translationsService = translationsService;
         _tagsService = tagsService;
         _assetsService = assetsService;
+        _dialogService = dialogService;
+        _notificationService = notificationService;
 
         Translations = [];
         LinkedAssets = [];
@@ -41,7 +52,17 @@ public class AssetDetailsViewModel : AssetViewModel
 
         ViewLinkedAssetDetails = new RelayCommand<AssetViewModel>(linkedAsset =>
             _navigationService.NavigateTo(() =>
-                ActivatorUtilities.CreateInstance<AssetDetailsViewModel>(serviceProvider, linkedAsset.Asset)));
+                ActivatorUtilities.CreateInstance<AssetDetailsViewModel>(
+                    serviceProvider,
+                    linkedAsset.Asset
+                )));
+
+        OpenLinkAssetDialogCommand = new RelayCommand(() =>
+        {
+            _linkAssetsDialogViewModel = linkAssetsDialogViewModelFactory.Create(Asset, LinkToAsset);
+            _linkAssetsDialogViewModel.OnAssetLinked += OnNavigatedTo;
+            _dialogService.ShowDialog(_linkAssetsDialogViewModel);
+        });
 
         Page = AppPage.Library;
     }
@@ -52,6 +73,7 @@ public class AssetDetailsViewModel : AssetViewModel
 
     public ICommand ReturnToLibraryCommand { get; }
     public ICommand ViewLinkedAssetDetails { get; }
+    public ICommand OpenLinkAssetDialogCommand { get; }
 
     public override void OnNavigatedTo()
     {
@@ -78,5 +100,18 @@ public class AssetDetailsViewModel : AssetViewModel
         var tags = await _tagsService.GetTagsForResource(Asset.Id);
         Tags.Clear();
         foreach (var tag in tags) Tags.Add(new TagViewModel(tag));
+    }
+
+    private async Task LinkToAsset(AssetDto asset)
+    {
+        await _assetsService.LinkAssets(Asset.Id, asset.Id);
+
+        _notificationService.EmitNotification(new Notification
+        {
+            Message =
+                $"Asset '{asset.InternalName}' successfully linked to '{Asset.InternalName}'",
+            Type = NotificationType.Success,
+            Title = "Assets linked"
+        });
     }
 }

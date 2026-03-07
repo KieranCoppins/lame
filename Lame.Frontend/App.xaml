@@ -2,7 +2,10 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:viewModels="clr-namespace:Lame.Frontend.ViewModels"
+             xmlns:dialogViewModels="clr-namespace:Lame.Frontend.ViewModels.Dialogs"
              xmlns:views="clr-namespace:Lame.Frontend.Views"
+             xmlns:dialogViews="clr-namespace:Lame.Frontend.Views.Dialogs"
+
              xmlns:local="clr-namespace:Lame.Frontend"
              xmlns:converters="clr-namespace:Lame.Frontend.Helpers.Converters">
     <Application.Resources>
@@ -28,6 +31,9 @@
             </DataTemplate>
             <DataTemplate DataType="{x:Type viewModels:CreateAssetViewModel}">
                 <views:CreateAssetView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type dialogViewModels:LinkAssetsDialogViewModel}">
+                <dialogViews:LinkAssetsDialogView />
             </DataTemplate>
             <DataTemplate DataType="{x:Type viewModels:MainWindowViewModel}">
                 <local:MainWindow />

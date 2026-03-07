@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Windows.Input;
 using Lame.Backend.Assets;
 using Lame.Backend.Tags;
@@ -6,30 +7,52 @@ using Lame.Backend.Translations;
 using Lame.DomainModel;
 using Lame.Frontend.Commands;
 using Lame.Frontend.Enums;
+using Lame.Frontend.Factories;
 using Lame.Frontend.Services;
+using Lame.Frontend.ViewModels.Dialogs;
 
 namespace Lame.Frontend.ViewModels;
 
 public class CreateAssetViewModel : PageViewModel
 {
     private readonly IAssets _assets;
+    private readonly IDialogService _dialogService;
     private readonly INotificationService _notificationService;
+    private readonly IServiceProvider _serviceProvider;
     private readonly ITags _tags;
     private readonly ITranslations _translations;
+    private LinkAssetsDialogViewModel _linkAssetsDialogViewModel;
 
-    public CreateAssetViewModel(IAssets assets, ITranslations translations, ITags tags,
-        INotificationService notificationService)
+    public CreateAssetViewModel(IAssets assets,
+        ITranslations translations,
+        ITags tags,
+        INotificationService notificationService,
+        IServiceProvider serviceProvider,
+        IDialogService dialogService,
+        LinkAssetsDialogViewModelFactory linkAssetsDialogViewModelFactory)
     {
         _assets = assets;
         _translations = translations;
         _tags = tags;
         _notificationService = notificationService;
+        _serviceProvider = serviceProvider;
+        _dialogService = dialogService;
 
         Page = AppPage.CreateAsset;
+        AssetsToLink = [];
 
         CreateAssetCommand = new AsyncRelayCommand(CreateAsset, () => !CreatingAsset);
         ClearFormCommand = new RelayCommand(ClearForm, () => !CreatingAsset);
+        RemoveAssetLinkCommand = new RelayCommand<AssetViewModel>(linkedAsset => AssetsToLink.Remove(linkedAsset));
+
+        OpenLinkAssetDialogCommand = new RelayCommand(() =>
+        {
+            _linkAssetsDialogViewModel = linkAssetsDialogViewModelFactory.Create(null, LinkToAsset);
+            _dialogService.ShowDialog(_linkAssetsDialogViewModel);
+        });
     }
+
+    public ObservableCollection<AssetViewModel> AssetsToLink { get; }
 
     public Array AssetTypes => Enum.GetValues<AssetType>();
 
@@ -90,6 +113,8 @@ public class CreateAssetViewModel : PageViewModel
 
     public ICommand CreateAssetCommand { get; }
     public ICommand ClearFormCommand { get; }
+    public ICommand OpenLinkAssetDialogCommand { get; }
+    public ICommand RemoveAssetLinkCommand { get; }
 
     private void ValidateForm()
     {
@@ -108,6 +133,7 @@ public class CreateAssetViewModel : PageViewModel
         {
             ValidateForm();
 
+            // Create our asset
             var assetId = Guid.NewGuid();
             await _assets.Create(new Asset
             {
@@ -117,6 +143,7 @@ public class CreateAssetViewModel : PageViewModel
                 ContextNotes = ContextNotes
             });
 
+            // Create the english translation of the asset
             await _translations.Create(new Translation
             {
                 Id = Guid.NewGuid(),
@@ -127,6 +154,7 @@ public class CreateAssetViewModel : PageViewModel
                 MinorVersion = 0
             });
 
+            // Tag our asset
             var tags = Tags.Split(',')
                 .Select(tag => tag.Trim().ToLower())
                 .Where(tag => !string.IsNullOrEmpty(tag))
@@ -138,6 +166,9 @@ public class CreateAssetViewModel : PageViewModel
                 var tagEntity = await GetTagByName(tagName);
                 await _tags.AddTagToResource(tagEntity, assetId, ResourceType.Asset);
             }
+
+            // Create asset links
+            foreach (var linkedAsset in AssetsToLink) await _assets.LinkAssets(linkedAsset.Asset.Id, assetId);
 
             _notificationService.EmitNotification(
                 new Notification
@@ -185,6 +216,7 @@ public class CreateAssetViewModel : PageViewModel
         Tags = string.Empty;
         EnglishContent = string.Empty;
         ContextNotes = string.Empty;
+        AssetsToLink.Clear();
 
         ClearError(nameof(InternalName));
         ClearError(nameof(EnglishContent));
@@ -198,5 +230,11 @@ public class CreateAssetViewModel : PageViewModel
             return new Tag { Id = Guid.NewGuid(), Name = tagName };
 
         return existingTags[0];
+    }
+
+    private Task LinkToAsset(AssetDto asset)
+    {
+        AssetsToLink.Add(new AssetViewModel(asset));
+        return Task.CompletedTask;
     }
 }

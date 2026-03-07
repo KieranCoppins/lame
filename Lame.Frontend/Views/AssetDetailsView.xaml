@@ -192,7 +192,8 @@
                     </ItemsControl>
 
                     <Border Style="{StaticResource SectionLineBorderStyle}">
-                        <Button Style="{StaticResource ClickableText}">
+                        <Button Style="{StaticResource ClickableText}"
+                                Command="{Binding OpenLinkAssetDialogCommand}">
                             <TextBlock Text="Add New Link"
                                        Style="{StaticResource Link}"
                                        Foreground="{StaticResource Brush.Primary}" />
