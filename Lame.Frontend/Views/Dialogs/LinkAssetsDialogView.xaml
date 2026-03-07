@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:dialogViewModels="clr-namespace:Lame.Frontend.ViewModels.Dialogs"
              xmlns:helpers="clr-namespace:Lame.Frontend.Helpers"
+             xmlns:controls="clr-namespace:Lame.Frontend.Controls"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance dialogViewModels:LinkAssetsDialogViewModel }">
@@ -15,20 +16,11 @@
         <TextBlock Text="Asset to Link"
                    Style="{StaticResource FieldLabel}" />
 
-        <!-- TODO: theres a lot of bugs with this that would make it nicer to use. However, it does work mostly -->
-        <ComboBox Style="{StaticResource BlankComboBox}"
-                  ItemTemplate="{StaticResource TextComboBoxItemTemplate}"
-                  ItemsSource="{Binding SearchResults}"
-                  SelectedItem="{Binding SelectedAssetToLink}"
-                  IsEditable="True"
-                  IsTextSearchEnabled="False"
-                  IsDropDownOpen="{Binding IsSearchDropDownOpen}"
-                  StaysOpenOnEdit="True"
-                  Text="{Binding SearchQuery, Delay=300, UpdateSourceTrigger=PropertyChanged}"
-                  helpers:TextBoxHelpers.Placeholder="Search for asset..."
-                  SelectionChanged="AssetComboBox_SelectionChanged"
-                  IsKeyboardFocusWithinChanged="AssetComboBox_OnIsKeyboardFocusedChanged"
-                  IsKeyboardFocusedChanged="AssetComboBox_OnIsKeyboardFocusedChanged" />
+        <controls:DynamicLoadingComboBox Style="{StaticResource BlankComboBox}"
+                                         ItemTemplate="{StaticResource TextComboBoxItemTemplate}"
+                                         ContentSearch="{Binding SearchAssets}"
+                                         SelectedItem="{Binding SelectedAssetToLink}"
+                                         Placeholder="Search for asset..." />
 
         <WrapPanel HorizontalAlignment="Right" Margin="0,16,0,0">
             <Button Content="Cancel"

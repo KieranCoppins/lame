@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections;
 using System.Windows.Input;
 using Lame.Backend.Assets;
 using Lame.DomainModel;
@@ -28,14 +28,19 @@ public class LinkAssetsDialogViewModel : BaseViewModel
 
         if (asset != null) Asset = new AssetViewModel(asset);
 
-        SearchResults = [];
+        SearchAssets = async searchText =>
+            (await _assetService.Get(searchText, 5))
+            .Select(a => new AssetViewModel(a))
+            .Cast<object>()
+            .ToArray();
 
         LinkAssetCommand = new AsyncRelayCommand(LinkAsset);
         CancelCommand = new RelayCommand(() => _dialogService.CloseDialog());
     }
 
+    public Func<string, Task<IEnumerable>> SearchAssets { get; }
+
     public AssetViewModel? Asset { get; }
-    public ObservableCollection<AssetViewModel> SearchResults { get; }
 
     public AssetViewModel? SelectedAssetToLink
     {
@@ -52,64 +57,9 @@ public class LinkAssetsDialogViewModel : BaseViewModel
         ? "Link an asset"
         : $"Link to '{Asset.Asset.InternalName}'";
 
-    public string SearchQuery
-    {
-        get;
-        set
-        {
-            if (!SetField(ref field, value))
-                return;
-
-            if (SearchQuery != SelectedAssetToLink?.Asset.InternalName)
-            {
-                SelectedAssetToLink = null;
-                _ = Search(value);
-            }
-        }
-    }
-
-    public bool IsSearchDropDownOpen
-    {
-        get;
-        set => SetField(ref field, value);
-    }
 
     public event Action OnAssetLinked;
 
-    private async Task Search(string searchTerm)
-    {
-        if (!IsSearchDropDownOpen) return;
-
-        var results = await _assetService.Get(searchTerm, 5);
-
-        // Remove any search results that are no longer in the new results
-        for (var i = SearchResults.Count - 1; i >= 0; i--)
-        {
-            var searchResultId = SearchResults[i].Asset.Id;
-
-            if (searchResultId == SelectedAssetToLink?.Asset.Id || results.Any(x => x.Id == searchResultId))
-                continue;
-
-            SearchResults.RemoveAt(i);
-        }
-
-        // Add new results that are not in the search results
-        foreach (var item in results)
-        {
-            if (Asset != null && item.Id == Asset.Asset.Id)
-                continue;
-
-            if (SearchResults.All(x => x.Asset.Id != item.Id))
-                SearchResults.Add(new AssetViewModel(item));
-        }
-
-        // Reorder the collection to match the order of the new results
-        for (var i = 0; i < SearchResults.Count; i++)
-        {
-            var resultIndex = results.FindIndex(x => x.Id == SearchResults[i].Asset.Id);
-            SearchResults.Move(i, resultIndex);
-        }
-    }
 
     private async Task LinkAsset()
     {

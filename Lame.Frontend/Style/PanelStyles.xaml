@@ -49,6 +49,14 @@
             </Setter.Value>
         </Setter>
         <Setter Property="Padding" Value="10, 4" />
+        <Setter Property="Margin">
+            <Setter.Value>
+                <Thickness Left="0"
+                           Top="0"
+                           Right="{StaticResource Margin.Small}"
+                           Bottom="{StaticResource Margin.Small}" />
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <Style x:Key="SectionLineBorderStyle" TargetType="Border">

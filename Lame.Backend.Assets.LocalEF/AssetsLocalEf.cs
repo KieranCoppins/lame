@@ -49,6 +49,8 @@ public class AssetsLocalEf : IAssets
                 .Take(limit)
                 .ToListAsync();
 
+            Console.WriteLine(assets.Count);
+
             return assets.Select(MapToDto).ToList();
         });
     }

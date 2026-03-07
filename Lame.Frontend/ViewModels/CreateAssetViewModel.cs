@@ -40,6 +40,7 @@ public class CreateAssetViewModel : PageViewModel
 
         Page = AppPage.CreateAsset;
         AssetsToLink = [];
+        Tags = [];
 
         CreateAssetCommand = new AsyncRelayCommand(CreateAsset, () => !CreatingAsset);
         ClearFormCommand = new RelayCommand(ClearForm, () => !CreatingAsset);
@@ -55,6 +56,8 @@ public class CreateAssetViewModel : PageViewModel
     public ObservableCollection<AssetViewModel> AssetsToLink { get; }
 
     public Array AssetTypes => Enum.GetValues<AssetType>();
+
+    public Func<string, Task<List<Tag>>> TagSearch => searchString => _tags.Get(searchString, 5);
 
     public string InternalName
     {
@@ -76,11 +79,11 @@ public class CreateAssetViewModel : PageViewModel
         set => SetField(ref field, value);
     } = AssetType.Text;
 
-    public string Tags
+    public ObservableCollection<TagViewModel> Tags
     {
         get;
         set => SetField(ref field, value);
-    } = string.Empty;
+    }
 
     public string EnglishContent
     {
@@ -155,17 +158,7 @@ public class CreateAssetViewModel : PageViewModel
             });
 
             // Tag our asset
-            var tags = Tags.Split(',')
-                .Select(tag => tag.Trim().ToLower())
-                .Where(tag => !string.IsNullOrEmpty(tag))
-                .Distinct()
-                .ToList();
-
-            foreach (var tagName in tags)
-            {
-                var tagEntity = await GetTagByName(tagName);
-                await _tags.AddTagToResource(tagEntity, assetId, ResourceType.Asset);
-            }
+            foreach (var tag in Tags) await _tags.AddTagToResource(tag.Tag, assetId, ResourceType.Asset);
 
             // Create asset links
             foreach (var linkedAsset in AssetsToLink) await _assets.LinkAssets(linkedAsset.Asset.Id, assetId);
@@ -213,23 +206,13 @@ public class CreateAssetViewModel : PageViewModel
     {
         InternalName = string.Empty;
         SelectedAssetType = AssetType.Text;
-        Tags = string.Empty;
         EnglishContent = string.Empty;
         ContextNotes = string.Empty;
         AssetsToLink.Clear();
+        Tags.Clear();
 
         ClearError(nameof(InternalName));
         ClearError(nameof(EnglishContent));
-    }
-
-    private async Task<Tag> GetTagByName(string tagName)
-    {
-        var existingTags = await _tags.Get(tagName, 1);
-
-        if (existingTags.Count == 0 || existingTags[0].Name != tagName)
-            return new Tag { Id = Guid.NewGuid(), Name = tagName };
-
-        return existingTags[0];
     }
 
     private Task LinkToAsset(AssetDto asset)

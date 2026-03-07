@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModels="clr-namespace:Lame.Frontend.ViewModels"
              xmlns:helpers="clr-namespace:Lame.Frontend.Helpers"
+             xmlns:controls="clr-namespace:Lame.Frontend.Controls"
              mc:Ignorable="d"
              d:DesignHeight="1080" d:DesignWidth="1920"
              d:DataContext="{d:DesignInstance Type=viewModels:CreateAssetViewModel}">
@@ -46,9 +47,10 @@
 
                     <TextBlock Text="Tags"
                                Style="{StaticResource FieldLabel}" />
-                    <TextBox Style="{StaticResource BlankInput}"
-                             Text="{Binding Tags}"
-                             helpers:TextBoxHelpers.Placeholder="e.g. main-menu, chapter-1, intro" />
+
+                    <controls:TagInputControl
+                        SelectedTags="{Binding Tags}"
+                        TagSearch="{Binding TagSearch}" />
                 </StackPanel>
             </Border>
 
