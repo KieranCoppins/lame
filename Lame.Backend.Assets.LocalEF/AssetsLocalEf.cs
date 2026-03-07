@@ -41,15 +41,19 @@ public class AssetsLocalEf : IAssets
             searchTerm = searchTerm.ToLower();
 
             var assets = await context.Assets
-                .Include(e => e.Translations)
-                .Where(a => a.InternalName.ToLower().Contains(searchTerm))
-                .OrderBy(a => a.InternalName.ToLower() == searchTerm ? 0 :
-                    a.InternalName.ToLower().StartsWith(searchTerm) ? 1 : 2)
+                .Include(a => a.Translations)
+                .Include(a => a.Tags)
+                .Where(a =>
+                    a.InternalName.ToLower().Contains(searchTerm) ||
+                    a.Tags.Any(t => t.Name.ToLower().Contains(searchTerm)))
+                .OrderBy(a =>
+                    a.InternalName.ToLower() == searchTerm ? 0 :
+                    a.InternalName.ToLower().StartsWith(searchTerm) ? 1 :
+                    a.InternalName.ToLower().Contains(searchTerm) ? 2 :
+                    3)
                 .ThenBy(a => a.InternalName)
                 .Take(limit)
                 .ToListAsync();
-
-            Console.WriteLine(assets.Count);
 
             return assets.Select(MapToDto).ToList();
         });
