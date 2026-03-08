@@ -48,6 +48,9 @@
 
             <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
             <converters:NotificationTypeToBrushConverter x:Key="NotificationTypeToBrushConverter" />
+            <converters:LanguageCodeToEnglishConverter x:Key="LanguageCodeToEnglishConverter" />
+            <converters:PercentageConverter x:Key="PercentageConverter" />
+            <converters:GuidToColourConverter x:Key="GuidToColourConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -4,6 +4,8 @@ using Lame.Backend.Assets.LocalEF;
 using Lame.Backend.EntityFramework;
 using Lame.Backend.Languages;
 using Lame.Backend.Languages.LocalEF;
+using Lame.Backend.Statistics;
+using Lame.Backend.Statistics.LocalEF;
 using Lame.Backend.Tags;
 using Lame.Backend.Tags.LocalEF;
 using Lame.Backend.Translations;
@@ -39,6 +41,7 @@ public partial class App : Application
         services.AddScoped<ITranslations, TranslationsLocalEF>();
         services.AddScoped<ITags, TagsLocalEF>();
         services.AddScoped<ILanguages, LanguagesLocalEF>();
+        services.AddScoped<IStatistics, StatisticsLocalEF>();
 
         // View Models
         services.AddSingleton<MainWindowViewModel>();

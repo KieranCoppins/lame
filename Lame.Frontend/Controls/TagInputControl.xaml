@@ -22,13 +22,22 @@
 
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Style="{StaticResource ChipBorderStyle}">
+                        <Border Style="{StaticResource ChipBorderStyle}"
+                                Background="{Binding Id, Converter={StaticResource GuidToColourConverter}}">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
                                 <Button Style="{StaticResource ClickableText}"
                                         Click="RemoveTag_OnClick">
-                                    <TextBlock Text="x" Style="{StaticResource Link}" />
+                                    <TextBlock Text="x"
+                                               Style="{StaticResource Body}"
+                                               Foreground="{StaticResource Brush.White}"
+                                               Margin="0, 0, 8, 0" />
                                 </Button>
+
+                                <TextBlock Text="{Binding Name}"
+                                           Style="{StaticResource Body}"
+                                           VerticalAlignment="Center"
+                                           Foreground="{StaticResource Brush.White}"
+                                           Margin="0" />
                             </StackPanel>
                         </Border>
                     </DataTemplate>

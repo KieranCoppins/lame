@@ -15,7 +15,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel MaxWidth="900" HorizontalAlignment="Left">
-            <StackPanel>
+            <StackPanel Style="{StaticResource SectionStyle}">
                 <TextBlock Text="Create Asset"
                            Style="{StaticResource Header1}" />
                 <TextBlock Text="Add a new english localization asset to your project"

@@ -13,7 +13,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel>
-            <StackPanel>
+            <StackPanel Style="{StaticResource SectionStyle}">
                 <TextBlock Text="Settings"
                            Style="{StaticResource Header1}" />
                 <TextBlock Text="Adjust the configuration of your localization project"

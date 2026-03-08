@@ -22,6 +22,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.Backend.Languages", "L
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.Backend.Languages.LocalEF", "Lame.Backend.Languages.LocalEF\Lame.Backend.Languages.LocalEF.csproj", "{2A274479-1654-40DC-BCF8-9BB9499F889C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.Backend.Statistics", "Lame.Backend.Statistics\Lame.Backend.Statistics.csproj", "{914AB9CB-C3A6-4175-B963-CC27580780D0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.Backend.Statistics.LocalEF", "Lame.Backend.Statistics.LocalEF\Lame.Backend.Statistics.LocalEF.csproj", "{0DA35B8F-2A5A-4EA1-B9E1-3C80A3566C78}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,5 +76,13 @@ Global
 		{2A274479-1654-40DC-BCF8-9BB9499F889C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A274479-1654-40DC-BCF8-9BB9499F889C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A274479-1654-40DC-BCF8-9BB9499F889C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{914AB9CB-C3A6-4175-B963-CC27580780D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{914AB9CB-C3A6-4175-B963-CC27580780D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{914AB9CB-C3A6-4175-B963-CC27580780D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{914AB9CB-C3A6-4175-B963-CC27580780D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0DA35B8F-2A5A-4EA1-B9E1-3C80A3566C78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0DA35B8F-2A5A-4EA1-B9E1-3C80A3566C78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0DA35B8F-2A5A-4EA1-B9E1-3C80A3566C78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0DA35B8F-2A5A-4EA1-B9E1-3C80A3566C78}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

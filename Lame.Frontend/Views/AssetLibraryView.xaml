@@ -14,7 +14,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel>
-            <StackPanel>
+            <StackPanel Style="{StaticResource SectionStyle}">
                 <TextBlock Text="Asset Library"
                            Style="{StaticResource Header1}" />
                 <TextBlock Text="Browse and manage your localization assets"

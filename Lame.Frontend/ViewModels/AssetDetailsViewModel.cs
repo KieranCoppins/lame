@@ -75,7 +75,7 @@ public class AssetDetailsViewModel : AssetViewModel
 
     public ObservableCollection<TranslationViewModel> Translations { get; }
     public ObservableCollection<AssetViewModel> LinkedAssets { get; }
-    public ObservableCollection<TagViewModel> Tags { get; }
+    public ObservableCollection<Tag> Tags { get; }
 
     public ICommand ReturnToLibraryCommand { get; }
     public ICommand ViewLinkedAssetDetails { get; }
@@ -107,7 +107,7 @@ public class AssetDetailsViewModel : AssetViewModel
     {
         var tags = await _tagsService.GetTagsForResource(Asset.Id);
         Tags.Clear();
-        foreach (var tag in tags) Tags.Add(new TagViewModel(tag));
+        foreach (var tag in tags) Tags.Add(tag);
     }
 
     private async Task LinkToAsset(AssetDto asset)
