@@ -6,7 +6,7 @@
              xmlns:viewModels="clr-namespace:Lame.Frontend.ViewModels"
              xmlns:helpers="clr-namespace:Lame.Frontend.Helpers"
              mc:Ignorable="d"
-             d:DesignHeight="1080" d:DesignWidth="1920"
+             d:DesignHeight="1080" d:DesignWidth="720"
              d:DataContext="{d:DesignInstance Type=viewModels:AssetLibraryViewModel}">
     <Grid Margin="32">
         <Grid.RowDefinitions>
@@ -57,9 +57,21 @@
                         <DataGridTemplateColumn Header="Progress" Width="2*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Progress}"
-                                               VerticalAlignment="Center"
-                                               Style="{StaticResource Body}" />
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <ProgressBar Grid.Column="0"
+                                                     Style="{StaticResource ProgressBarStyle}"
+                                                     Value="{Binding ProgressPercentage, Mode=OneWay}"
+                                                     Maximum="1" />
+
+                                        <TextBlock Grid.Column="1" Text="{Binding Progress}"
+                                                   VerticalAlignment="Center"
+                                                   Style="{StaticResource Body}" />
+                                    </Grid>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>

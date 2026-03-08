@@ -23,6 +23,9 @@ public class AssetViewModel : PageViewModel
     // TODO set the total number of supported translations somewhere globally through some config
     public string Progress => $"{Asset.NumTranslations} / {SupportedLanguagesCount} ";
 
+    public float ProgressPercentage =>
+        SupportedLanguagesCount == 0 ? 0 : (float)Asset.NumTranslations / SupportedLanguagesCount;
+
     public string LastModified => Asset.LastUpdatedAt.ToString("yyyy-MM-dd");
 
     public string CreatedAt => Asset.CreatedAt.ToString("yyyy-MM-dd");

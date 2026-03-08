@@ -1,0 +1,47 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:converters="clr-namespace:Lame.Frontend.Helpers.Converters">
+
+    <converters:ProgressWidthConverter x:Key="ProgressWidthConverter" />
+    <converters:ProgressPercentageToBrushConverter x:Key="ProgressPercentageToBrushConverter" />
+
+
+    <Style x:Key="ProgressBarStyle" TargetType="ProgressBar">
+        <Setter Property="Height" Value="8" />
+        <Setter Property="Background" Value="{StaticResource Brush.LighterGrey}" />
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ProgressBar">
+                    <Grid x:Name="Root">
+
+                        <!-- Background Track -->
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="4"
+                                Height="{TemplateBinding Height}" />
+
+                        <!-- Progress Fill -->
+                        <Border x:Name="PART_Indicator"
+                                HorizontalAlignment="Left"
+                                CornerRadius="4">
+                            <Border.Background>
+                                <MultiBinding Converter="{StaticResource ProgressPercentageToBrushConverter}">
+                                    <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Value" />
+                                    <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Maximum" />
+                                </MultiBinding>
+                            </Border.Background>
+                            <Border.Width>
+                                <MultiBinding Converter="{StaticResource ProgressWidthConverter}">
+                                    <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="ActualWidth" />
+                                    <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Value" />
+                                    <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Maximum" />
+                                </MultiBinding>
+                            </Border.Width>
+                        </Border>
+                    </Grid>
+
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>
