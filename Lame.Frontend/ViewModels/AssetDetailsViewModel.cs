@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Lame.Backend.Assets;
+using Lame.Backend.Languages;
 using Lame.Backend.Tags;
 using Lame.Backend.Translations;
 using Lame.DomainModel;
@@ -17,6 +18,7 @@ public class AssetDetailsViewModel : AssetViewModel
 {
     private readonly IAssets _assetsService;
     private readonly IDialogService _dialogService;
+    private readonly ILanguages _languagesService;
 
     private readonly INavigationService _navigationService;
     private readonly INotificationService _notificationService;
@@ -33,8 +35,10 @@ public class AssetDetailsViewModel : AssetViewModel
         IAssets assetsService,
         IDialogService dialogService,
         INotificationService notificationService,
+        ILanguages languagesService,
         LinkAssetsDialogViewModelFactory linkAssetsDialogViewModelFactory,
-        AssetDto asset) : base(asset)
+        AssetDto asset,
+        int supportedLanguagesCount) : base(asset, supportedLanguagesCount)
     {
         _navigationService = navigationService;
         _translationsService = translationsService;
@@ -42,6 +46,7 @@ public class AssetDetailsViewModel : AssetViewModel
         _assetsService = assetsService;
         _dialogService = dialogService;
         _notificationService = notificationService;
+        _languagesService = languagesService;
 
         Translations = [];
         LinkedAssets = [];
@@ -54,12 +59,13 @@ public class AssetDetailsViewModel : AssetViewModel
             _navigationService.NavigateTo(() =>
                 ActivatorUtilities.CreateInstance<AssetDetailsViewModel>(
                     serviceProvider,
-                    linkedAsset.Asset
+                    linkedAsset.Asset,
+                    SupportedLanguagesCount
                 )));
 
         OpenLinkAssetDialogCommand = new RelayCommand(() =>
         {
-            _linkAssetsDialogViewModel = linkAssetsDialogViewModelFactory.Create(Asset, LinkToAsset);
+            _linkAssetsDialogViewModel = linkAssetsDialogViewModelFactory.Create(this, LinkToAsset);
             _linkAssetsDialogViewModel.OnAssetLinked += OnNavigatedTo;
             _dialogService.ShowDialog(_linkAssetsDialogViewModel);
         });
@@ -84,6 +90,7 @@ public class AssetDetailsViewModel : AssetViewModel
     private async Task LoadTranslations()
     {
         var translations = await _translationsService.GetForAsset(Asset.Id);
+
         Translations.Clear();
         foreach (var translation in translations) Translations.Add(new TranslationViewModel(translation));
     }
@@ -92,7 +99,8 @@ public class AssetDetailsViewModel : AssetViewModel
     {
         var linkedAssets = await _assetsService.GetLinkedAssets(Asset.Id);
         LinkedAssets.Clear();
-        foreach (var linkedAsset in linkedAssets) LinkedAssets.Add(new AssetViewModel(linkedAsset));
+        foreach (var linkedAsset in linkedAssets)
+            LinkedAssets.Add(new AssetViewModel(linkedAsset, SupportedLanguagesCount));
     }
 
     private async Task LoadTags()

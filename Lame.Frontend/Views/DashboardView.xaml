@@ -7,21 +7,19 @@
              mc:Ignorable="d"
              d:DesignHeight="1080" d:DesignWidth="1920"
              d:DataContext="{d:DesignInstance Type=viewModels:DashboardViewModel}">
-    <ScrollViewer VerticalScrollBarVisibility="Auto" Background="{StaticResource Brush.LightestGrey}">
-        <Grid Margin="32">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+    <Grid Margin="32">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
+        <StackPanel>
             <StackPanel>
-                <StackPanel>
-                    <TextBlock Text="Dashboard"
-                               Style="{StaticResource Header1}" />
-                    <TextBlock Text="Overview of your localization project"
-                               Style="{StaticResource Subtitle}"
-                               Margin="0" />
-                </StackPanel>
+                <TextBlock Text="Dashboard"
+                           Style="{StaticResource Header1}" />
+                <TextBlock Text="Overview of your localization project"
+                           Style="{StaticResource Subtitle}"
+                           Margin="0" />
             </StackPanel>
-        </Grid>
-    </ScrollViewer>
+        </StackPanel>
+    </Grid>
 </UserControl>

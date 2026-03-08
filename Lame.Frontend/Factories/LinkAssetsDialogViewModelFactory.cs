@@ -1,6 +1,7 @@
 ﻿using Lame.Backend.Assets;
 using Lame.DomainModel;
 using Lame.Frontend.Services;
+using Lame.Frontend.ViewModels;
 using Lame.Frontend.ViewModels.Dialogs;
 
 namespace Lame.Frontend.Factories;
@@ -24,7 +25,7 @@ public class LinkAssetsDialogViewModelFactory
         _dialogService = dialogService;
     }
 
-    public LinkAssetsDialogViewModel Create(AssetDto? asset, Func<AssetDto, Task> handleLinkAsset)
+    public LinkAssetsDialogViewModel Create(AssetViewModel? asset, Func<AssetDto, Task> handleLinkAsset)
     {
         return new LinkAssetsDialogViewModel(
             asset,

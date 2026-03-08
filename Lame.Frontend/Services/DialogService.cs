@@ -3,7 +3,7 @@
 public class DialogService : IDialogService
 {
     public bool IsDialogOpen { get; private set; }
-    public object ActiveDialog { get; private set; }
+    public object? ActiveDialog { get; private set; }
 
     public void ShowDialog(object viewModel)
     {

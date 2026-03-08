@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Windows.Input;
 using Lame.Backend.Assets;
+using Lame.Backend.Languages;
 using Lame.Backend.Tags;
 using Lame.Backend.Translations;
 using Lame.DomainModel;
@@ -17,6 +18,7 @@ public class CreateAssetViewModel : PageViewModel
 {
     private readonly IAssets _assets;
     private readonly IDialogService _dialogService;
+    private readonly ILanguages _languagesService;
     private readonly INotificationService _notificationService;
     private readonly IServiceProvider _serviceProvider;
     private readonly ITags _tags;
@@ -29,6 +31,7 @@ public class CreateAssetViewModel : PageViewModel
         INotificationService notificationService,
         IServiceProvider serviceProvider,
         IDialogService dialogService,
+        ILanguages languagesService,
         LinkAssetsDialogViewModelFactory linkAssetsDialogViewModelFactory)
     {
         _assets = assets;
@@ -37,6 +40,7 @@ public class CreateAssetViewModel : PageViewModel
         _notificationService = notificationService;
         _serviceProvider = serviceProvider;
         _dialogService = dialogService;
+        _languagesService = languagesService;
 
         Page = AppPage.CreateAsset;
         AssetsToLink = [];
@@ -118,6 +122,15 @@ public class CreateAssetViewModel : PageViewModel
     public ICommand ClearFormCommand { get; }
     public ICommand OpenLinkAssetDialogCommand { get; }
     public ICommand RemoveAssetLinkCommand { get; }
+
+    public int SupportedLanguagesCount { get; set; }
+
+    public override void OnNavigatedTo()
+    {
+        base.OnNavigatedTo();
+
+        _ = GetSupportedLanguagesCount();
+    }
 
     private void ValidateForm()
     {
@@ -217,7 +230,13 @@ public class CreateAssetViewModel : PageViewModel
 
     private Task LinkToAsset(AssetDto asset)
     {
-        AssetsToLink.Add(new AssetViewModel(asset));
+        AssetsToLink.Add(new AssetViewModel(asset, SupportedLanguagesCount));
         return Task.CompletedTask;
+    }
+
+    private async Task GetSupportedLanguagesCount()
+    {
+        var languages = await _languagesService.Get();
+        SupportedLanguagesCount = languages.Count;
     }
 }

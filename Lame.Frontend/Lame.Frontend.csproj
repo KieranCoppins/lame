@@ -9,29 +9,31 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Models\AssetLibrary\" />
+        <Folder Include="Models\AssetLibrary\"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Lame.Backend.Assets.LocalEF\Lame.Backend.Assets.LocalEF.csproj" />
-      <ProjectReference Include="..\Lame.Backend.Tags.LocalEF\Lame.Backend.Tags.LocalEF.csproj" />
-      <ProjectReference Include="..\Lame.Backend.Tags\Lame.Backend.Tags.csproj" />
-      <ProjectReference Include="..\Lame.Backend.Translations.LocalEF\Lame.Backend.Translations.LocalEF.csproj" />
-      <ProjectReference Include="..\Lame.Backend.Translations\Lame.Backend.Translations.csproj" />
-      <ProjectReference Include="..\Lame.DomainModel\Lame.DomainModel.csproj" />
+        <ProjectReference Include="..\Lame.Backend.Assets.LocalEF\Lame.Backend.Assets.LocalEF.csproj"/>
+        <ProjectReference Include="..\Lame.Backend.Languages.LocalEF\Lame.Backend.Languages.LocalEF.csproj"/>
+        <ProjectReference Include="..\Lame.Backend.Languages\Lame.Backend.Languages.csproj"/>
+        <ProjectReference Include="..\Lame.Backend.Tags.LocalEF\Lame.Backend.Tags.LocalEF.csproj"/>
+        <ProjectReference Include="..\Lame.Backend.Tags\Lame.Backend.Tags.csproj"/>
+        <ProjectReference Include="..\Lame.Backend.Translations.LocalEF\Lame.Backend.Translations.LocalEF.csproj"/>
+        <ProjectReference Include="..\Lame.Backend.Translations\Lame.Backend.Translations.csproj"/>
+        <ProjectReference Include="..\Lame.DomainModel\Lame.DomainModel.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Page Update="Views\AssetLibraryView.xaml">
-        <Generator>MSBuild:Compile</Generator>
-        <XamlRuntime>Wpf</XamlRuntime>
-        <SubType>Designer</SubType>
-      </Page>
+        <Page Update="Views\AssetLibraryView.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <XamlRuntime>Wpf</XamlRuntime>
+            <SubType>Designer</SubType>
+        </Page>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.3" />
-      <PackageReference Include="Panlingo.LanguageCode" Version="0.7.2" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.3"/>
+        <PackageReference Include="Panlingo.LanguageCode" Version="0.7.2"/>
     </ItemGroup>
 
 </Project>

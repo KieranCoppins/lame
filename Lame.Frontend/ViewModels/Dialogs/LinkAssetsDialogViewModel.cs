@@ -15,7 +15,7 @@ public class LinkAssetsDialogViewModel : BaseViewModel
     private readonly INotificationService _notificationService;
 
     public LinkAssetsDialogViewModel(
-        AssetDto? asset,
+        AssetViewModel? asset,
         Func<AssetDto, Task> handleLinkAsset,
         IAssets assetService,
         INotificationService notificationService,
@@ -26,13 +26,12 @@ public class LinkAssetsDialogViewModel : BaseViewModel
         _notificationService = notificationService;
         _dialogService = dialogService;
 
-        if (asset != null) Asset = new AssetViewModel(asset);
+        if (asset != null) Asset = new AssetViewModel(asset.Asset, asset.SupportedLanguagesCount);
 
         SearchAssets = async searchText =>
             (await _assetService.Get(searchText, 5))
-            .Select(a => new AssetViewModel(a))
-            .Cast<object>()
-            .ToArray();
+            // We don't care about supported languages count here, so we can just set it to 0 to avoid unnecessary calculations
+            .Select(a => new AssetViewModel(a, 0));
 
         LinkAssetCommand = new AsyncRelayCommand(LinkAsset);
         CancelCommand = new RelayCommand(() => _dialogService.CloseDialog());

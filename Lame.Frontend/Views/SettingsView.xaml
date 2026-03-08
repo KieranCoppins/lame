@@ -1,0 +1,69 @@
+﻿<UserControl x:Class="Lame.Frontend.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewModels="clr-namespace:Lame.Frontend.ViewModels"
+             mc:Ignorable="d"
+             d:DesignHeight="1080" d:DesignWidth="1920"
+             d:DataContext="{d:DesignInstance Type=viewModels:SettingsViewModel}">
+    <Grid Margin="32">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel>
+            <StackPanel>
+                <TextBlock Text="Settings"
+                           Style="{StaticResource Header1}" />
+                <TextBlock Text="Adjust the configuration of your localization project"
+                           Style="{StaticResource Subtitle}"
+                           Margin="0" />
+            </StackPanel>
+
+            <Border Style="{StaticResource CardBorderStyle}">
+                <StackPanel>
+                    <TextBlock Text="Supported Languages"
+                               Style="{StaticResource Header2}" />
+                    <TextBlock Text="Add supported languages for your project."
+                               Style="{StaticResource Subtitle}"
+                               Margin="0" />
+
+                    <ItemsControl ItemsSource="{Binding SupportedLanguages}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="3" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource SmallCardBorderStyle}"
+                                        Background="{StaticResource Brush.LightestGrey}"
+                                        Margin="8">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Name}"
+                                                   Style="{StaticResource Header3}" />
+                                        <TextBlock Style="{StaticResource Subtitle}">
+                                            <Run>Code: </Run>
+                                            <Run Text="{Binding LanguageCode, Mode=OneWay}" />
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Border Style="{StaticResource SectionLineBorderStyle}">
+                        <Button Style="{StaticResource ClickableText}"
+                                Command="{Binding OpenAddLanguageDialogCommand}">
+                            <TextBlock Text="Add New Language"
+                                       Style="{StaticResource Link}"
+                                       Foreground="{StaticResource Brush.Primary}" />
+                        </Button>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </Grid>
+</UserControl>

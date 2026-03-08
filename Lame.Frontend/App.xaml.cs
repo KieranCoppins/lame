@@ -2,6 +2,8 @@
 using Lame.Backend.Assets;
 using Lame.Backend.Assets.LocalEF;
 using Lame.Backend.EntityFramework;
+using Lame.Backend.Languages;
+using Lame.Backend.Languages.LocalEF;
 using Lame.Backend.Tags;
 using Lame.Backend.Tags.LocalEF;
 using Lame.Backend.Translations;
@@ -36,6 +38,7 @@ public partial class App : Application
         services.AddScoped<IAssets, AssetsLocalEf>();
         services.AddScoped<ITranslations, TranslationsLocalEF>();
         services.AddScoped<ITags, TagsLocalEF>();
+        services.AddScoped<ILanguages, LanguagesLocalEF>();
 
         // View Models
         services.AddSingleton<MainWindowViewModel>();
@@ -44,6 +47,7 @@ public partial class App : Application
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<CreateAssetViewModel>();
         services.AddTransient<LinkAssetsDialogViewModel>();
+        services.AddTransient<SettingsViewModel>();
 
         // Register Factories
         services.AddSingleton<LinkAssetsDialogViewModelFactory>();

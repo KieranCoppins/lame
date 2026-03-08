@@ -32,8 +32,14 @@
             <DataTemplate DataType="{x:Type viewModels:CreateAssetViewModel}">
                 <views:CreateAssetView />
             </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:SettingsViewModel}">
+                <views:SettingsView />
+            </DataTemplate>
             <DataTemplate DataType="{x:Type dialogViewModels:LinkAssetsDialogViewModel}">
                 <dialogViews:LinkAssetsDialogView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type dialogViewModels:AddSupportedLanguageDialogViewModel}">
+                <dialogViews:AddSupportedLanguageDialogView />
             </DataTemplate>
             <DataTemplate DataType="{x:Type viewModels:MainWindowViewModel}">
                 <local:MainWindow />

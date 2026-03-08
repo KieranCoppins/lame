@@ -60,7 +60,7 @@
                                  GroupName="SidebarNavigation"
                                  Style="{StaticResource NavigationButton}"
                                  IsChecked="{Binding CurrentPage, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Settings}"
-                                 Command="{Binding NavigateToLibraryCommand}" />
+                                 Command="{Binding NavigateToSettingsCommand}" />
                     <Border Style="{StaticResource SectionLineBorderStyle}"
                             VerticalAlignment="Bottom">
                         <StackPanel>

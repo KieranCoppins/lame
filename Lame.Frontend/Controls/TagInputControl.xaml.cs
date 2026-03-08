@@ -29,9 +29,7 @@ public partial class TagInputControl : UserControl
         InitializeComponent();
         TagSearchWrapper = async searchText =>
             (await TagSearch(searchText))
-            .Select(tag => new TagViewModel(tag))
-            .Cast<object>()
-            .ToArray();
+            .Select(tag => new TagViewModel(tag));
     }
 
     public Func<string, Task<IEnumerable>> TagSearchWrapper { get; set; }

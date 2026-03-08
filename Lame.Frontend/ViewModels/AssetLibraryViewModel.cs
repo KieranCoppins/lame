@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Lame.Backend.Assets;
+using Lame.Backend.Languages;
 using Lame.DomainModel;
 using Lame.Frontend.Commands;
 using Lame.Frontend.Enums;
@@ -12,16 +13,22 @@ namespace Lame.Frontend.ViewModels;
 public class AssetLibraryViewModel : PageViewModel
 {
     private readonly IAssets _assets;
+    private readonly ILanguages _languagesService;
     private readonly INavigationService _navigationService;
     private readonly INotificationService _notificationService;
     private readonly IServiceProvider _serviceProvider;
 
-    public AssetLibraryViewModel(IAssets assets, INavigationService navigationService, IServiceProvider serviceProvider,
+    public AssetLibraryViewModel(
+        IAssets assets,
+        INavigationService navigationService,
+        IServiceProvider serviceProvider,
+        ILanguages languagesService,
         INotificationService notificationService)
     {
         _assets = assets;
         _navigationService = navigationService;
         _serviceProvider = serviceProvider;
+        _languagesService = languagesService;
         _notificationService = notificationService;
 
         Assets = [];
@@ -63,15 +70,17 @@ public class AssetLibraryViewModel : PageViewModel
         IsLoading = true;
         try
         {
-            Assets.Clear();
             List<AssetDto> assets;
-
             if (string.IsNullOrEmpty(SearchQuery))
                 assets = await _assets.Get();
             else
                 assets = await _assets.Get(SearchQuery);
 
-            foreach (var asset in assets) Assets.Add(new AssetViewModel(asset));
+            var languages = await _languagesService.Get();
+            var supportedLanguagesCount = languages.Count;
+
+            Assets.Clear();
+            foreach (var asset in assets) Assets.Add(new AssetViewModel(asset, supportedLanguagesCount));
         }
         catch (Exception ex)
         {
@@ -93,6 +102,9 @@ public class AssetLibraryViewModel : PageViewModel
     private void OnViewAssetDetails(AssetViewModel asset)
     {
         _navigationService.NavigateTo(() =>
-            ActivatorUtilities.CreateInstance<AssetDetailsViewModel>(_serviceProvider, asset.Asset));
+            ActivatorUtilities.CreateInstance<AssetDetailsViewModel>(
+                _serviceProvider,
+                asset.Asset,
+                asset.SupportedLanguagesCount));
     }
 }

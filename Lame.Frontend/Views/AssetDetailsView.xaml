@@ -123,9 +123,36 @@
 
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
-                    <TextBlock Text="Content Context" Style="{StaticResource Header2}" />
+                    <TextBlock Text="Content Context"
+                               Style="{StaticResource Header2}" />
 
-                    <TextBlock Text="{Binding ContentContext}" Style="{StaticResource Body}" />
+                    <TextBlock Text="{Binding ContentContext}">
+                        <TextBlock.Style>
+                            <Style BasedOn="{StaticResource Body}"
+                                   TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ContentContext}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <TextBlock Text="No context provided."
+                               Visibility="Collapsed"
+                               FontStyle="Italic">
+                        <TextBlock.Style>
+                            <Style BasedOn="{StaticResource Subtitle}"
+                                   TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ContentContext}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                 </StackPanel>
             </Border>
 
@@ -215,29 +242,67 @@
 
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Style="{StaticResource CardBorderStyle}"
+                                <Border x:Name="ContainerBorder"
+                                        Style="{StaticResource SmallCardBorderStyle}"
                                         Background="{StaticResource Brush.LightestGrey}"
+                                        BorderBrush="{StaticResource Brush.NotificationSuccess}"
                                         Margin="0, 8">
                                     <StackPanel>
-                                        <TextBlock Text="{Binding Language}"
-                                                   Style="{StaticResource Header3}"
-                                                   Margin="0, 0, 0, 8" />
-                                        <WrapPanel>
-                                            <TextBlock Text="{Binding CreatedAt}"
-                                                       Style="{StaticResource Subtitle}"
-                                                       Margin="0" />
-                                            <TextBlock Text="•"
-                                                       Style="{StaticResource Subtitle}"
-                                                       Margin="8, 0" />
-                                            <TextBlock Text="{Binding Version}"
-                                                       Style="{StaticResource Subtitle}"
-                                                       Margin="0" />
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
 
-                                        </WrapPanel>
-                                        <TextBlock Text="{Binding Content}"
+                                            <TextBlock Grid.Column="0" Text="{Binding Language}"
+                                                       Style="{StaticResource Header3}"
+                                                       Margin="0, 0, 0, 8" />
+
+                                            <WrapPanel Grid.Column="1"
+                                                       HorizontalAlignment="Right"
+                                                       x:Name="TranslationMetaPanel">
+                                                <TextBlock Text="{Binding CreatedAt}"
+                                                           Style="{StaticResource Subtitle}"
+                                                           Margin="0" />
+                                                <TextBlock Text="•"
+                                                           Style="{StaticResource Subtitle}"
+                                                           Margin="8, 0" />
+                                                <TextBlock Text="{Binding Version}"
+                                                           Style="{StaticResource Subtitle}"
+                                                           Margin="0" />
+                                            </WrapPanel>
+                                        </Grid>
+
+                                        <TextBlock x:Name="ContentText"
+                                                   Text="{Binding Content}"
                                                    Style="{StaticResource Body}" />
+
+                                        <TextBlock x:Name="MissingText"
+                                                   Text="Missing translation content."
+                                                   Style="{StaticResource Subtitle}"
+                                                   FontStyle="Italic"
+                                                   Visibility="Collapsed" />
                                     </StackPanel>
+
                                 </Border>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger
+                                        Binding="{Binding Status, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Missing}"
+                                        Value="True">
+                                        <Setter TargetName="ContentText" Property="Visibility" Value="Collapsed" />
+                                        <Setter TargetName="TranslationMetaPanel" Property="Visibility"
+                                                Value="Collapsed" />
+                                        <Setter TargetName="MissingText" Property="Visibility" Value="Visible" />
+                                        <Setter TargetName="ContainerBorder" Property="BorderBrush"
+                                                Value="{StaticResource Brush.NotificationFailure}" />
+                                    </DataTrigger>
+                                    <DataTrigger
+                                        Binding="{Binding Status, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=OutOfDate}"
+                                        Value="True">
+                                        <Setter TargetName="ContainerBorder" Property="BorderBrush"
+                                                Value="{StaticResource Brush.NotificationWarning}" />
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

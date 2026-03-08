@@ -38,6 +38,17 @@
         </Setter>
     </Style>
 
+    <Style x:Key="SmallCardBorderStyle" TargetType="Border" BasedOn="{StaticResource CardBorderStyle}">
+        <Setter Property="Padding">
+            <Setter.Value>
+                <Thickness Left="{StaticResource Padding.Medium}"
+                           Top="{StaticResource Padding.Small}"
+                           Right="{StaticResource Padding.Medium}"
+                           Bottom="{StaticResource Padding.Small}" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="ChipBorderStyle" TargetType="Border">
         <Setter Property="Background" Value="{StaticResource Brush.SubduedWhite}" />
         <Setter Property="CornerRadius">

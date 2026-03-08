@@ -46,6 +46,9 @@ public class MainWindowViewModel : BaseViewModel
         NavigateToCreateAssetCommand = new RelayCommand(() =>
             _navigationService.NavigateTo(serviceProvider.GetRequiredService<CreateAssetViewModel>));
 
+        NavigateToSettingsCommand = new RelayCommand(() =>
+            _navigationService.NavigateTo(serviceProvider.GetRequiredService<SettingsViewModel>));
+
         CloseDialogCommand = new RelayCommand(dialogService.CloseDialog);
     }
 
@@ -61,5 +64,6 @@ public class MainWindowViewModel : BaseViewModel
     public ICommand NavigateToDashboardCommand { get; }
     public ICommand NavigateToLibraryCommand { get; }
     public ICommand NavigateToCreateAssetCommand { get; }
+    public ICommand NavigateToSettingsCommand { get; }
     public ICommand CloseDialogCommand { get; }
 }

@@ -5,8 +5,11 @@ namespace Lame.Frontend.ViewModels;
 
 public class AssetViewModel : PageViewModel
 {
-    public AssetViewModel(AssetDto asset)
+    public readonly int SupportedLanguagesCount;
+
+    public AssetViewModel(AssetDto asset, int SupportedLanguagesCount)
     {
+        this.SupportedLanguagesCount = SupportedLanguagesCount;
         Asset = asset;
         Page = AppPage.Library;
     }
@@ -18,14 +21,13 @@ public class AssetViewModel : PageViewModel
     public string AssetType => Asset.AssetType.ToString();
 
     // TODO set the total number of supported translations somewhere globally through some config
-    public string Progress => $"{Asset.NumTranslations} / 15 ";
+    public string Progress => $"{Asset.NumTranslations} / {SupportedLanguagesCount} ";
 
     public string LastModified => Asset.LastUpdatedAt.ToString("yyyy-MM-dd");
 
     public string CreatedAt => Asset.CreatedAt.ToString("yyyy-MM-dd");
 
-    public string ContentContext =>
-        string.IsNullOrEmpty(Asset.ContextNotes) ? "No context provided" : Asset.ContextNotes;
+    public string? ContentContext => Asset.ContextNotes;
 
     public override string ToString()
     {
