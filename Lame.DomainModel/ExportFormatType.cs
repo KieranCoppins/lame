@@ -1,6 +1,7 @@
 ﻿namespace Lame.DomainModel;
 
-public interface ExportFormatType
+public enum ExportFormatType
 {
-    
+    XLIFF,
+    JSON
 }

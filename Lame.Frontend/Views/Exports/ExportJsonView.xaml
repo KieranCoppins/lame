@@ -1,0 +1,73 @@
+﻿<UserControl x:Class="Lame.Frontend.Views.Exports.ExportJsonView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewModels="clr-namespace:Lame.Frontend.ViewModels.Exports"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance viewModels:ExportJsonViewModel}">
+    <StackPanel>
+        <TextBlock Text="Select language"
+                   Style="{StaticResource Header2}" />
+        <TextBlock Text="Choose a language to export. JSON exports contain only the selected completed language data."
+                   Style="{StaticResource Subtitle}"
+                   FontSize="12" />
+        <ComboBox ItemsSource="{Binding ExportViewModel.AvailableLanguages}"
+                  SelectedItem="{Binding Language}"
+                  Style="{StaticResource BlankComboBox}">
+
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock
+                        Text="{Binding LanguageCode, Converter={StaticResource LanguageCodeToEnglishConverter}}"
+                        Style="{StaticResource Body}"
+                        Margin="0" />
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+
+        <Border Style="{StaticResource SectionLineBorderStyle}" />
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <WrapPanel Margin="0, 4">
+                    <TextBlock Text="Format: "
+                               Style="{StaticResource Subtitle}"
+                               FontSize="12"
+                               FontWeight="Bold"
+                               Margin="0, 0, 4, 0" />
+                    <TextBlock Text="JSON"
+                               Style="{StaticResource Subtitle}"
+                               FontSize="12"
+                               Margin="0"
+                               VerticalAlignment="Center" />
+                </WrapPanel>
+                <WrapPanel Margin="0, 4">
+                    <TextBlock Text="Language: "
+                               Style="{StaticResource Subtitle}"
+                               FontSize="12"
+                               FontWeight="Bold"
+                               Margin="0, 0, 4, 0" />
+                    <TextBlock
+                        Text="{Binding Language.LanguageCode, Converter={StaticResource LanguageCodeToEnglishConverter}}"
+                        Style="{StaticResource Subtitle}"
+                        FontSize="12"
+                        Margin="0"
+                        VerticalAlignment="Center" />
+                </WrapPanel>
+            </StackPanel>
+
+            <Button Grid.Column="1"
+                    Style="{StaticResource PrimaryButton}"
+                    Content="Export JSON"
+                    VerticalAlignment="Center"
+                    Command="{Binding ExportViewModel.ExportCommand}"
+                    Margin="0" />
+        </Grid>
+    </StackPanel>
+</UserControl>

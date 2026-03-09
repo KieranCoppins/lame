@@ -9,6 +9,8 @@ public class LanguageCodeToEnglishConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
+        if (value == null) return null;
+
         var resolver = new LanguageCodeResolver().Select(LanguageCodeEntity.EnglishName);
         return LanguageCodeHelper.Resolve((string)value, resolver);
     }

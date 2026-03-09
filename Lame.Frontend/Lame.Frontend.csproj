@@ -9,14 +9,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Folder Include="Models\AssetLibrary\"/>
+        <Folder Include="Models\"/>
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Lame.Backend.Assets.LocalEF\Lame.Backend.Assets.LocalEF.csproj"/>
         <ProjectReference Include="..\Lame.Backend.Languages.LocalEF\Lame.Backend.Languages.LocalEF.csproj"/>
         <ProjectReference Include="..\Lame.Backend.Languages\Lame.Backend.Languages.csproj"/>
-        <ProjectReference Include="..\Lame.Backend.Statistics.LocalEF\Lame.Backend.Statistics.LocalEF.csproj" />
+        <ProjectReference Include="..\Lame.Backend.Statistics.LocalEF\Lame.Backend.Statistics.LocalEF.csproj"/>
         <ProjectReference Include="..\Lame.Backend.Tags.LocalEF\Lame.Backend.Tags.LocalEF.csproj"/>
         <ProjectReference Include="..\Lame.Backend.Tags\Lame.Backend.Tags.csproj"/>
         <ProjectReference Include="..\Lame.Backend.Translations.LocalEF\Lame.Backend.Translations.LocalEF.csproj"/>

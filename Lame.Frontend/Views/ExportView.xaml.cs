@@ -2,9 +2,9 @@
 
 namespace Lame.Frontend.Views;
 
-public partial class ExportXliffView : UserControl
+public partial class ExportView : UserControl
 {
-    public ExportXliffView()
+    public ExportView()
     {
         InitializeComponent();
     }

@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:Lame.Frontend.ViewModels"
+        xmlns:enums="clr-namespace:Lame.Frontend.Enums"
         mc:Ignorable="d"
         Title="L.A.M.E" Height="450" Width="800"
         d:DataContext="{d:DesignInstance Type=viewModels:MainWindowViewModel }">
@@ -41,25 +42,30 @@
                     <RadioButton Content="Dashboard"
                                  GroupName="SidebarNavigation"
                                  Style="{StaticResource NavigationButton}"
-                                 IsChecked="{Binding CurrentPage, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Dashboard}"
+                                 IsChecked="{Binding CurrentPage, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static enums:AppPage.Dashboard}}"
                                  Command="{Binding NavigateToDashboardCommand}" />
                     <RadioButton Content="Asset Library"
                                  GroupName="SidebarNavigation"
                                  Style="{StaticResource NavigationButton}"
-                                 IsChecked="{Binding CurrentPage, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Library}"
+                                 IsChecked="{Binding CurrentPage, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static enums:AppPage.Library}}"
                                  Command="{Binding NavigateToLibraryCommand}" />
                     <RadioButton Content="Create Asset"
                                  GroupName="SidebarNavigation"
                                  Style="{StaticResource NavigationButton}"
-                                 IsChecked="{Binding CurrentPage, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=CreateAsset}"
+                                 IsChecked="{Binding CurrentPage, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static enums:AppPage.CreateAsset}}"
                                  Command="{Binding NavigateToCreateAssetCommand}" />
+                    <RadioButton Content="Export"
+                                 GroupName="SidebarNavigation"
+                                 Style="{StaticResource NavigationButton}"
+                                 IsChecked="{Binding CurrentPage, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static enums:AppPage.ExportXliff}}"
+                                 Command="{Binding NavigateToExportXliffCommand}" />
                 </StackPanel>
 
                 <StackPanel Grid.Row="2">
                     <RadioButton Content="Settings"
                                  GroupName="SidebarNavigation"
                                  Style="{StaticResource NavigationButton}"
-                                 IsChecked="{Binding CurrentPage, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Settings}"
+                                 IsChecked="{Binding CurrentPage, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static enums:AppPage.Settings}}"
                                  Command="{Binding NavigateToSettingsCommand}" />
                     <Border Style="{StaticResource SectionLineBorderStyle}"
                             VerticalAlignment="Bottom">
@@ -82,8 +88,8 @@
             <ScrollViewer
                 VerticalScrollBarVisibility="Auto"
                 Background="{StaticResource Brush.LightestGrey}">
-                <ContentControl Content="{Binding CurrentView}" x:Name="MainWindowContent" />
 
+                <ContentControl Content="{Binding CurrentView}" x:Name="MainWindowContent" />
 
             </ScrollViewer>
             <ContentControl

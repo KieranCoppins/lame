@@ -6,5 +6,6 @@ public enum AppPage
     Dashboard,
     Library,
     CreateAsset,
-    Settings
+    Settings,
+    ExportXliff
 }

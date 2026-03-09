@@ -3,8 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:viewModels="clr-namespace:Lame.Frontend.ViewModels"
              xmlns:dialogViewModels="clr-namespace:Lame.Frontend.ViewModels.Dialogs"
+             xmlns:exportViewModels="clr-namespace:Lame.Frontend.ViewModels.Exports"
              xmlns:views="clr-namespace:Lame.Frontend.Views"
              xmlns:dialogViews="clr-namespace:Lame.Frontend.Views.Dialogs"
+             xmlns:exportViews="clr-namespace:Lame.Frontend.Views.Exports"
 
              xmlns:local="clr-namespace:Lame.Frontend"
              xmlns:converters="clr-namespace:Lame.Frontend.Helpers.Converters">
@@ -35,6 +37,15 @@
             </DataTemplate>
             <DataTemplate DataType="{x:Type viewModels:SettingsViewModel}">
                 <views:SettingsView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:ExportViewModel}">
+                <views:ExportView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type exportViewModels:ExportXliffViewModel}">
+                <exportViews:ExportXliffView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type exportViewModels:ExportJsonViewModel}">
+                <exportViews:ExportJsonView />
             </DataTemplate>
             <DataTemplate DataType="{x:Type dialogViewModels:LinkAssetsDialogViewModel}">
                 <dialogViews:LinkAssetsDialogView />
