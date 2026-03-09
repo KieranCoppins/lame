@@ -2,7 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <SolidColorBrush x:Key="Brush.Primary" Color="#2563EB" />
-    <SolidColorBrush x:Key="Brush.PrimaryHover" Color="#1447e6" />
+    <SolidColorBrush x:Key="Brush.PrimaryHover" Color="#447AEE" />
     <SolidColorBrush x:Key="Brush.PrimarySelected" Color="#eff6ff" />
     <SolidColorBrush x:Key="Brush.Black" Color="#111827" />
     <SolidColorBrush x:Key="Brush.White" Color="White" />
@@ -12,18 +12,19 @@
     <SolidColorBrush x:Key="Brush.LighterGrey" Color="#f3f4f6" />
     <SolidColorBrush x:Key="Brush.LightestGrey" Color="#f9fafb" />
 
-    <SolidColorBrush x:Key="Brush.NotificationInfo" Color="#2196F3" />
-    <SolidColorBrush x:Key="Brush.NotificationSuccess" Color="#4CAF50" />
-    <SolidColorBrush x:Key="Brush.NotificationFailure" Color="#F44336" />
-    <SolidColorBrush x:Key="Brush.NotificationWarning" Color="#FF9800" />
+    <SolidColorBrush x:Key="Brush.NotificationInfo" Color="#0A6FC2" />
+    <SolidColorBrush x:Key="Brush.NotificationSuccess" Color="#2BA84A" />
+    <SolidColorBrush x:Key="Brush.NotificationFailure" Color="#F9564F" />
+    <SolidColorBrush x:Key="Brush.NotificationWarning" Color="#E08700" />
 
-    <SolidColorBrush x:Key="Brush.Tag.A" Color="#20DF30" />
-    <SolidColorBrush x:Key="Brush.Tag.B" Color="#8021F3" />
-    <SolidColorBrush x:Key="Brush.Tag.C" Color="#FF9800" />
-    <SolidColorBrush x:Key="Brush.Tag.D" Color="#4CAF50" />
-    <SolidColorBrush x:Key="Brush.Tag.E" Color="#F44336" />
-    <SolidColorBrush x:Key="Brush.Tag.F" Color="#E821F3" />
-    <SolidColorBrush x:Key="Brush.Tag.G" Color="#F37F21" />
-    <SolidColorBrush x:Key="Brush.Tag.H" Color="#36E7F4" />
-    <SolidColorBrush x:Key="Brush.Tag.I" Color="#36F4A2" />
+    <SolidColorBrush x:Key="Brush.Tag.A" Color="#2BA84A" />
+    <SolidColorBrush x:Key="Brush.Tag.B" Color="#E08700" />
+    <SolidColorBrush x:Key="Brush.Tag.C" Color="#5F5AA2" />
+    <SolidColorBrush x:Key="Brush.Tag.D" Color="#0A6FC2" />
+    <SolidColorBrush x:Key="Brush.Tag.E" Color="#C16E70" />
+    <SolidColorBrush x:Key="Brush.Tag.F" Color="#81523F" />
+    <SolidColorBrush x:Key="Brush.Tag.G" Color="#A663CC" />
+    <SolidColorBrush x:Key="Brush.Tag.H" Color="#D295BF" />
+    <SolidColorBrush x:Key="Brush.Tag.I" Color="#89B0AE" />
+    <SolidColorBrush x:Key="Brush.Tag.J" Color="#F9564F" />
 </ResourceDictionary>

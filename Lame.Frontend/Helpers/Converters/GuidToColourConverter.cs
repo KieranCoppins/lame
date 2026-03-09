@@ -27,7 +27,7 @@ public class GuidToColourConverter : IValueConverter
             6 => Application.Current.Resources["Brush.Tag.G"] as Brush,
             7 => Application.Current.Resources["Brush.Tag.H"] as Brush,
             8 => Application.Current.Resources["Brush.Tag.I"] as Brush,
-            _ => Application.Current.Resources["Brush.Primary"] as Brush
+            9 => Application.Current.Resources["Brush.Tag.J"] as Brush
         };
     }
 

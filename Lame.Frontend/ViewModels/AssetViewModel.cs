@@ -5,14 +5,14 @@ namespace Lame.Frontend.ViewModels;
 
 public class AssetViewModel : PageViewModel
 {
-    public readonly int SupportedLanguagesCount;
-
     public AssetViewModel(AssetDto asset, int SupportedLanguagesCount)
     {
         this.SupportedLanguagesCount = SupportedLanguagesCount;
         Asset = asset;
         Page = AppPage.Library;
     }
+
+    public int SupportedLanguagesCount { get; }
 
     public AssetDto Asset { get; }
 

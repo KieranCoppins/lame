@@ -16,10 +16,14 @@ public class ProgressPercentageToBrushConverter : IMultiValueConverter
 
         if (percent >= 1.0)
             return Application.Current.Resources["Brush.NotificationSuccess"] as Brush;
-        if (percent < 0.5)
-            return Application.Current.Resources["Brush.NotificationFailure"] as Brush;
 
-        return Application.Current.Resources["Brush.NotificationWarning"] as Brush;
+        if (percent >= 0.75)
+            return Application.Current.Resources["Brush.NotificationInfo"] as Brush;
+
+        if (percent >= 0.5)
+            return Application.Current.Resources["Brush.NotificationWarning"] as Brush;
+
+        return Application.Current.Resources["Brush.NotificationFailure"] as Brush;
     }
 
     public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

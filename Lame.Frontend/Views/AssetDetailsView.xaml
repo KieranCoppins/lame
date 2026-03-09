@@ -60,13 +60,23 @@
                         <StackPanel Grid.Column="1"
                                     HorizontalAlignment="Right">
 
-                            <TextBlock Text="{Binding Progress}"
-                                       Style="{StaticResource Header1}"
-                                       HorizontalAlignment="Right" />
+                            <TextBlock Style="{StaticResource Header1}"
+                                       HorizontalAlignment="Right"
+                                       Margin="0">
+                                <TextBlock.Text>
+                                    <MultiBinding Converter="{StaticResource PercentageConverter}">
+                                        <Binding Path="Asset.NumTranslations" />
+                                        <Binding Path="SupportedLanguagesCount" />
+                                        <Binding Source="0"
+                                                 Mode="OneWay" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
 
                             <TextBlock Text="Complete"
                                        Style="{StaticResource Subtitle}"
-                                       HorizontalAlignment="Right" />
+                                       HorizontalAlignment="Right"
+                                       Margin="0" />
                         </StackPanel>
                     </Grid>
 
@@ -97,9 +107,9 @@
                         <UniformGrid Columns="2">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="🕒"
-                                           Style="{StaticResource Body}"
+                                           Style="{StaticResource Subtitle}"
                                            Margin="0,0,6,0" />
-                                <TextBlock Style="{StaticResource Body}"
+                                <TextBlock Style="{StaticResource Subtitle}"
                                            Margin="0">
                                     <Run Text="Created on " />
                                     <Run Text="{Binding CreatedAt, Mode=OneWay}" />
@@ -108,9 +118,9 @@
 
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="🕒"
-                                           Style="{StaticResource Body}"
+                                           Style="{StaticResource Subtitle}"
                                            Margin="0,0,6,0" />
-                                <TextBlock Style="{StaticResource Body}"
+                                <TextBlock Style="{StaticResource Subtitle}"
                                            Margin="0">
                                     <Run Text="Last modified " />
                                     <Run Text="{Binding LastModified, Mode=OneWay}" />

@@ -22,25 +22,14 @@ public class DashboardViewModel : PageViewModel
         private set
         {
             SetField(ref field, value);
-            OnPropertyChanged(nameof(CompletionPercentage));
-            OnPropertyChanged(nameof(CompletionText));
+            OnPropertyChanged(nameof(CompletedTranslations));
+            OnPropertyChanged(nameof(TotalTranslations));
         }
     }
 
-    public float CompletionPercentage
-    {
-        get
-        {
-            if (ProjectStatistics.TotalAssets == 0 || ProjectStatistics.TotalLanguages == 0)
-                return 100;
+    public int CompletedTranslations => TotalTranslations - ProjectStatistics.MissingTranslations;
 
-            float totalLocalizations = ProjectStatistics.TotalAssets * ProjectStatistics.TotalLanguages;
-            var completedLocalizations = totalLocalizations - ProjectStatistics.MissingTranslations;
-            return completedLocalizations / totalLocalizations * 100;
-        }
-    }
-
-    public string CompletionText => $"{CompletionPercentage:F2}%";
+    public int TotalTranslations => ProjectStatistics.TotalAssets * ProjectStatistics.TotalLanguages;
 
     public override void OnNavigatedTo()
     {
