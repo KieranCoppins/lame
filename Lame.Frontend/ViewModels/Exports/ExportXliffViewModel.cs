@@ -39,7 +39,8 @@ public class ExportXliffViewModel : BaseViewModel, IExportOptionsViewModel
         var options = new ExportOptions
         {
             Format = ExportFormatType.XLIFF,
-            LanguageCode = TargetLanguage.LanguageCode
+            LanguageCode = TargetLanguage.LanguageCode,
+            TranslationStatusFilter = TranslationStatusFilter
         };
 
         return options;

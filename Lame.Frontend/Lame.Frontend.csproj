@@ -14,6 +14,8 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Lame.Backend.Assets.LocalEF\Lame.Backend.Assets.LocalEF.csproj"/>
+        <ProjectReference Include="..\Lame.Backend.Exports.LocalEF\Lame.Backend.Exports.LocalEF.csproj"/>
+        <ProjectReference Include="..\Lame.Backend.Exports\Lame.Backend.Exports.csproj"/>
         <ProjectReference Include="..\Lame.Backend.Languages.LocalEF\Lame.Backend.Languages.LocalEF.csproj"/>
         <ProjectReference Include="..\Lame.Backend.Languages\Lame.Backend.Languages.csproj"/>
         <ProjectReference Include="..\Lame.Backend.Statistics.LocalEF\Lame.Backend.Statistics.LocalEF.csproj"/>

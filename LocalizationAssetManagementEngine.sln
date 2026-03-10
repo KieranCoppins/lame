@@ -26,6 +26,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.Backend.Statistics", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.Backend.Statistics.LocalEF", "Lame.Backend.Statistics.LocalEF\Lame.Backend.Statistics.LocalEF.csproj", "{0DA35B8F-2A5A-4EA1-B9E1-3C80A3566C78}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.Backend.Exports", "Lame.Backend.Exports\Lame.Backend.Exports.csproj", "{8D3937EE-13D0-4976-B99F-71AAC299B496}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.Backend.Exports.LocalEF", "Lame.Backend.Exports.LocalEF\Lame.Backend.Exports.LocalEF.csproj", "{67953411-54A3-49E5-B9A7-5C60753023DA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -84,5 +88,13 @@ Global
 		{0DA35B8F-2A5A-4EA1-B9E1-3C80A3566C78}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0DA35B8F-2A5A-4EA1-B9E1-3C80A3566C78}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0DA35B8F-2A5A-4EA1-B9E1-3C80A3566C78}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D3937EE-13D0-4976-B99F-71AAC299B496}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D3937EE-13D0-4976-B99F-71AAC299B496}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D3937EE-13D0-4976-B99F-71AAC299B496}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D3937EE-13D0-4976-B99F-71AAC299B496}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67953411-54A3-49E5-B9A7-5C60753023DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67953411-54A3-49E5-B9A7-5C60753023DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67953411-54A3-49E5-B9A7-5C60753023DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67953411-54A3-49E5-B9A7-5C60753023DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
