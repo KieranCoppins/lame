@@ -9,13 +9,18 @@
              mc:Ignorable="d"
              d:DesignHeight="1080" d:DesignWidth="720"
              d:DataContext="{d:DesignInstance exports:ExportXliffViewModel  }">
+    <UserControl.Resources>
+        <CollectionViewSource x:Key="FilteredLanguages"
+                              Source="{Binding ExportViewModel.AvailableLanguages}" />
+    </UserControl.Resources>
+
     <StackPanel>
         <TextBlock Text="Target language"
                    Style="{StaticResource Header2}" />
         <TextBlock Text="Source language is always English. Select the target language for the XLIFF export."
                    Style="{StaticResource Subtitle}"
                    FontSize="12" />
-        <ComboBox ItemsSource="{Binding ExportViewModel.AvailableLanguages}"
+        <ComboBox ItemsSource="{Binding Source={StaticResource FilteredLanguages}}"
                   SelectedItem="{Binding TargetLanguage}"
                   Style="{StaticResource BlankComboBox}">
             <ComboBox.ItemTemplate>
