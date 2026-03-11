@@ -7,25 +7,30 @@ namespace Lame.Backend.Exports;
 
 public static class ExportHelpers
 {
-    public static byte[] ExportToJson(IEnumerable<TranslationRecord> records)
+    public static byte[] ExportToJson(List<AssetExportData> records)
     {
         var options = new JsonSerializerOptions
         {
             WriteIndented = true
         };
 
-        var json = JsonSerializer.Serialize(records, options);
+        // Export an array of objects with the internal name and the target translation content.
+        var json = JsonSerializer.Serialize(
+            records.Select(r => new
+            {
+                r.InternalName,
+                r.TargetTranslation?.Content
+            }), options);
 
         return Encoding.UTF8.GetBytes(json);
     }
 
-    // Creates a XLIFF 1.2 file with the given translation records. The key is the source language record, and the value is the target language record.
     public static byte[] ExportToXliff12(
-        List<Tuple<AssetMetaData, TranslationRecord, TranslationRecord?>> records,
+        List<AssetExportData> records,
         string sourceLanguageCode,
         string targetLanguageCode)
     {
-        if (records.Count <= 0 && records.First().Item2 == null)
+        if (records.Count <= 0 && records.First() == null)
             throw new NullReferenceException("No records found");
 
         var sb = new StringBuilder();
@@ -37,10 +42,11 @@ public static class ExportHelpers
 
         foreach (var record in records)
         {
-            sb.AppendLine($"\t\t\t<trans-unit id=\"{record.Item2.Id}\" xml:space=\"preserve\">");
-            sb.AppendLine($"\t\t\t\t<source>{SecurityElement.Escape(record.Item2.Content)}</source>");
-            sb.AppendLine($"\t\t\t\t<target>{SecurityElement.Escape(record.Item3?.Content)}</target>");
-            sb.AppendLine($"\t\t\t\t<note>{SecurityElement.Escape(record.Item1.Context)}</note>");
+            sb.AppendLine($"\t\t\t<trans-unit id=\"{record.Id}\" xml:space=\"preserve\">");
+            sb.AppendLine($"\t\t\t\t<source>{SecurityElement.Escape(record.SourceTranslation?.Content)}</source>");
+            sb.AppendLine($"\t\t\t\t<target>{SecurityElement.Escape(record.TargetTranslation?.Content)}</target>");
+            sb.AppendLine($"\t\t\t\t<note from=\"context\">{SecurityElement.Escape(record.Context)}</note>");
+            sb.AppendLine($"\t\t\t\t<note from=\"internal-name\">{SecurityElement.Escape(record.InternalName)}</note>");
             sb.AppendLine("\t\t\t</trans-unit>");
         }
 

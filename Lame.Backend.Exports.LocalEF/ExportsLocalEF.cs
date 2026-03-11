@@ -22,56 +22,50 @@ public class ExportsLocalEF : IExports
             using var scope = _serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            if (exportOptions.Format == ExportFormatType.JSON)
-            {
-                // Get all target translations
-                var records = await context.Assets
-                    .Include(x => x.Translations.Where(t => t.Language == exportOptions.LanguageCode))
-                    .SelectMany(asset => asset.Translations)
-                    .Select(t => new TranslationRecord
-                    {
-                        Id = t.Asset.Id,
-                        Content = t.Content ?? string.Empty
-                    })
-                    .ToListAsync();
+            var records = await context.Assets
+                .Include(x =>
+                    x.Translations.Where(t => t.Language == "en" || t.Language == exportOptions.LanguageCode))
+                .Where(a =>
+                    exportOptions.TranslationStatusFilter == ExportTranslationStatusFilter.All ||
+                    (exportOptions.TranslationStatusFilter == ExportTranslationStatusFilter.Complete &&
+                     a.Translations.Any(t =>
+                         t.Language == exportOptions.LanguageCode && !string.IsNullOrEmpty(t.Content))) ||
+                    (exportOptions.TranslationStatusFilter == ExportTranslationStatusFilter.Missing &&
+                     !a.Translations.Any(t =>
+                         t.Language == exportOptions.LanguageCode && !string.IsNullOrEmpty(t.Content)))
+                )
+                .Select(a => new AssetExportData
+                {
+                    // Asset Data
+                    Id = a.Id,
+                    InternalName = a.InternalName,
+                    Context = a.ContextNotes ?? string.Empty,
 
-                return ExportHelpers.ExportToJson(records);
-            }
-
-            if (exportOptions.Format == ExportFormatType.XLIFF)
-            {
-                var pairs = await context.Assets
-                    .Include(x =>
-                        x.Translations.Where(t => t.Language == "en" || t.Language == exportOptions.LanguageCode))
-                    .Select(asset => new Tuple<AssetMetaData, TranslationRecord, TranslationRecord?>(
-                        new AssetMetaData
+                    // Get source translation (always english) and create translation export data
+                    SourceTranslation = a.Translations.Where(t => t.Language == "en").Select(t =>
+                        new TranslationExportData
                         {
-                            InternalName = asset.InternalName,
-                            Context = asset.ContextNotes ?? string.Empty
-                        },
-                        asset.Translations
-                            .Where(t => t.Language == "en")
-                            .Select(t => new TranslationRecord
-                            {
-                                Id = t.Asset.Id,
-                                Content = t.Content ?? string.Empty
-                            })
-                            .First(),
-                        asset.Translations
-                            .Where(t => t.Language == exportOptions.LanguageCode)
-                            .Select(t => new TranslationRecord
-                            {
-                                Id = t.Asset.Id,
-                                Content = t.Content ?? string.Empty
-                            })
-                            .FirstOrDefault()
-                    ))
-                    .ToListAsync();
+                            Id = t.AssetId,
+                            Content = t.Content ?? string.Empty
+                        }).FirstOrDefault(),
 
-                return ExportHelpers.ExportToXliff12(pairs, "en", exportOptions.LanguageCode);
-            }
 
-            return [];
+                    // Get target translation (in export options) and create translation export data
+                    TargetTranslation = a.Translations.Where(t => t.Language == exportOptions.LanguageCode)
+                        .Select(t =>
+                            new TranslationExportData
+                            {
+                                Id = t.AssetId,
+                                Content = t.Content ?? string.Empty
+                            }).FirstOrDefault()
+                }).ToListAsync();
+
+            return exportOptions.Format switch
+            {
+                ExportFormatType.JSON => ExportHelpers.ExportToJson(records),
+                ExportFormatType.XLIFF => ExportHelpers.ExportToXliff12(records, "en", exportOptions.LanguageCode),
+                _ => []
+            };
         });
     }
 }
