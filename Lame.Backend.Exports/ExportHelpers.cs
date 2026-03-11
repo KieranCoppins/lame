@@ -30,9 +30,6 @@ public static class ExportHelpers
         string sourceLanguageCode,
         string targetLanguageCode)
     {
-        if (records.Count <= 0 && records.First() == null)
-            throw new NullReferenceException("No records found");
-
         var sb = new StringBuilder();
         sb.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         sb.AppendLine("<xliff version=\"1.2\" xmlns=\"urn:oasis:names:tc:xliff:document:1.2\">");

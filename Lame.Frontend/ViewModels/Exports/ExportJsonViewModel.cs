@@ -25,7 +25,7 @@ public class ExportJsonViewModel : BaseViewModel, IExportOptionsViewModel
         {
             Format = ExportFormatType.JSON,
             LanguageCode = Language.LanguageCode,
-            TranslationStatusFilter = ExportTranslationStatusFilter.All
+            TranslationStatusFilter = ExportTranslationStatusFilter.Complete
         };
 
         return options;
