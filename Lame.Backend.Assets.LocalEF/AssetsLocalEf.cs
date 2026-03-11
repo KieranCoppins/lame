@@ -140,7 +140,10 @@ public class AssetsLocalEf : IAssets
             using var scope = _serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            context.Assets.Update(MapToEntity(asset));
+            var entity = MapToEntity(asset);
+            entity.LastUpdatedAt = DateTime.UtcNow;
+
+            context.Assets.Update(entity);
             return context.SaveChangesAsync();
         });
     }

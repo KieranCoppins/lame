@@ -14,7 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Lame.Frontend.ViewModels;
 
-public class AssetDetailsViewModel : AssetViewModel
+public class AssetDetailsViewModel : PageViewModel
 {
     private readonly IAssets _assetsService;
     private readonly IDialogService _dialogService;
@@ -38,7 +38,7 @@ public class AssetDetailsViewModel : AssetViewModel
         ILanguages languagesService,
         LinkAssetsDialogViewModelFactory linkAssetsDialogViewModelFactory,
         AssetDto asset,
-        int supportedLanguagesCount) : base(asset, supportedLanguagesCount)
+        int supportedLanguagesCount)
     {
         _navigationService = navigationService;
         _translationsService = translationsService;
@@ -51,6 +51,9 @@ public class AssetDetailsViewModel : AssetViewModel
         Translations = [];
         LinkedAssets = [];
         Tags = [];
+
+        Asset = asset;
+        SupportedLanguagesCount = supportedLanguagesCount;
 
         ReturnToLibraryCommand = new RelayCommand(() =>
             _navigationService.NavigateTo(serviceProvider.GetRequiredService<AssetLibraryViewModel>));
@@ -65,13 +68,19 @@ public class AssetDetailsViewModel : AssetViewModel
 
         OpenLinkAssetDialogCommand = new RelayCommand(() =>
         {
-            _linkAssetsDialogViewModel = linkAssetsDialogViewModelFactory.Create(this, LinkToAsset);
+            _linkAssetsDialogViewModel =
+                linkAssetsDialogViewModelFactory.Create(new AssetViewModel(Asset, SupportedLanguagesCount),
+                    LinkToAsset);
             _linkAssetsDialogViewModel.OnAssetLinked += OnNavigatedTo;
             _dialogService.ShowDialog(_linkAssetsDialogViewModel);
         });
 
         Page = AppPage.Library;
     }
+
+    public int SupportedLanguagesCount { get; }
+
+    public AssetDto Asset { get; }
 
     public ObservableCollection<TranslationViewModel> Translations { get; }
     public ObservableCollection<AssetViewModel> LinkedAssets { get; }
@@ -80,6 +89,36 @@ public class AssetDetailsViewModel : AssetViewModel
     public ICommand ReturnToLibraryCommand { get; }
     public ICommand ViewLinkedAssetDetails { get; }
     public ICommand OpenLinkAssetDialogCommand { get; }
+
+    public string InternalName
+    {
+        get => Asset.InternalName;
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value)) return;
+            if (Asset.InternalName == value) return;
+
+            Asset.InternalName = value;
+            OnPropertyChanged();
+
+            _ = UpdateAsset();
+        }
+    }
+
+    public string ContextNotes
+    {
+        get => Asset.ContextNotes;
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value)) return;
+            if (Asset.ContextNotes == value) return;
+
+            Asset.ContextNotes = value;
+            OnPropertyChanged();
+
+            _ = UpdateAsset();
+        }
+    }
 
     public override void OnNavigatedTo()
     {
@@ -121,5 +160,41 @@ public class AssetDetailsViewModel : AssetViewModel
             Type = NotificationType.Success,
             Title = "Assets linked"
         });
+    }
+
+    private async Task UpdateAsset()
+    {
+        try
+        {
+            // TODO: Consider using some auto mapper to map assets and asset dto and asset entities
+            await _assetsService.Update(new Asset
+            {
+                Id = Asset.Id,
+                AssetType = Asset.AssetType,
+                ContextNotes = Asset.ContextNotes,
+                InternalName = Asset.InternalName,
+                LastUpdatedAt = Asset.LastUpdatedAt,
+                CreatedAt = Asset.CreatedAt,
+                Status = Asset.Status
+            });
+
+            _notificationService.EmitNotification(
+                new Notification
+                {
+                    Title = "Asset Updated",
+                    Message = "The asset was successfully updated.",
+                    Type = NotificationType.Success
+                });
+        }
+        catch (Exception ex)
+        {
+            _notificationService.EmitNotification(
+                new Notification
+                {
+                    Title = "Error updating asset",
+                    Message = $"An error occurred while updating the asset: {ex.Message}",
+                    Type = NotificationType.Failure
+                });
+        }
     }
 }

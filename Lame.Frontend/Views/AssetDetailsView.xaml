@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModels="clr-namespace:Lame.Frontend.ViewModels"
+             xmlns:controls="clr-namespace:Lame.Frontend.Controls"
              mc:Ignorable="d"
              d:DesignHeight="1080" d:DesignWidth="1920"
              d:DataContext="{d:DesignInstance Type=viewModels:AssetDetailsViewModel}">
@@ -31,33 +32,33 @@
                     <!-- Top Section -->
                     <Grid Margin="0,0,0,16">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
+                            <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
                         <!-- Left Section -->
-                        <StackPanel Orientation="Horizontal" Grid.Column="0">
+                        <StackPanel Grid.Column="0">
 
                             <!-- Title + Meta -->
-                            <StackPanel>
-                                <TextBlock Text="{Binding InternalName}" Style="{StaticResource Header1}" />
+                            <controls:EditableText
+                                Text="{Binding InternalName}"
+                                Style="{StaticResource Header1}" />
 
-                                <StackPanel Orientation="Horizontal"
-                                            Margin="0,8,0,0">
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0,8,0,0">
 
-                                    <TextBlock Text="Type: "
-                                               Style="{StaticResource Subtitle}"
-                                               Margin="0" />
+                                <TextBlock Text="Type: "
+                                           Style="{StaticResource Subtitle}"
+                                           Margin="0" />
 
-                                    <TextBlock Text="{Binding AssetType}"
-                                               Style="{StaticResource Subtitle}"
-                                               Margin="0" />
-                                </StackPanel>
+                                <TextBlock Text="{Binding Asset.AssetType}"
+                                           Style="{StaticResource Subtitle}"
+                                           Margin="0" />
                             </StackPanel>
                         </StackPanel>
 
                         <!-- Right Section (Progress) -->
-                        <StackPanel Grid.Column="1"
+                        <StackPanel Grid.Column="2"
                                     HorizontalAlignment="Right">
 
                             <TextBlock Style="{StaticResource Header1}"
@@ -112,7 +113,7 @@
                                 <TextBlock Style="{StaticResource Subtitle}"
                                            Margin="0">
                                     <Run Text="Created on " />
-                                    <Run Text="{Binding CreatedAt, Mode=OneWay}" />
+                                    <Run Text="{Binding Asset.CreatedAt, Mode=OneWay}" />
                                 </TextBlock>
                             </StackPanel>
 
@@ -123,7 +124,7 @@
                                 <TextBlock Style="{StaticResource Subtitle}"
                                            Margin="0">
                                     <Run Text="Last modified " />
-                                    <Run Text="{Binding LastModified, Mode=OneWay}" />
+                                    <Run Text="{Binding Asset.LastUpdatedAt, Mode=OneWay}" />
                                 </TextBlock>
                             </StackPanel>
                         </UniformGrid>
@@ -136,18 +137,17 @@
                     <TextBlock Text="Content Context"
                                Style="{StaticResource Header2}" />
 
-                    <TextBlock Text="{Binding ContentContext}">
-                        <TextBlock.Style>
-                            <Style BasedOn="{StaticResource Body}"
-                                   TargetType="TextBlock">
+                    <controls:EditableText Text="{Binding ContextNotes}">
+                        <controls:EditableText.Style>
+                            <Style BasedOn="{StaticResource Body}">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding ContentContext}" Value="{x:Null}">
-                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    <DataTrigger Binding="{Binding ContextNotes}" Value="{x:Null}">
+                                        <Setter Property="FrameworkElement.Visibility" Value="Collapsed" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
+                        </controls:EditableText.Style>
+                    </controls:EditableText>
 
                     <TextBlock Text="No context provided."
                                Visibility="Collapsed"
@@ -156,7 +156,7 @@
                             <Style BasedOn="{StaticResource Subtitle}"
                                    TargetType="TextBlock">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding ContentContext}" Value="{x:Null}">
+                                    <DataTrigger Binding="{Binding Asset.ContextNotes}" Value="{x:Null}">
                                         <Setter Property="Visibility" Value="Visible" />
                                     </DataTrigger>
                                 </Style.Triggers>

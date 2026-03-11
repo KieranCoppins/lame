@@ -10,13 +10,24 @@ public class AssetViewModel : PageViewModel
         this.SupportedLanguagesCount = SupportedLanguagesCount;
         Asset = asset;
         Page = AppPage.Library;
+
+        InternalName = asset.InternalName;
     }
 
     public int SupportedLanguagesCount { get; }
 
     public AssetDto Asset { get; }
 
-    public string InternalName => Asset.InternalName;
+    public string InternalName
+    {
+        get;
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value)) return;
+
+            if (!SetField(ref field, value)) return;
+        }
+    }
 
     public string AssetType => Asset.AssetType.ToString();
 
