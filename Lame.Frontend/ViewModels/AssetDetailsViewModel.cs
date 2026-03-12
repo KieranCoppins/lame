@@ -81,7 +81,7 @@ public class AssetDetailsViewModel : PageViewModel
 
     public AssetDto Asset { get; }
 
-    public ObservableCollection<Translation> Translations { get; }
+    public ObservableCollection<TranslationDto> Translations { get; }
     public ObservableCollection<AssetDto> LinkedAssets { get; }
     public ObservableCollection<Tag> Tags { get; }
 
