@@ -161,10 +161,12 @@
                             <TextBlock Text="{Binding Title}"
                                        Style="{StaticResource NotificationText}"
                                        Foreground="{StaticResource Brush.White}"
+                                       TextWrapping="Wrap"
                                        FontWeight="Bold" />
                             <TextBlock Text="{Binding Message}"
                                        Style="{StaticResource NotificationText}"
-                                       Foreground="{StaticResource Brush.White}" />
+                                       Foreground="{StaticResource Brush.White}"
+                                       TextWrapping="Wrap" />
                         </StackPanel>
                     </Border>
                 </DataTemplate>

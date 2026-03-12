@@ -65,16 +65,24 @@
                 <Border Grid.Column="3"
                         Style="{StaticResource CardBorderStyle}">
                     <StackPanel>
+
+                        <FrameworkElement x:Name="CompletedPercentageReference">
+                            <FrameworkElement.Tag>
+                                <MultiBinding Converter="{StaticResource PercentageConverter}">
+                                    <Binding Path="CompletedTranslations" Mode="OneWay" />
+                                    <Binding Path="TotalTranslations" />
+                                </MultiBinding>
+                            </FrameworkElement.Tag>
+                        </FrameworkElement>
+
                         <TextBlock Text="Completed"
                                    Style="{StaticResource Subtitle}"
                                    Margin="0" />
                         <TextBlock Style="{StaticResource Header1}">
                             <TextBlock.Text>
-                                <MultiBinding Converter="{StaticResource PercentageConverter}">
-                                    <Binding Path="CompletedTranslations" />
-                                    <Binding Path="TotalTranslations" />
-                                    <Binding Source="1"
-                                             Mode="OneWay" />
+                                <MultiBinding StringFormat="{}{0:F1}%">
+                                    <Binding Path="Tag"
+                                             ElementName="CompletedPercentageReference" />
                                 </MultiBinding>
                             </TextBlock.Text>
                         </TextBlock>
@@ -120,12 +128,24 @@
                                                        Style="{StaticResource Body}"
                                                        FontSize="13"
                                                        Foreground="{StaticResource Brush.DarkGrey}">
-                                                <Run Text="{Binding Value, Mode=OneWay}" />
-                                                <Run Text=" / " />
-                                                <Run
-                                                    Text="{Binding DataContext.ProjectStatistics.TotalAssets, 
-                                                RelativeSource={RelativeSource AncestorType=ItemsControl}, Mode=OneWay}" />
+                                                <TextBlock.Text>
+                                                    <MultiBinding StringFormat="{}{0}/{1}">
+                                                        <Binding Path="Value" />
+                                                        <Binding Path="DataContext.ProjectStatistics.TotalAssets"
+                                                                 RelativeSource="{ RelativeSource AncestorType=ItemsControl}" />
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
                                             </TextBlock>
+
+                                            <FrameworkElement x:Name="LanguagePercentageReference">
+                                                <FrameworkElement.Tag>
+                                                    <MultiBinding Converter="{StaticResource PercentageConverter}">
+                                                        <Binding Path="Value" />
+                                                        <Binding Path="DataContext.ProjectStatistics.TotalAssets"
+                                                                 RelativeSource="{RelativeSource AncestorType=ItemsControl}" />
+                                                    </MultiBinding>
+                                                </FrameworkElement.Tag>
+                                            </FrameworkElement>
 
                                             <TextBlock Grid.Column="2"
                                                        VerticalAlignment="Center"
@@ -134,12 +154,9 @@
                                                        FontSize="13"
                                                        Style="{StaticResource Body}">
                                                 <TextBlock.Text>
-                                                    <MultiBinding Converter="{StaticResource PercentageConverter}">
-                                                        <Binding Path="Value" />
-                                                        <Binding Path="DataContext.ProjectStatistics.TotalAssets"
-                                                                 RelativeSource="{RelativeSource AncestorType=ItemsControl}" />
-                                                        <Binding Source="0"
-                                                                 Mode="OneWay" />
+                                                    <MultiBinding StringFormat="{}{0:F0}%">
+                                                        <Binding Path="Tag"
+                                                                 ElementName="LanguagePercentageReference" />
                                                     </MultiBinding>
                                                 </TextBlock.Text>
                                             </TextBlock>
@@ -188,29 +205,36 @@
                                                 <TextBlock Style="{StaticResource Link}"
                                                            Margin="0"
                                                            FontSize="13">
-                                                    <Run Text="#" />
-                                                    <Run Text="{Binding Key.Name}" />
+                                                    <TextBlock.Text>
+                                                        <MultiBinding StringFormat="{}#{0}">
+                                                            <Binding Path="Key.Name" />
+                                                        </MultiBinding>
+                                                    </TextBlock.Text>
                                                 </TextBlock>
                                             </Button>
+
+                                            <FrameworkElement x:Name="TagPercentageReference">
+                                                <FrameworkElement.Tag>
+                                                    <MultiBinding Converter="{StaticResource PercentageConverter}">
+                                                        <Binding Path="Value" Mode="OneWay" />
+                                                        <Binding
+                                                            Path="DataContext.ProjectStatistics.TotalAssets"
+                                                            RelativeSource="{RelativeSource AncestorType=ItemsControl}"
+                                                            Mode="OneWay" />
+                                                        <Binding Source="1" Mode="OneWay" />
+                                                    </MultiBinding>
+                                                </FrameworkElement.Tag>
+                                            </FrameworkElement>
+
                                             <TextBlock Style="{StaticResource Subtitle}"
                                                        Margin="0"
                                                        FontSize="11">
-                                                <Run>
-                                                    <Run.Text>
-                                                        <MultiBinding
-                                                            Converter="{StaticResource PercentageConverter}">
-                                                            <Binding Path="Value"
-                                                                     Mode="OneWay" />
-                                                            <Binding
-                                                                Path="DataContext.ProjectStatistics.TotalAssets"
-                                                                RelativeSource="{RelativeSource AncestorType=ItemsControl}"
-                                                                Mode="OneWay" />
-                                                            <Binding Source="1"
-                                                                     Mode="OneWay" />
-                                                        </MultiBinding>
-                                                    </Run.Text>
-                                                </Run>
-                                                <Run Text="of assets" />
+                                                <TextBlock.Text>
+                                                    <MultiBinding StringFormat="{}{0:F1}% of assets">
+                                                        <Binding Path="Tag"
+                                                                 ElementName="TagPercentageReference" />
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
                                             </TextBlock>
                                         </StackPanel>
 

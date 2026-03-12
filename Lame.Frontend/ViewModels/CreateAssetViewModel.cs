@@ -48,7 +48,7 @@ public class CreateAssetViewModel : PageViewModel
 
         CreateAssetCommand = new AsyncRelayCommand(CreateAsset, () => !CreatingAsset);
         ClearFormCommand = new RelayCommand(ClearForm, () => !CreatingAsset);
-        RemoveAssetLinkCommand = new RelayCommand<AssetViewModel>(linkedAsset => AssetsToLink.Remove(linkedAsset));
+        RemoveAssetLinkCommand = new RelayCommand<AssetDto>(linkedAsset => AssetsToLink.Remove(linkedAsset));
 
         OpenLinkAssetDialogCommand = new RelayCommand(() =>
         {
@@ -57,7 +57,7 @@ public class CreateAssetViewModel : PageViewModel
         });
     }
 
-    public ObservableCollection<AssetViewModel> AssetsToLink { get; }
+    public ObservableCollection<AssetDto> AssetsToLink { get; }
 
     public Array AssetTypes => Enum.GetValues<AssetType>();
 
@@ -83,7 +83,7 @@ public class CreateAssetViewModel : PageViewModel
         set => SetField(ref field, value);
     } = AssetType.Text;
 
-    public ObservableCollection<TagViewModel> Tags
+    public ObservableCollection<Tag> Tags
     {
         get;
         set => SetField(ref field, value);
@@ -171,10 +171,10 @@ public class CreateAssetViewModel : PageViewModel
             });
 
             // Tag our asset
-            foreach (var tag in Tags) await _tags.AddTagToResource(tag.Tag, assetId, ResourceType.Asset);
+            foreach (var tag in Tags) await _tags.AddTagToResource(tag, assetId, ResourceType.Asset);
 
             // Create asset links
-            foreach (var linkedAsset in AssetsToLink) await _assets.LinkAssets(linkedAsset.Asset.Id, assetId);
+            foreach (var linkedAsset in AssetsToLink) await _assets.LinkAssets(linkedAsset.Id, assetId);
 
             _notificationService.EmitNotification(
                 new Notification
@@ -230,7 +230,7 @@ public class CreateAssetViewModel : PageViewModel
 
     private Task LinkToAsset(AssetDto asset)
     {
-        AssetsToLink.Add(new AssetViewModel(asset, SupportedLanguagesCount));
+        AssetsToLink.Add(asset);
         return Task.CompletedTask;
     }
 

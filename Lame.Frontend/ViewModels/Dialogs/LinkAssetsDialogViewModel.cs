@@ -15,7 +15,7 @@ public class LinkAssetsDialogViewModel : BaseViewModel
     private readonly INotificationService _notificationService;
 
     public LinkAssetsDialogViewModel(
-        AssetViewModel? asset,
+        AssetDto? asset,
         Func<AssetDto, Task> handleLinkAsset,
         IAssets assetService,
         INotificationService notificationService,
@@ -26,12 +26,9 @@ public class LinkAssetsDialogViewModel : BaseViewModel
         _notificationService = notificationService;
         _dialogService = dialogService;
 
-        if (asset != null) Asset = new AssetViewModel(asset.Asset, asset.SupportedLanguagesCount);
+        Asset = asset;
 
-        SearchAssets = async searchText =>
-            (await _assetService.Get(searchText, 5))
-            // We don't care about supported languages count here, so we can just set it to 0 to avoid unnecessary calculations
-            .Select(a => new AssetViewModel(a, 0));
+        SearchAssets = async searchText => await _assetService.Get(searchText, 5);
 
         LinkAssetCommand = new AsyncRelayCommand(LinkAsset);
         CancelCommand = new RelayCommand(() => _dialogService.CloseDialog());
@@ -39,9 +36,9 @@ public class LinkAssetsDialogViewModel : BaseViewModel
 
     public Func<string, Task<IEnumerable>> SearchAssets { get; }
 
-    public AssetViewModel? Asset { get; }
+    public AssetDto? Asset { get; }
 
-    public AssetViewModel? SelectedAssetToLink
+    public AssetDto? SelectedAssetToLink
     {
         get;
         set => SetField(ref field, value);
@@ -54,7 +51,7 @@ public class LinkAssetsDialogViewModel : BaseViewModel
 
     public string TitleText => Asset == null
         ? "Link an asset"
-        : $"Link to '{Asset.Asset.InternalName}'";
+        : $"Link to '{Asset.InternalName}'";
 
 
     public event Action OnAssetLinked;
@@ -67,7 +64,7 @@ public class LinkAssetsDialogViewModel : BaseViewModel
         {
             if (SelectedAssetToLink == null) throw new NullReferenceException("No asset selected to link.");
 
-            await _handleLinkAsset(SelectedAssetToLink.Asset);
+            await _handleLinkAsset(SelectedAssetToLink);
 
             OnAssetLinked?.Invoke();
 

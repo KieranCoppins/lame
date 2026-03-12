@@ -13,6 +13,7 @@
                     <Border x:Name="Border"
                             Style="{StaticResource InputBox}"
                             Background="{TemplateBinding Background}">
+                        <!-- TODO: For some reason, SelectionBoxItemTemplate is readonly, we should really replace this component as a combo box and do our own implementation -->
                         <ContentPresenter
                             Margin="0"
                             VerticalAlignment="Center"

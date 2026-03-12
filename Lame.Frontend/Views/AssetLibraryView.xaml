@@ -65,12 +65,28 @@
 
                                         <ProgressBar Grid.Column="0"
                                                      Style="{StaticResource ProgressBarStyle}"
-                                                     Value="{Binding ProgressPercentage, Mode=OneWay}"
-                                                     Maximum="1" />
+                                                     Maximum="100">
+                                            <ProgressBar.Value>
+                                                <MultiBinding Converter="{StaticResource PercentageConverter}">
+                                                    <Binding Path="NumTranslations" />
+                                                    <Binding Path="DataContext.SupportedLanguagesCount"
+                                                             RelativeSource="{RelativeSource AncestorType=DataGrid}"
+                                                             Mode="OneWay" />
+                                                </MultiBinding>
+                                            </ProgressBar.Value>
+                                        </ProgressBar>
 
-                                        <TextBlock Grid.Column="1" Text="{Binding Progress}"
+                                        <TextBlock Grid.Column="1"
                                                    VerticalAlignment="Center"
-                                                   Style="{StaticResource Body}" />
+                                                   Style="{StaticResource Body}">
+                                            <TextBlock.Text>
+                                                <MultiBinding StringFormat="{}{0}/{1}">
+                                                    <Binding Path="NumTranslations" />
+                                                    <Binding Path="DataContext.SupportedLanguagesCount"
+                                                             RelativeSource="{RelativeSource AncestorType=DataGrid}" />
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
                                     </Grid>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -80,7 +96,7 @@
                                                 Width="*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding LastModified}"
+                                    <TextBlock Text="{Binding LastUpdatedAt, Converter={StaticResource DateConverter}}"
                                                VerticalAlignment="Center"
                                                Style="{StaticResource Body}" />
                                 </DataTemplate>

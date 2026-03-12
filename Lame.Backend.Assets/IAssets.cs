@@ -12,6 +12,7 @@ public interface IAssets
     Task<AssetDto?> Get(Guid id);
     Task<List<AssetDto>> GetLinkedAssets(Guid assetId);
     Task LinkAssets(Guid assetA, Guid assetB);
+    Task UnLinkAssets(Guid assetA, Guid assetB);
     Task Create(Asset asset);
     Task Update(Asset asset);
     Task Delete(Guid id);

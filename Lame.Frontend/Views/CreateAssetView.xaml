@@ -79,23 +79,21 @@
                                                        Style="{StaticResource Link}"
                                                        FontSize="14"
                                                        Margin="0, 0, 0, 8" />
-                                            <WrapPanel>
-                                                <TextBlock Text="{Binding LastModified}"
-                                                           Style="{StaticResource Subtitle}"
-                                                           Margin="0" />
-                                                <TextBlock Text="•"
-                                                           Style="{StaticResource Subtitle}"
-                                                           Margin="8, 0" />
-                                                <TextBlock Text="{Binding AssetType}"
-                                                           Style="{StaticResource Subtitle}"
-                                                           Margin="0" />
-                                                <TextBlock Text="•"
-                                                           Style="{StaticResource Subtitle}"
-                                                           Margin="8, 0" />
-                                                <TextBlock Text="{Binding Progress}"
-                                                           Style="{StaticResource Subtitle}"
-                                                           Margin="0" />
-                                            </WrapPanel>
+
+                                            <TextBlock Style="{StaticResource Subtitle}"
+                                                       TextWrapping="Wrap"
+                                                       Margin="0">
+                                                <TextBlock.Text>
+                                                    <MultiBinding StringFormat="{}{0}  •  {1}  •  {2}/{3}">
+                                                        <Binding Path="LastUpdatedAt"
+                                                                 Converter="{StaticResource DateConverter}" />
+                                                        <Binding Path="AssetType" />
+                                                        <Binding Path="NumTranslations" />
+                                                        <Binding Path="DataContext.SupportedLanguagesCount"
+                                                                 RelativeSource="{RelativeSource AncestorType=ItemsControl}" />
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
                                         </StackPanel>
 
                                         <Button Style="{StaticResource ClickableText}"

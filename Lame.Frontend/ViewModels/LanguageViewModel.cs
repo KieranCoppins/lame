@@ -4,6 +4,7 @@ using Panlingo.LanguageCode.Models;
 
 namespace Lame.Frontend.ViewModels;
 
+// TODO remove this as its a wrapper. We can access langauge directly. We only need this as we are using the combo box which needs the to string method
 public class LanguageViewModel : BaseViewModel
 {
     private readonly Language _language;

@@ -13,7 +13,19 @@ public partial class EditableText : UserControl
             typeof(EditableText),
             new FrameworkPropertyMetadata(
                 string.Empty,
-                FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+                FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
+                OnTextChanged
+            ));
+
+    public static readonly DependencyProperty PlaceholderTextProperty =
+        DependencyProperty.Register(
+            nameof(PlaceholderText),
+            typeof(string),
+            typeof(EditableText),
+            new FrameworkPropertyMetadata(
+                string.Empty,
+                FrameworkPropertyMetadataOptions.BindsTwoWayByDefault
+            ));
 
     public EditableText()
     {
@@ -26,27 +38,40 @@ public partial class EditableText : UserControl
         set => SetValue(TextProperty, value);
     }
 
-    private void StartEditing()
+    public string PlaceholderText
     {
-        EditButton.Visibility = Visibility.Collapsed;
+        get => (string)GetValue(PlaceholderTextProperty);
+        set => SetValue(PlaceholderTextProperty, value);
+    }
+
+    private static void OnTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        var control = (EditableText)d;
+        control.Text = (string)e.NewValue;
+
+        if (string.IsNullOrWhiteSpace(control.Text))
+            control.PlaceholderTextBlock.Visibility = Visibility.Visible;
+        else
+            control.PlaceholderTextBlock.Visibility = Visibility.Collapsed;
+    }
+
+    public void StartEditing()
+    {
+        PlaceholderTextBlock.Visibility = Visibility.Collapsed;
         DisplayText.Visibility = Visibility.Collapsed;
 
         EditBox.Visibility = Visibility.Visible;
         Underline.Visibility = Visibility.Visible;
-        ConfirmationButtons.Visibility = Visibility.Visible;
 
         EditBox.Focus();
         EditBox.SelectAll();
     }
 
-    private void StopEditing()
+    public void StopEditing()
     {
-        EditButton.Visibility = Visibility.Visible;
         DisplayText.Visibility = Visibility.Visible;
-
         EditBox.Visibility = Visibility.Collapsed;
         Underline.Visibility = Visibility.Collapsed;
-        ConfirmationButtons.Visibility = Visibility.Collapsed;
     }
 
     private void EditBox_KeyDown(object sender, KeyEventArgs e)
@@ -56,19 +81,8 @@ public partial class EditableText : UserControl
         if (e.Key == Key.Escape) StopEditing();
     }
 
-    private void EditButton_Click(object sender, RoutedEventArgs e)
+    private void EditBox_OnLostFocus(object sender, RoutedEventArgs e)
     {
-        StartEditing();
-    }
-
-    private void ConfirmButton_Click(object sender, RoutedEventArgs e)
-    {
-        StopEditing();
-    }
-
-    private void CancelButton_Click(object sender, RoutedEventArgs e)
-    {
-        // TODO restore original text
         StopEditing();
     }
 }

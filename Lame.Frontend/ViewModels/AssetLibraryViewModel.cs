@@ -33,7 +33,7 @@ public class AssetLibraryViewModel : PageViewModel
 
         Assets = [];
 
-        ViewAssetDetailsCommand = new RelayCommand<AssetViewModel>(OnViewAssetDetails);
+        ViewAssetDetailsCommand = new RelayCommand<AssetDto>(OnViewAssetDetails);
         Page = AppPage.Library;
     }
 
@@ -53,14 +53,27 @@ public class AssetLibraryViewModel : PageViewModel
         }
     }
 
-    public ObservableCollection<AssetViewModel> Assets { get; }
+    public ObservableCollection<AssetDto> Assets { get; }
 
     public ICommand ViewAssetDetailsCommand { get; }
+
+    public int SupportedLanguagesCount
+    {
+        get;
+        private set => SetField(ref field, value);
+    }
 
     public override void OnNavigatedTo()
     {
         base.OnNavigatedTo();
         _ = LoadAssets();
+        _ = GetSupportedLanguagesCount();
+    }
+
+    private async Task GetSupportedLanguagesCount()
+    {
+        var languages = await _languagesService.Get();
+        SupportedLanguagesCount = languages.Count;
     }
 
     private async Task LoadAssets()
@@ -76,11 +89,8 @@ public class AssetLibraryViewModel : PageViewModel
             else
                 assets = await _assets.Get(SearchQuery);
 
-            var languages = await _languagesService.Get();
-            var supportedLanguagesCount = languages.Count;
-
             Assets.Clear();
-            foreach (var asset in assets) Assets.Add(new AssetViewModel(asset, supportedLanguagesCount));
+            foreach (var asset in assets) Assets.Add(asset);
         }
         catch (Exception ex)
         {
@@ -99,12 +109,12 @@ public class AssetLibraryViewModel : PageViewModel
         }
     }
 
-    private void OnViewAssetDetails(AssetViewModel asset)
+    private void OnViewAssetDetails(AssetDto asset)
     {
         _navigationService.NavigateTo(() =>
             ActivatorUtilities.CreateInstance<AssetDetailsViewModel>(
                 _serviceProvider,
-                asset.Asset,
-                asset.SupportedLanguagesCount));
+                asset,
+                SupportedLanguagesCount));
     }
 }

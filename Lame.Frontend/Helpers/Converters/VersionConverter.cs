@@ -3,18 +3,14 @@ using System.Windows.Data;
 
 namespace Lame.Frontend.Helpers.Converters;
 
-public class PercentageConverter : IMultiValueConverter
+public class VersionConverter : IMultiValueConverter
 {
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
     {
-        if (values.Length < 2 ||
-            !double.TryParse(values[0]?.ToString(), out var parsedValue) ||
-            !double.TryParse(values[1]?.ToString(), out var total))
-            return 0;
+        if (values.Length != 2 || !(values[0] is int major) || !(values[1] is int minor))
+            return "N/A";
 
-        if (total <= 0) return 0;
-
-        return parsedValue / total * 100;
+        return $"{major}.{minor}";
     }
 
     public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

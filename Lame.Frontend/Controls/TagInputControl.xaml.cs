@@ -4,7 +4,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Lame.DomainModel;
-using Lame.Frontend.ViewModels;
 
 namespace Lame.Frontend.Controls;
 
@@ -13,7 +12,7 @@ public partial class TagInputControl : UserControl
     public static readonly DependencyProperty SelectedTagsProperty =
         DependencyProperty.Register(
             nameof(SelectedTags),
-            typeof(ObservableCollection<TagViewModel>),
+            typeof(ObservableCollection<Tag>),
             typeof(TagInputControl),
             new PropertyMetadata(null, OnSelectedTagsChanged));
 
@@ -27,18 +26,16 @@ public partial class TagInputControl : UserControl
     public TagInputControl()
     {
         InitializeComponent();
-        TagSearchWrapper = async searchText =>
-            (await TagSearch(searchText))
-            .Select(tag => new TagViewModel(tag));
+        TagSearchWrapper = async searchText => await TagSearch(searchText);
     }
 
     public Func<string, Task<IEnumerable>> TagSearchWrapper { get; set; }
 
-    public TagViewModel? SelectedTag { get; set; }
+    public Tag? SelectedTag { get; set; }
 
-    public ObservableCollection<TagViewModel> SelectedTags
+    public ObservableCollection<Tag> SelectedTags
     {
-        get => (ObservableCollection<TagViewModel>)GetValue(SelectedTagsProperty);
+        get => (ObservableCollection<Tag>)GetValue(SelectedTagsProperty);
         set => SetValue(SelectedTagsProperty, value);
     }
 
@@ -53,7 +50,7 @@ public partial class TagInputControl : UserControl
         DependencyPropertyChangedEventArgs e)
     {
         var control = (TagInputControl)d;
-        control.SelectedTags = (ObservableCollection<TagViewModel>)e.NewValue;
+        control.SelectedTags = (ObservableCollection<Tag>)e.NewValue;
     }
 
     private static void OnTagSearchChanged(
@@ -69,26 +66,26 @@ public partial class TagInputControl : UserControl
         var result = await TagSearch(name);
         if (result.Count > 0 && result[0].Name == name)
         {
-            AddTag(new TagViewModel(result[0]));
+            AddTag(result[0]);
             return;
         }
 
         var existingTag = SelectedTags.FirstOrDefault(t => t.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
-        var tag = existingTag ?? new TagViewModel(new Tag { Name = name, Id = Guid.NewGuid() });
+        var tag = existingTag ?? new Tag { Name = name, Id = Guid.NewGuid() };
         AddTag(tag);
     }
 
-    private void AddTag(TagViewModel tag)
+    private void AddTag(Tag tag)
     {
         // If we have already added this tag, skip it
-        if (SelectedTags.Any(t => tag.Tag.Id == t.Tag.Id))
+        if (SelectedTags.Any(t => tag.Id == t.Id))
             return;
 
         SelectedTags.Add(tag);
     }
 
-    private void RemoveTag(TagViewModel tag)
+    private void RemoveTag(Tag tag)
     {
         if (SelectedTags?.Contains(tag) != true)
             return;
@@ -98,7 +95,7 @@ public partial class TagInputControl : UserControl
 
     private void RemoveTag_OnClick(object sender, RoutedEventArgs e)
     {
-        if (sender is Button button && button.DataContext is TagViewModel tag) RemoveTag(tag);
+        if (sender is Button button && button.DataContext is Tag tag) RemoveTag(tag);
     }
 
     private void TagComboBox_OnKeyDown(object sender, KeyEventArgs e)

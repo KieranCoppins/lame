@@ -111,8 +111,38 @@ public class AssetsLocalEf : IAssets
 
             if (assetAEntity == null || assetBEntity == null) return Task.CompletedTask;
 
+            // TODO validate that the assets are not already linked?
+
             assetAEntity.LinkedContent.Add(assetBEntity);
             assetBEntity.LinkedContent.Add(assetAEntity);
+            context.Assets.UpdateRange(assetAEntity, assetBEntity);
+            return context.SaveChangesAsync();
+        });
+    }
+
+    public Task UnLinkAssets(Guid assetA, Guid assetB)
+    {
+        return Task.Run(async () =>
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            var assetAEntity = await context.Assets
+                .Include(entity => entity.LinkedContent)
+                .Where(entity => entity.Id == assetA)
+                .FirstOrDefaultAsync();
+
+            var assetBEntity = await context.Assets
+                .Include(entity => entity.LinkedContent)
+                .Where(entity => entity.Id == assetB)
+                .FirstOrDefaultAsync();
+
+            if (assetAEntity == null || assetBEntity == null) return Task.CompletedTask;
+
+            // TODO validate that the assets are actually linked?
+
+            assetAEntity.LinkedContent.Remove(assetBEntity);
+            assetBEntity.LinkedContent.Remove(assetAEntity);
             context.Assets.UpdateRange(assetAEntity, assetBEntity);
             return context.SaveChangesAsync();
         });

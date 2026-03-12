@@ -40,36 +40,55 @@
                         <StackPanel Grid.Column="0">
 
                             <!-- Title + Meta -->
-                            <controls:EditableText
-                                Text="{Binding InternalName}"
-                                Style="{StaticResource Header1}" />
+                            <WrapPanel>
+                                <controls:EditableText x:Name="InternalNameText"
+                                                       Text="{Binding InternalName}"
+                                                       Style="{StaticResource Header1}" />
 
-                            <StackPanel Orientation="Horizontal"
-                                        Margin="0,8,0,0">
+                                <Button
+                                    Style="{StaticResource StyledButton}"
+                                    Margin="4, 0, 0,0"
+                                    Padding="8"
+                                    VerticalAlignment="Center"
+                                    BorderThickness="0"
+                                    Click="EditTitleButton_Click">
+                                    <TextBlock Text="✎"
+                                               Foreground="{StaticResource Brush.DarkGrey}"
+                                               Margin="0" />
+                                </Button>
+                            </WrapPanel>
 
-                                <TextBlock Text="Type: "
-                                           Style="{StaticResource Subtitle}"
-                                           Margin="0" />
-
-                                <TextBlock Text="{Binding Asset.AssetType}"
-                                           Style="{StaticResource Subtitle}"
-                                           Margin="0" />
-                            </StackPanel>
+                            <TextBlock Style="{StaticResource Subtitle}"
+                                       Margin="0">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="{}Type: {0}">
+                                        <Binding Path="Asset.AssetType" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
                         </StackPanel>
 
+                        <FrameworkElement x:Name="AssetCompletionPercentageReference">
+                            <FrameworkElement.Tag>
+                                <MultiBinding Converter="{StaticResource PercentageConverter}">
+                                    <Binding Path="Asset.NumTranslations" />
+                                    <Binding Path="SupportedLanguagesCount" />
+                                    <Binding Source="1"
+                                             Mode="OneWay" />
+                                </MultiBinding>
+                            </FrameworkElement.Tag>
+                        </FrameworkElement>
+
                         <!-- Right Section (Progress) -->
-                        <StackPanel Grid.Column="2"
+                        <StackPanel Grid.Column="1"
                                     HorizontalAlignment="Right">
 
                             <TextBlock Style="{StaticResource Header1}"
                                        HorizontalAlignment="Right"
                                        Margin="0">
                                 <TextBlock.Text>
-                                    <MultiBinding Converter="{StaticResource PercentageConverter}">
-                                        <Binding Path="Asset.NumTranslations" />
-                                        <Binding Path="SupportedLanguagesCount" />
-                                        <Binding Source="0"
-                                                 Mode="OneWay" />
+                                    <MultiBinding StringFormat="{}{0:F0}%">
+                                        <Binding Path="Tag" ElementName="AssetCompletionPercentageReference" />
                                     </MultiBinding>
                                 </TextBlock.Text>
                             </TextBlock>
@@ -103,66 +122,51 @@
                     </ItemsControl>
 
                     <!-- Bottom Metadata Section -->
-                    <Border Style="{StaticResource SectionLineBorderStyle}">
+                    <Border Style="{StaticResource SectionLineBorderStyle}" />
 
-                        <UniformGrid Columns="2">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="🕒"
-                                           Style="{StaticResource Subtitle}"
-                                           Margin="0,0,6,0" />
-                                <TextBlock Style="{StaticResource Subtitle}"
-                                           Margin="0">
-                                    <Run Text="Created on " />
-                                    <Run Text="{Binding Asset.CreatedAt, Mode=OneWay}" />
-                                </TextBlock>
-                            </StackPanel>
+                    <UniformGrid Columns="2">
+                        <TextBlock Style="{StaticResource Subtitle}"
+                                   Margin="0">
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="{}🕒 Created on {0}">
+                                    <Binding Path="Asset.CreatedAt" Converter="{StaticResource DateConverter}" />
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
 
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="🕒"
-                                           Style="{StaticResource Subtitle}"
-                                           Margin="0,0,6,0" />
-                                <TextBlock Style="{StaticResource Subtitle}"
-                                           Margin="0">
-                                    <Run Text="Last modified " />
-                                    <Run Text="{Binding Asset.LastUpdatedAt, Mode=OneWay}" />
-                                </TextBlock>
-                            </StackPanel>
-                        </UniformGrid>
-                    </Border>
+                        <TextBlock Style="{StaticResource Subtitle}"
+                                   Margin="0">
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="{}🕒 Last modified {0}">
+                                    <Binding Path="Asset.LastUpdatedAt" Converter="{StaticResource DateConverter}" />
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                    </UniformGrid>
                 </StackPanel>
             </Border>
 
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
-                    <TextBlock Text="Content Context"
-                               Style="{StaticResource Header2}" />
+                    <WrapPanel>
+                        <TextBlock Text="Content Context"
+                                   Style="{StaticResource Header2}" />
+                        <Button
+                            Style="{StaticResource StyledButton}"
+                            Margin="4, 0, 0,0"
+                            Padding="8"
+                            VerticalAlignment="Center"
+                            BorderThickness="0"
+                            Click="EditContextButton_Click">
+                            <TextBlock Text="✎"
+                                       Foreground="{StaticResource Brush.DarkGrey}"
+                                       Margin="0" />
+                        </Button>
+                    </WrapPanel>
 
-                    <controls:EditableText Text="{Binding ContextNotes}">
-                        <controls:EditableText.Style>
-                            <Style BasedOn="{StaticResource Body}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding ContextNotes}" Value="{x:Null}">
-                                        <Setter Property="FrameworkElement.Visibility" Value="Collapsed" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </controls:EditableText.Style>
-                    </controls:EditableText>
-
-                    <TextBlock Text="No context provided."
-                               Visibility="Collapsed"
-                               FontStyle="Italic">
-                        <TextBlock.Style>
-                            <Style BasedOn="{StaticResource Subtitle}"
-                                   TargetType="TextBlock">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Asset.ContextNotes}" Value="{x:Null}">
-                                        <Setter Property="Visibility" Value="Visible" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
+                    <controls:EditableText x:Name="ContextNotesText"
+                                           Text="{Binding ContextNotes}"
+                                           PlaceholderText="No content provided." />
                 </StackPanel>
             </Border>
 
@@ -196,33 +200,42 @@
                                 <Border Style="{StaticResource CardBorderStyle}"
                                         Background="{StaticResource Brush.LightestGrey}"
                                         Margin="0, 8">
-                                    <StackPanel>
+                                    <Grid>
+                                        <StackPanel>
+                                            <Button Style="{StaticResource ClickableText}"
+                                                    Command="{Binding DataContext.ViewLinkedAssetDetails, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                    CommandParameter="{Binding}">
+                                                <TextBlock Text="{Binding InternalName}"
+                                                           Style="{StaticResource Link}"
+                                                           FontSize="14"
+                                                           Margin="0, 0, 0, 8" />
+                                            </Button>
+                                            <TextBlock Style="{StaticResource Subtitle}"
+                                                       TextWrapping="Wrap"
+                                                       Margin="0">
+                                                <TextBlock.Text>
+                                                    <MultiBinding StringFormat="{}{0}  •  {1}  •  {2}/{3}">
+                                                        <Binding Path="LastUpdatedAt"
+                                                                 Converter="{StaticResource DateConverter}" />
+                                                        <Binding Path="AssetType" />
+                                                        <Binding Path="NumTranslations" />
+                                                        <Binding Path="DataContext.SupportedLanguagesCount"
+                                                                 RelativeSource="{RelativeSource AncestorType=ItemsControl}" />
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
+                                        </StackPanel>
+
                                         <Button Style="{StaticResource ClickableText}"
-                                                Command="{Binding DataContext.ViewLinkedAssetDetails, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Top"
+                                                Command="{Binding DataContext.RemoveAssetLinkCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                 CommandParameter="{Binding}">
-                                            <TextBlock Text="{Binding InternalName}"
+                                            <TextBlock Text="Remove"
                                                        Style="{StaticResource Link}"
-                                                       FontSize="14"
-                                                       Margin="0, 0, 0, 8" />
+                                                       Margin="0" />
                                         </Button>
-                                        <WrapPanel>
-                                            <TextBlock Text="{Binding LastModified}"
-                                                       Style="{StaticResource Subtitle}"
-                                                       Margin="0" />
-                                            <TextBlock Text="•"
-                                                       Style="{StaticResource Subtitle}"
-                                                       Margin="8, 0" />
-                                            <TextBlock Text="{Binding AssetType}"
-                                                       Style="{StaticResource Subtitle}"
-                                                       Margin="0" />
-                                            <TextBlock Text="•"
-                                                       Style="{StaticResource Subtitle}"
-                                                       Margin="8, 0" />
-                                            <TextBlock Text="{Binding Progress}"
-                                                       Style="{StaticResource Subtitle}"
-                                                       Margin="0" />
-                                        </WrapPanel>
-                                    </StackPanel>
+                                    </Grid>
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
@@ -260,27 +273,30 @@
                                     <StackPanel>
                                         <Grid>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="auto" />
+                                                <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
 
-                                            <TextBlock Grid.Column="0" Text="{Binding Language}"
+                                            <TextBlock Grid.Column="0"
+                                                       Text="{Binding Language, Converter={StaticResource LanguageCodeToEnglishConverter}}"
                                                        Style="{StaticResource Header3}"
                                                        Margin="0, 0, 0, 8" />
 
-                                            <WrapPanel Grid.Column="1"
+                                            <TextBlock x:Name="TranslationMetaText"
+                                                       Grid.Column="1"
+                                                       Style="{StaticResource Subtitle}"
+                                                       TextWrapping="Wrap"
                                                        HorizontalAlignment="Right"
-                                                       x:Name="TranslationMetaPanel">
-                                                <TextBlock Text="{Binding CreatedAt}"
-                                                           Style="{StaticResource Subtitle}"
-                                                           Margin="0" />
-                                                <TextBlock Text="•"
-                                                           Style="{StaticResource Subtitle}"
-                                                           Margin="8, 0" />
-                                                <TextBlock Text="{Binding Version}"
-                                                           Style="{StaticResource Subtitle}"
-                                                           Margin="0" />
-                                            </WrapPanel>
+                                                       Margin="0">
+                                                <TextBlock.Text>
+                                                    <MultiBinding StringFormat="{}{0}  •  Version: {1}.{2}">
+                                                        <Binding Path="CreatedAt"
+                                                                 Converter="{StaticResource DateConverter}" />
+                                                        <Binding Path="MajorVersion" />
+                                                        <Binding Path="MinorVersion" />
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
                                         </Grid>
 
                                         <TextBlock x:Name="ContentText"
@@ -300,7 +316,7 @@
                                         Binding="{Binding Status, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Missing}"
                                         Value="True">
                                         <Setter TargetName="ContentText" Property="Visibility" Value="Collapsed" />
-                                        <Setter TargetName="TranslationMetaPanel" Property="Visibility"
+                                        <Setter TargetName="TranslationMetaText" Property="Visibility"
                                                 Value="Collapsed" />
                                         <Setter TargetName="MissingText" Property="Visibility" Value="Visible" />
                                         <Setter TargetName="ContainerBorder" Property="BorderBrush"

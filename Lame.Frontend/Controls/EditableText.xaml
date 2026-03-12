@@ -3,15 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:helpers="clr-namespace:Lame.Frontend.Helpers"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="Auto" />
-        </Grid.ColumnDefinitions>
-
         <TextBlock x:Name="DisplayText"
                    Grid.Column="0"
                    Text="{Binding Text, RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -26,7 +20,8 @@
                  BorderThickness="0"
                  VerticalAlignment="Center"
                  TextWrapping="Wrap"
-                 KeyDown="EditBox_KeyDown" />
+                 KeyDown="EditBox_KeyDown"
+                 LostFocus="EditBox_OnLostFocus" />
 
         <Border x:Name="Underline"
                 Grid.Column="0"
@@ -35,47 +30,10 @@
                 VerticalAlignment="Bottom"
                 Visibility="Collapsed" />
 
-        <Button Grid.Column="1"
-                x:Name="EditButton"
-                Style="{StaticResource StyledButton}"
-                Margin="8,0,0,0"
-                Padding="8"
-                BorderThickness="0"
-                Click="EditButton_Click">
-            <TextBlock Text="✎"
-                       Foreground="{StaticResource Brush.DarkGrey}"
-                       Margin="0" />
-        </Button>
-
-        <StackPanel Grid.Column="1"
-                    x:Name="ConfirmationButtons"
-                    Orientation="Horizontal"
-                    Visibility="Collapsed">
-            <Button Style="{StaticResource StyledButton}"
-                    Background="{StaticResource Brush.NotificationFailure}"
-                    helpers:ButtonHelpers.HoverBackground="{StaticResource Brush.NotificationFailure}"
-                    Margin="8,0,0,0"
-                    Padding="8"
-                    BorderThickness="0"
-                    Click="CancelButton_Click">
-                <TextBlock Text="X"
-                           Foreground="{StaticResource Brush.White}"
-                           FontWeight="Bold"
-                           Margin="0" />
-            </Button>
-
-            <Button Style="{StaticResource StyledButton}"
-                    Background="{StaticResource Brush.NotificationSuccess}"
-                    helpers:ButtonHelpers.HoverBackground="{StaticResource Brush.NotificationSuccess}"
-                    Margin="4,0,0,0"
-                    Padding="8"
-                    BorderThickness="0"
-                    Click="ConfirmButton_Click">
-                <TextBlock Text="✓"
-                           Foreground="{StaticResource Brush.White}"
-                           FontWeight="Bold"
-                           Margin="0" />
-            </Button>
-        </StackPanel>
+        <TextBlock x:Name="PlaceholderTextBlock"
+                   Text="{Binding PlaceholderText, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                   Grid.Column="0"
+                   Foreground="{StaticResource Brush.DarkGrey}"
+                   FontStyle="Italic" />
     </Grid>
 </UserControl>

@@ -62,6 +62,9 @@
             <converters:LanguageCodeToEnglishConverter x:Key="LanguageCodeToEnglishConverter" />
             <converters:PercentageConverter x:Key="PercentageConverter" />
             <converters:GuidToColourConverter x:Key="GuidToColourConverter" />
+            <converters:IsNullOrWhitespace x:Key="IsNullOrWhitespace" />
+            <converters:DateConverter x:Key="DateConverter" />
+            <converters:VersionConverter x:Key="VersionConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -58,22 +58,21 @@ public class AssetDetailsViewModel : PageViewModel
         ReturnToLibraryCommand = new RelayCommand(() =>
             _navigationService.NavigateTo(serviceProvider.GetRequiredService<AssetLibraryViewModel>));
 
-        ViewLinkedAssetDetails = new RelayCommand<AssetViewModel>(linkedAsset =>
+        ViewLinkedAssetDetails = new RelayCommand<AssetDto>(linkedAsset =>
             _navigationService.NavigateTo(() =>
                 ActivatorUtilities.CreateInstance<AssetDetailsViewModel>(
                     serviceProvider,
-                    linkedAsset.Asset,
+                    linkedAsset,
                     SupportedLanguagesCount
                 )));
 
         OpenLinkAssetDialogCommand = new RelayCommand(() =>
         {
-            _linkAssetsDialogViewModel =
-                linkAssetsDialogViewModelFactory.Create(new AssetViewModel(Asset, SupportedLanguagesCount),
-                    LinkToAsset);
-            _linkAssetsDialogViewModel.OnAssetLinked += OnNavigatedTo;
+            _linkAssetsDialogViewModel = linkAssetsDialogViewModelFactory.Create(Asset, LinkToAsset);
             _dialogService.ShowDialog(_linkAssetsDialogViewModel);
         });
+
+        RemoveAssetLinkCommand = new AsyncRelayCommand<AssetDto>(UnLinkAsset);
 
         Page = AppPage.Library;
     }
@@ -82,13 +81,14 @@ public class AssetDetailsViewModel : PageViewModel
 
     public AssetDto Asset { get; }
 
-    public ObservableCollection<TranslationViewModel> Translations { get; }
-    public ObservableCollection<AssetViewModel> LinkedAssets { get; }
+    public ObservableCollection<Translation> Translations { get; }
+    public ObservableCollection<AssetDto> LinkedAssets { get; }
     public ObservableCollection<Tag> Tags { get; }
 
     public ICommand ReturnToLibraryCommand { get; }
     public ICommand ViewLinkedAssetDetails { get; }
     public ICommand OpenLinkAssetDialogCommand { get; }
+    public ICommand RemoveAssetLinkCommand { get; }
 
     public string InternalName
     {
@@ -105,12 +105,11 @@ public class AssetDetailsViewModel : PageViewModel
         }
     }
 
-    public string ContextNotes
+    public string? ContextNotes
     {
         get => Asset.ContextNotes;
         set
         {
-            if (string.IsNullOrWhiteSpace(value)) return;
             if (Asset.ContextNotes == value) return;
 
             Asset.ContextNotes = value;
@@ -123,6 +122,11 @@ public class AssetDetailsViewModel : PageViewModel
     public override void OnNavigatedTo()
     {
         base.OnNavigatedTo();
+        LoadAsset();
+    }
+
+    private void LoadAsset()
+    {
         Task.WhenAll(LoadTranslations(), LoadLinkedAssets(), LoadTags());
     }
 
@@ -131,7 +135,7 @@ public class AssetDetailsViewModel : PageViewModel
         var translations = await _translationsService.GetForAsset(Asset.Id);
 
         Translations.Clear();
-        foreach (var translation in translations) Translations.Add(new TranslationViewModel(translation));
+        foreach (var translation in translations) Translations.Add(translation);
     }
 
     private async Task LoadLinkedAssets()
@@ -139,7 +143,7 @@ public class AssetDetailsViewModel : PageViewModel
         var linkedAssets = await _assetsService.GetLinkedAssets(Asset.Id);
         LinkedAssets.Clear();
         foreach (var linkedAsset in linkedAssets)
-            LinkedAssets.Add(new AssetViewModel(linkedAsset, SupportedLanguagesCount));
+            LinkedAssets.Add(linkedAsset);
     }
 
     private async Task LoadTags()
@@ -151,15 +155,54 @@ public class AssetDetailsViewModel : PageViewModel
 
     private async Task LinkToAsset(AssetDto asset)
     {
-        await _assetsService.LinkAssets(Asset.Id, asset.Id);
-
-        _notificationService.EmitNotification(new Notification
+        try
         {
-            Message =
-                $"Asset '{asset.InternalName}' successfully linked to '{Asset.InternalName}'",
-            Type = NotificationType.Success,
-            Title = "Assets linked"
-        });
+            await _assetsService.LinkAssets(Asset.Id, asset.Id);
+            LinkedAssets.Add(asset);
+
+            _notificationService.EmitNotification(new Notification
+            {
+                Message =
+                    $"Asset '{asset.InternalName}' successfully linked to '{Asset.InternalName}'",
+                Type = NotificationType.Success,
+                Title = "Assets linked"
+            });
+        }
+        catch (Exception ex)
+        {
+            _notificationService.EmitNotification(new Notification
+            {
+                Message = ex.Message,
+                Type = NotificationType.Failure,
+                Title = "Error linking assets"
+            });
+        }
+    }
+
+    private async Task UnLinkAsset(AssetDto asset)
+    {
+        try
+        {
+            await _assetsService.UnLinkAssets(Asset.Id, asset.Id);
+            LinkedAssets.Remove(asset);
+
+            _notificationService.EmitNotification(new Notification
+            {
+                Message =
+                    $"Asset '{asset.InternalName}' successfully unlinked from '{Asset.InternalName}'",
+                Type = NotificationType.Success,
+                Title = "Assets unlinked"
+            });
+        }
+        catch (Exception ex)
+        {
+            _notificationService.EmitNotification(new Notification
+            {
+                Message = ex.Message,
+                Type = NotificationType.Failure,
+                Title = "Error unlinking assets"
+            });
+        }
     }
 
     private async Task UpdateAsset()
