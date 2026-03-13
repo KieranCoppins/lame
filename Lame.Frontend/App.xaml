@@ -21,6 +21,7 @@
                 <ResourceDictionary Source="Style/PanelStyles.xaml" />
                 <ResourceDictionary Source="Style/InputStyles.xaml" />
                 <ResourceDictionary Source="Style/MiscStyles.xaml" />
+                <ResourceDictionary Source="Style/Paths.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <DataTemplate DataType="{x:Type viewModels:AssetLibraryViewModel}">

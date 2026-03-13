@@ -31,7 +31,12 @@
         </Setter>
     </Style>
 
-    <Style x:Key="BlankInput" TargetType="TextBox">
+    <Style x:Key="BlankInput" TargetType="TextBox" BasedOn="{StaticResource Body}">
+        <Setter Property="Background" Value=" Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style x:Key="StyledInputBox" TargetType="TextBox">
         <Setter Property="Background" Value="{StaticResource Brush.White}" />
         <Setter Property="BorderThickness" Value="0" />
 
@@ -176,7 +181,7 @@
                                 </Border>
 
                                 <TextBox x:Name="PART_EditableTextBox"
-                                         Style="{StaticResource BlankInput}"
+                                         Style="{StaticResource StyledInputBox}"
                                          VerticalAlignment="Center"
                                          Background="Transparent"
                                          Visibility="Hidden"

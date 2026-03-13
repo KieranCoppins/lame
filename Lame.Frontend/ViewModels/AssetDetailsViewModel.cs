@@ -83,7 +83,12 @@ public class AssetDetailsViewModel : PageViewModel
 
     public ObservableCollection<TranslationDto> Translations { get; }
     public ObservableCollection<AssetDto> LinkedAssets { get; }
-    public ObservableCollection<Tag> Tags { get; }
+
+    public ObservableCollection<Tag> Tags
+    {
+        get;
+        set => SetField(ref field, value);
+    }
 
     public ICommand ReturnToLibraryCommand { get; }
     public ICommand ViewLinkedAssetDetails { get; }
@@ -118,6 +123,8 @@ public class AssetDetailsViewModel : PageViewModel
             _ = UpdateAsset();
         }
     }
+
+    public Func<Task<List<Tag>>> GetTags => () => _tagsService.Get();
 
     public override void OnNavigatedTo()
     {
@@ -236,6 +243,44 @@ public class AssetDetailsViewModel : PageViewModel
                 {
                     Title = "Error updating asset",
                     Message = $"An error occurred while updating the asset: {ex.Message}",
+                    Type = NotificationType.Failure
+                });
+        }
+    }
+
+    public async Task UpdateAssetTags()
+    {
+        try
+        {
+            var currentTags = await _tagsService.GetTagsForResource(Asset.Id);
+
+            var tagsToAdd = Tags.Where(t => currentTags.All(ct => ct.Id != t.Id)).ToList();
+            var tagsToRemove = currentTags.Where(ct => Tags.All(t => t.Id != ct.Id)).ToList();
+
+            if (tagsToAdd.Count == 0 && tagsToRemove.Count == 0) return;
+
+            var addTasks = tagsToAdd.Select(tag =>
+                _tagsService.AddTagToResource(tag, Asset.Id, ResourceType.Asset));
+            var removeTasks = tagsToRemove.Select(tag =>
+                _tagsService.RemoveTagFromResource(tag.Id, Asset.Id));
+
+            await Task.WhenAll(addTasks.Concat(removeTasks));
+
+            _notificationService.EmitNotification(
+                new Notification
+                {
+                    Title = "Asset Tags Updated",
+                    Message = "The asset's tags were successfully updated.",
+                    Type = NotificationType.Success
+                });
+        }
+        catch (Exception ex)
+        {
+            _notificationService.EmitNotification(
+                new Notification
+                {
+                    Title = "Error updating asset tags",
+                    Message = $"An error occurred while updating the asset's tags: {ex.Message}",
                     Type = NotificationType.Failure
                 });
         }

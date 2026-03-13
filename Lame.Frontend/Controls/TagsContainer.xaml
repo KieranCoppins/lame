@@ -1,0 +1,154 @@
+﻿<UserControl x:Class="Lame.Frontend.Controls.TagsContainer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             xmlns:helpers="clr-namespace:Lame.Frontend.Helpers"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <Button x:Name="RootButton"
+                Style="{StaticResource StyledButton}"
+                HorizontalContentAlignment="Left"
+                BorderThickness="0"
+                Padding="4"
+                Margin="0"
+                Click="EditTagsButton_Clicked">
+            <Grid>
+                <!-- Placeholder text when not focused and no tags are added -->
+                <TextBlock Text="Add tags..."
+                           VerticalAlignment="Center">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource Subtitle}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition
+                                            Binding="{Binding Tags.Count, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            Value="0" />
+                                        <Condition
+                                            Binding="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            Value="False" />
+                                    </MultiDataTrigger.Conditions>
+                                    <MultiDataTrigger.Setters>
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </MultiDataTrigger.Setters>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+
+                <!-- Show existing tags -->
+                <ItemsControl>
+
+                    <ItemsControl.Resources>
+                        <CollectionViewSource x:Key="ExtraItems"
+                                              Source="{Binding Tags, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                    </ItemsControl.Resources>
+
+                    <ItemsControl.ItemsSource>
+                        <CompositeCollection>
+                            <CollectionContainer Collection="{Binding Source={StaticResource ExtraItems}}" />
+
+                            <!-- Search/Create tag text input after all the tags have been displayed -->
+                            <TextBox x:Name="TagTextBox"
+                                     Style="{StaticResource BlankInput}"
+                                     Text="{Binding TagText, 
+                                     RelativeSource={RelativeSource AncestorType=UserControl}, 
+                                     Delay=300, 
+                                     UpdateSourceTrigger=PropertyChanged}"
+                                     Visibility="Collapsed"
+                                     VerticalAlignment="Center"
+                                     PreviewKeyDown="TagTextBox_OnPreviewKeyDown"
+                                     LostFocus="TagTextBox_OnLostFocus" />
+                        </CompositeCollection>
+                    </ItemsControl.ItemsSource>
+
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource ChipBorderStyle}"
+                                    Background="{Binding Id, Converter={StaticResource GuidToColourConverter}}"
+                                    Margin="4">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Name}"
+                                               Style="{StaticResource Body}"
+                                               Foreground="{StaticResource Brush.White}"
+                                               Margin="0" />
+
+                                    <Button x:Name="RemoveTagButton"
+                                            Background="Transparent"
+                                            helpers:ButtonHelpers.HoverBackground="#40FFFFFF"
+                                            BorderThickness="0"
+                                            Padding="6"
+                                            Margin="0"
+                                            Click="RemoveTagButton_OnClick">
+                                        <Button.Style>
+                                            <Style BasedOn="{StaticResource StyledButton}" TargetType="Button">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger
+                                                        Binding="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        Value="True">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                        <Path Data="{StaticResource Geometry.Cross}"
+                                              Fill="{StaticResource Brush.Grey}"
+                                              Stretch="Uniform"
+                                              Width="8"
+                                              Height="8"
+                                              Margin="0" />
+                                    </Button>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+            </Grid>
+        </Button>
+
+        <!-- Popup of all available filtered tags for the user to pick from -->
+        <Popup x:Name="AvailableTagsPopup"
+               Placement="Bottom"
+               PlacementTarget="{Binding ElementName=RootButton}"
+               Width="{Binding ActualWidth, ElementName=RootButton}"
+               IsOpen="False"
+               StaysOpen="False"
+               PopupAnimation="Fade"
+               Focusable="False"
+               AllowsTransparency="True">
+            <ListView
+                ItemsSource="{Binding AvailableFilteredTags, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                SelectedItem="{Binding SelectedAvailableTag, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                MaxHeight="300"
+                SelectionChanged="AvailableTagsList_OnSelectionChanged">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource ChipBorderStyle}"
+                                Background="{Binding Id, Converter={StaticResource GuidToColourConverter}}"
+                                Margin="4">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Name}"
+                                           Style="{StaticResource Body}"
+                                           VerticalAlignment="Center"
+                                           Foreground="{StaticResource Brush.White}"
+                                           Margin="0" />
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Popup>
+    </Grid>
+</UserControl>

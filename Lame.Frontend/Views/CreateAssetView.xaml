@@ -34,7 +34,7 @@
                         <Run>Internal Name</Run>
                         <Run Foreground="{StaticResource Brush.NotificationFailure}">*</Run>
                     </TextBlock>
-                    <TextBox Style="{StaticResource BlankInput}"
+                    <TextBox Style="{StaticResource StyledInputBox}"
                              Text="{Binding InternalName,
                                  ValidatesOnNotifyDataErrors=True,
                                  UpdateSourceTrigger=PropertyChanged}"
@@ -50,9 +50,9 @@
                     <TextBlock Text="Tags"
                                Style="{StaticResource FieldLabel}" />
 
-                    <controls:TagInputControl
-                        SelectedTags="{Binding Tags}"
-                        TagSearch="{Binding TagSearch}" />
+                    <controls:TagsContainer
+                        Tags="{Binding Tags}"
+                        GetTags="{Binding TagSearch}" />
                 </StackPanel>
             </Border>
 
@@ -135,7 +135,7 @@
                         <Run>Content</Run>
                         <Run Foreground="{StaticResource Brush.NotificationFailure}">*</Run>
                     </TextBlock>
-                    <TextBox Style="{StaticResource BlankInput}"
+                    <TextBox Style="{StaticResource StyledInputBox}"
                              AcceptsReturn="True"
                              TextWrapping="Wrap"
                              VerticalScrollBarVisibility="Auto"
@@ -148,7 +148,7 @@
 
                     <TextBlock Text="Notes / Context"
                                Style="{StaticResource FieldLabel}" />
-                    <TextBox Style="{StaticResource BlankInput}"
+                    <TextBox Style="{StaticResource StyledInputBox}"
                              AcceptsReturn="True"
                              TextWrapping="Wrap"
                              VerticalScrollBarVisibility="Auto"

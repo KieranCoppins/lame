@@ -17,7 +17,16 @@ public class TagsLocalEF : ITags
 
     public Task<List<Tag>> Get()
     {
-        throw new NotImplementedException();
+        return Task.Run(async () =>
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            return await context.Tags
+                .OrderBy(t => t.Name)
+                .Select(t => (Tag)t)
+                .ToListAsync();
+        });
     }
 
     public async Task<List<Tag>> Get(string searchTerm, int limit)
@@ -97,7 +106,15 @@ public class TagsLocalEF : ITags
 
     public Task RemoveTagFromResource(Guid tagId, Guid resourceId)
     {
-        throw new NotImplementedException();
+        return Task.Run(async () =>
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            // Try to remove tag from both asset and translation, since we don't know the resource type
+            await RemoveTagFromResource<AssetEntity>(context, tagId, resourceId);
+            await RemoveTagFromResource<TranslationEntity>(context, tagId, resourceId);
+        });
     }
 
     public Task Create(Tag tag)
@@ -175,15 +192,14 @@ public class TagsLocalEF : ITags
             .Include(e => e.Tags)
             .FirstOrDefaultAsync(e => e.Id == resourceId);
 
-        if (entity == null) throw new InvalidOperationException($"Resource with Id {resourceId} not found.");
+        if (entity == null) return;
 
         var tag = entity.Tags.FirstOrDefault(t => t.Id == tagId);
 
-        if (tag != null)
-        {
-            entity.Tags.Remove(tag);
-            await context.SaveChangesAsync();
-        }
+        if (tag == null) return;
+
+        entity.Tags.Remove(tag);
+        await context.SaveChangesAsync();
     }
 
     private static TagEntity MapToEntity(Tag tag)

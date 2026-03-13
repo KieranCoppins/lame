@@ -57,11 +57,11 @@ public class CreateAssetViewModel : PageViewModel
         });
     }
 
+    public Func<Task<List<Tag>>> TagSearch => () => _tags.Get();
+
     public ObservableCollection<AssetDto> AssetsToLink { get; }
 
     public Array AssetTypes => Enum.GetValues<AssetType>();
-
-    public Func<string, Task<List<Tag>>> TagSearch => searchString => _tags.Get(searchString, 5);
 
     public string InternalName
     {
