@@ -40,28 +40,28 @@ public class ExportsLocalEF : IExports
                     Context = a.ContextNotes ?? string.Empty,
 
                     // Get latest source translation (always english) and create translation export data
-                    SourceTranslation = a.Translations
+                    SourceTranslation = a.TargetedTranslations
                         .Where(t => t.Language == "en")
-                        .OrderByDescending(t => t.MajorVersion)
-                        .ThenByDescending(t => t.MinorVersion)
+                        .OrderByDescending(t => t.Translation.MajorVersion)
+                        .ThenByDescending(t => t.Translation.MinorVersion)
                         .Select(t =>
                             new TranslationExportData
                             {
                                 Id = t.AssetId,
-                                Content = t.Content ?? string.Empty
+                                Content = t.Translation.Content ?? string.Empty
                             }).FirstOrDefault(),
 
 
                     // Get latest target translation (in export options) and create translation export data
-                    TargetTranslation = a.Translations
+                    TargetTranslation = a.TargetedTranslations
                         .Where(t => t.Language == exportOptions.LanguageCode)
-                        .OrderByDescending(t => t.MajorVersion)
-                        .ThenByDescending(t => t.MinorVersion)
+                        .OrderByDescending(t => t.Translation.MajorVersion)
+                        .ThenByDescending(t => t.Translation.MinorVersion)
                         .Select(t =>
                             new TranslationExportData
                             {
                                 Id = t.AssetId,
-                                Content = t.Content ?? string.Empty
+                                Content = t.Translation.Content ?? string.Empty
                             }).FirstOrDefault()
                 }).ToListAsync();
 
