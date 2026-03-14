@@ -156,7 +156,7 @@ public class AssetDetailsViewModel : PageViewModel
 
     private async Task LoadTranslations()
     {
-        var translations = await _translationsService.GetForAsset(Asset.Id);
+        var translations = await _translationsService.GetTargetedForAsset(Asset.Id);
 
         Translations.Clear();
         foreach (var translation in translations) Translations.Add(translation);

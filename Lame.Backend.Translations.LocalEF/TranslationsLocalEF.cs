@@ -15,7 +15,7 @@ public class TranslationsLocalEF : ITranslations
         _serviceProvider = serviceProvider;
     }
 
-    public async Task<List<TranslationDto>> GetForAsset(Guid assetId)
+    public async Task<List<TranslationDto>> GetTargetedForAsset(Guid assetId)
     {
         return await Task.Run(async () =>
         {
@@ -47,12 +47,64 @@ public class TranslationsLocalEF : ITranslations
         });
     }
 
+    public Task<List<TranslationDto>> GetAllForLanguageForAsset(Guid assetId, string language)
+    {
+        return Task.Run(() =>
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            return context.Translations
+                .Where(t => t.AssetId == assetId && t.Language == language)
+                .AsDto()
+                .OrderByDescending(t => t.MajorVersion)
+                .ThenByDescending(t => t.MinorVersion)
+                .ToListAsync();
+        });
+    }
+
+    public Task SetTargetTranslation(Guid translationId)
+    {
+        return Task.Run(() =>
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            var translation = context.Translations.FirstOrDefault(t => t.Id == translationId);
+            if (translation == null)
+                throw new InvalidOperationException($"Could not find translation with id: {translationId}");
+
+            var target = context.TargetAssetTranslations.FirstOrDefault(t =>
+                t.AssetId == translation.AssetId && t.Language == translation.Language);
+
+            if (target != null)
+            {
+                // Update existing target translation to point to the new translation
+                target.TranslationId = translation.Id;
+                context.TargetAssetTranslations.Update(target);
+            }
+            else
+            {
+                // Create a new target
+                context.TargetAssetTranslations.Add(new TargetAssetTranslationEntity
+                {
+                    AssetId = translation.AssetId,
+                    Language = translation.Language,
+                    TranslationId = translation.Id
+                });
+            }
+
+            return context.SaveChangesAsync();
+        });
+    }
+
     public Task Create(Translation translation)
     {
         return Task.Run(() =>
         {
             using var scope = _serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
             translation.CreatedAt = DateTime.UtcNow;
             context.Translations.Add(MapToEntity(translation));
 

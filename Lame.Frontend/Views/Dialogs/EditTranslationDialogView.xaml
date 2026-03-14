@@ -17,6 +17,28 @@
                 </MultiBinding>
             </TextBlock.Text>
         </TextBlock>
+
+        <TextBlock Text="Version"
+                   Style="{StaticResource FieldLabel}" />
+        <ComboBox Style="{StaticResource BlankComboBox}"
+                  ItemsSource="{Binding Translations}"
+                  SelectedItem="{Binding SelectedTranslation}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Style="{StaticResource Body}">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{}v{0}.{1}">
+                                <Binding Path="MajorVersion" />
+                                <Binding Path="MinorVersion" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+
+        <TextBlock Text="Content"
+                   Style="{StaticResource FieldLabel}" />
         <TextBox Style="{StaticResource StyledInputBox}"
                  AcceptsReturn="True"
                  TextWrapping="Wrap"

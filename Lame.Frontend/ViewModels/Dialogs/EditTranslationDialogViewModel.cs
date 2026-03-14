@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using System.Collections.ObjectModel;
+using System.Windows.Input;
 using Lame.Backend.Translations;
 using Lame.DomainModel;
 using Lame.Frontend.Commands;
@@ -24,8 +25,12 @@ public class EditTranslationDialogViewModel : BaseViewModel
         Translation = translation;
         Content = translation.Content;
 
+        Translations = [];
+
         CancelCommand = new RelayCommand(_dialogService.CloseDialog);
         SaveChangesCommand = new AsyncRelayCommand(SaveChanges);
+
+        _ = LoadTranslationVersions();
     }
 
     public TranslationDto Translation { get; }
@@ -51,26 +56,90 @@ public class EditTranslationDialogViewModel : BaseViewModel
     public ICommand SaveChangesCommand { get; set; }
     public ICommand CancelCommand { get; set; }
 
+    public TranslationDto SelectedTranslation
+    {
+        get;
+        set
+        {
+            if (!SetField(ref field, value)) return;
+
+            Content = value.Content;
+        }
+    }
+
+    public ObservableCollection<TranslationDto> Translations
+    {
+        get;
+        set => SetField(ref field, value);
+    }
+
+    private async Task LoadTranslationVersions()
+    {
+        var versions = await _translationsService.GetAllForLanguageForAsset(Translation.AssetId, Translation.Language);
+
+        Translations.Clear();
+        foreach (var version in versions)
+        {
+            Translations.Add(version);
+
+            if (version.Id == Translation.Id)
+                SelectedTranslation = version;
+        }
+    }
+
     private async Task SaveChanges()
     {
         IsSaving = true;
 
         try
         {
+            if (Translation.Content == Content)
+            {
+                // Nothing has changed, just close the dialog
+                _dialogService.CloseDialog();
+                return;
+            }
+
+            if (SelectedTranslation.Content == Content)
+            {
+                // We have changed our version but no content change, just change our target version
+                await _translationsService.SetTargetTranslation(SelectedTranslation.Id);
+
+                _notificationService.EmitNotification(
+                    new Notification
+                    {
+                        Title = "Changed translation version",
+                        Message =
+                            $"Successfully changed translation version to {Translation.MajorVersion}.{Translation.MinorVersion}.",
+                        Type = NotificationType.Success
+                    });
+
+                _dialogService.CloseDialog();
+                return;
+            }
+
+            // Otherwise we have new content and need to create a new translation version
             Translation.Content = Content;
             if (Translation.Status == TranslationStatus.Missing ||
                 (Translation.Status == TranslationStatus.Outdated && HasMajorChanges))
             {
                 // Set translation major version to current english version
                 var englishTranslation =
-                    (await _translationsService.GetForAsset(Translation.AssetId))
+                    (await _translationsService.GetTargetedForAsset(Translation.AssetId))
                     .FirstOrDefault(t => t.Language == "en");
 
                 if (englishTranslation == null)
                     throw new NullReferenceException("English translation not found for asset.");
 
                 Translation.MajorVersion = englishTranslation.MajorVersion;
-                Translation.MinorVersion = 0;
+
+                // Check if we have other major versions for this asset of the above major version, we need to get the latest minor and increment it
+                Translation.MinorVersion = Translations
+                    .Where(t => t.MajorVersion == Translation.MajorVersion)
+                    .OrderByDescending(t => t.MinorVersion)
+                    .FirstOrDefault()?.MinorVersion ?? -1;
+
+                Translation.MinorVersion++;
             }
             else if (Translation.Status == TranslationStatus.UpToDate && HasMajorChanges)
             {
@@ -92,7 +161,7 @@ public class EditTranslationDialogViewModel : BaseViewModel
                 {
                     Title = "Created new translation",
                     Message =
-                        $"Successfully translation version {Translation.MajorVersion}.{Translation.MinorVersion}.",
+                        $"Successfully created translation version {Translation.MajorVersion}.{Translation.MinorVersion}.",
                     Type = NotificationType.Success
                 });
 

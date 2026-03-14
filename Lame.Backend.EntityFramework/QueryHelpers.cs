@@ -59,17 +59,10 @@ public static class QueryHelpers
             LastUpdatedAt = entity.LastUpdatedAt,
             CreatedAt = entity.CreatedAt,
             Status = entity.Status,
-            NumTranslations = entity.Translations
-                // TODO we have a helper for this, but it's built on IQueryable
-                // Filter only languages that are up to date with the english translation
-                .Where(t =>
-                    !entity.Translations.Any(english =>
-                        english.AssetId == t.AssetId &&
-                        english.Language == "en" &&
-                        english.MajorVersion > t.MajorVersion))
-                .Select(t => t.Language)
-                .Distinct()
-                .Count()
+            NumTranslations = entity.TargetedTranslations
+                .Count(target => entity.TargetedTranslations.Any(english =>
+                    english.Language == "en" &&
+                    english.Translation.MajorVersion == target.Translation.MajorVersion))
         });
     }
 
@@ -88,19 +81,19 @@ public static class QueryHelpers
             Status = query.Any(english =>
                 english.AssetId == translation.AssetId &&
                 english.Language == "en" &&
-                english.MajorVersion > translation.MajorVersion)
+                english.MajorVersion != translation.MajorVersion)
                 ? TranslationStatus.Outdated
                 : TranslationStatus.UpToDate
         });
     }
 
-    public static IQueryable<TranslationEntity> WithUptoDateOnly(this IQueryable<TranslationEntity> query)
+    public static IQueryable<TargetAssetTranslationEntity> WithUptoDateOnly(
+        this IQueryable<TargetAssetTranslationEntity> query)
     {
-        return query.Where(t =>
-            // Translations are considered upto to date if major versions match, we do not care about minor versions
-            !query.Any(english =>
-                english.AssetId == t.AssetId &&
+        return query.Where(target =>
+            query.Any(english =>
+                english.AssetId == target.AssetId &&
                 english.Language == "en" &&
-                english.MajorVersion > t.MajorVersion));
+                english.Translation.MajorVersion == target.Translation.MajorVersion));
     }
 }

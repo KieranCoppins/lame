@@ -33,12 +33,10 @@ public class StatisticsLocalEF : IStatistics
                 .AsNoTracking()
                 .CountAsync();
 
-            var upToDateTranslationsPerAsset = context.Translations
+            var upToDateTranslationsPerAsset = context.TargetAssetTranslations
                 .AsNoTracking()
                 // Only consider translations that are up to date with the english translation for their asset
-                .WithUptoDateOnly()
-                .Select(t => new { t.AssetId, t.Language })
-                .Distinct();
+                .WithUptoDateOnly();
 
             // Translations by language
             statistics.TranslationsByLanguage = await context.Languages
