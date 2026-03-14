@@ -5,7 +5,6 @@ using Lame.Frontend.Commands;
 using Lame.Frontend.Enums;
 using Lame.Frontend.Services;
 using Lame.Frontend.ViewModels.Dialogs;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Lame.Frontend.ViewModels;
 
@@ -25,9 +24,8 @@ public class SettingsViewModel : PageViewModel
         Page = AppPage.Settings;
         SupportedLanguages = [];
 
-        OpenAddLanguageDialogCommand = new RelayCommand(() =>
-            _dialogService.ShowDialog(
-                ActivatorUtilities.CreateInstance<AddSupportedLanguageDialogViewModel>(_serviceProvider)));
+        OpenAddLanguageDialogCommand =
+            new RelayCommand(() => _dialogService.ShowDialog<AddSupportedLanguageDialogViewModel>());
     }
 
     public ICommand OpenAddLanguageDialogCommand { get; }

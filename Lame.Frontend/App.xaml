@@ -54,6 +54,9 @@
             <DataTemplate DataType="{x:Type dialogViewModels:AddSupportedLanguageDialogViewModel}">
                 <dialogViews:AddSupportedLanguageDialogView />
             </DataTemplate>
+            <DataTemplate DataType="{x:Type dialogViewModels:EditTranslationDialogViewModel}">
+                <dialogViews:EditTranslationDialogView />
+            </DataTemplate>
             <DataTemplate DataType="{x:Type viewModels:MainWindowViewModel}">
                 <local:MainWindow />
             </DataTemplate>

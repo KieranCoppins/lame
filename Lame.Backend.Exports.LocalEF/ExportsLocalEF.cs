@@ -23,8 +23,6 @@ public class ExportsLocalEF : IExports
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
             var records = await context.Assets
-                .Include(x =>
-                    x.Translations.Where(t => t.Language == "en" || t.Language == exportOptions.LanguageCode))
                 .Where(a =>
                     exportOptions.TranslationStatusFilter == ExportTranslationStatusFilter.All ||
                     (exportOptions.TranslationStatusFilter == ExportTranslationStatusFilter.Complete &&
@@ -41,17 +39,24 @@ public class ExportsLocalEF : IExports
                     InternalName = a.InternalName,
                     Context = a.ContextNotes ?? string.Empty,
 
-                    // Get source translation (always english) and create translation export data
-                    SourceTranslation = a.Translations.Where(t => t.Language == "en").Select(t =>
-                        new TranslationExportData
-                        {
-                            Id = t.AssetId,
-                            Content = t.Content ?? string.Empty
-                        }).FirstOrDefault(),
+                    // Get latest source translation (always english) and create translation export data
+                    SourceTranslation = a.Translations
+                        .Where(t => t.Language == "en")
+                        .OrderByDescending(t => t.MajorVersion)
+                        .ThenByDescending(t => t.MinorVersion)
+                        .Select(t =>
+                            new TranslationExportData
+                            {
+                                Id = t.AssetId,
+                                Content = t.Content ?? string.Empty
+                            }).FirstOrDefault(),
 
 
-                    // Get target translation (in export options) and create translation export data
-                    TargetTranslation = a.Translations.Where(t => t.Language == exportOptions.LanguageCode)
+                    // Get latest target translation (in export options) and create translation export data
+                    TargetTranslation = a.Translations
+                        .Where(t => t.Language == exportOptions.LanguageCode)
+                        .OrderByDescending(t => t.MajorVersion)
+                        .ThenByDescending(t => t.MinorVersion)
                         .Select(t =>
                             new TranslationExportData
                             {

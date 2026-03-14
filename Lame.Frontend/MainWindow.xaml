@@ -32,6 +32,7 @@
                                Margin="0" />
                     <WrapPanel>
                         <TextBlock Text="Localization Asset Management Engine"
+                                   TextWrapping="Wrap"
                                    Style="{StaticResource Subtitle}"
                                    FontSize="10"
                                    Margin="0" />

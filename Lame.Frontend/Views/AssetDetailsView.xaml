@@ -255,8 +255,10 @@
                                         BorderBrush="{StaticResource Brush.NotificationSuccess}"
                                         Margin="0, 8">
                                     <StackPanel>
-                                        <Grid>
+                                        <Grid
+                                            Margin="0, 0, 0, 8">
                                             <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
@@ -264,14 +266,30 @@
                                             <TextBlock Grid.Column="0"
                                                        Text="{Binding Language, Converter={StaticResource LanguageCodeToEnglishConverter}}"
                                                        Style="{StaticResource Header3}"
-                                                       Margin="0, 0, 0, 8" />
+                                                       Margin="0, 0, 4, 0"
+                                                       VerticalAlignment="Center" />
+
+                                            <Button
+                                                Grid.Column="1"
+                                                Style="{StaticResource StyledButton}"
+                                                Margin="4, 0, 0,0"
+                                                Padding="8"
+                                                VerticalAlignment="Center"
+                                                BorderThickness="0"
+                                                Command="{Binding DataContext.EditTranslationCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding}">
+                                                <TextBlock Text="✎"
+                                                           Foreground="{StaticResource Brush.DarkGrey}"
+                                                           Margin="0" />
+                                            </Button>
 
                                             <TextBlock x:Name="TranslationMetaText"
-                                                       Grid.Column="1"
+                                                       Grid.Column="2"
                                                        Style="{StaticResource Subtitle}"
                                                        TextWrapping="Wrap"
                                                        HorizontalAlignment="Right"
-                                                       Margin="0">
+                                                       Margin="0"
+                                                       VerticalAlignment="Center">
                                                 <TextBlock.Text>
                                                     <MultiBinding StringFormat="{}{0}  •  Version: {1}.{2}">
                                                         <Binding Path="CreatedAt"
@@ -307,7 +325,7 @@
                                                 Value="{StaticResource Brush.NotificationFailure}" />
                                     </DataTrigger>
                                     <DataTrigger
-                                        Binding="{Binding Status, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=OutOfDate}"
+                                        Binding="{Binding Status, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Outdated}"
                                         Value="True">
                                         <Setter TargetName="ContainerBorder" Property="BorderBrush"
                                                 Value="{StaticResource Brush.NotificationWarning}" />

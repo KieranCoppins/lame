@@ -55,6 +55,7 @@ public partial class App : Application
         services.AddTransient<LinkAssetsDialogViewModel>();
         services.AddTransient<SettingsViewModel>();
         services.AddTransient<ExportViewModel>();
+        services.AddTransient<EditTranslationDialogViewModel>();
 
         // Register Factories
         services.AddSingleton<LinkAssetsDialogViewModelFactory>();

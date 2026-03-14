@@ -95,7 +95,6 @@
                         <Trigger Property="IsKeyboardFocusWithin" Value="True">
                             <Setter TargetName="ContainingBorder" Property="BorderBrush"
                                     Value="{StaticResource Brush.Primary}" />
-                            <Setter TargetName="ContainingBorder" Property="Margin" Value="0" />
                             <Setter TargetName="ContainingBorder" Property="BorderThickness">
                                 <Setter.Value>
                                     <Thickness Left="{StaticResource BorderThickness.Thick}"
@@ -110,7 +109,6 @@
                             <Setter TargetName="ContainingBorder"
                                     Property="BorderBrush"
                                     Value="{StaticResource Brush.NotificationFailure}" />
-                            <Setter TargetName="ContainingBorder" Property="Margin" Value="0" />
                             <Setter TargetName="ContainingBorder" Property="BorderThickness">
                                 <Setter.Value>
                                     <Thickness Left="{StaticResource BorderThickness.Thick}"

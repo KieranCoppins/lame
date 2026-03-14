@@ -33,11 +33,18 @@ public class StatisticsLocalEF : IStatistics
                 .AsNoTracking()
                 .CountAsync();
 
+            var upToDateTranslationsPerAsset = context.Translations
+                .AsNoTracking()
+                // Only consider translations that are up to date with the english translation for their asset
+                .WithUptoDateOnly()
+                .Select(t => new { t.AssetId, t.Language })
+                .Distinct();
+
             // Translations by language
             statistics.TranslationsByLanguage = await context.Languages
                 .AsNoTracking()
                 .GroupJoin(
-                    context.Translations.AsNoTracking(),
+                    upToDateTranslationsPerAsset,
                     l => l.LanguageCode,
                     t => t.Language,
                     (l, translations) => new
@@ -50,11 +57,9 @@ public class StatisticsLocalEF : IStatistics
             // Missing translations
             var totalAssets = statistics.TotalAssets;
             var totalLanguages = statistics.TotalLanguages;
-            var totalTranslations = await context.Translations
-                .AsNoTracking()
-                .CountAsync();
+            var totalUpToDateTranslations = await upToDateTranslationsPerAsset.CountAsync();
 
-            statistics.MissingTranslations = totalAssets * totalLanguages - totalTranslations;
+            statistics.MissingTranslations = totalAssets * totalLanguages - totalUpToDateTranslations;
 
             // Assets by type
             statistics.AssetsByType = await context.Assets

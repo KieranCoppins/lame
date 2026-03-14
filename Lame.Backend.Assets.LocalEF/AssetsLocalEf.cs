@@ -23,11 +23,9 @@ public class AssetsLocalEf : IAssets
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
             // TODO consider pagination if the dataset grows large
-            var assets = await context.Assets
-                .Include(e => e.Translations)
+            return await context.Assets
+                .AsDto()
                 .ToListAsync();
-
-            return assets.Select(MapToDto).ToList();
         });
     }
 
@@ -40,22 +38,12 @@ public class AssetsLocalEf : IAssets
 
             searchTerm = searchTerm.ToLower();
 
-            var assets = await context.Assets
-                .Include(a => a.Translations)
+            return await context.Assets
                 .Include(a => a.Tags)
-                .Where(a =>
-                    a.InternalName.ToLower().Contains(searchTerm) ||
-                    a.Tags.Any(t => t.Name.ToLower().Contains(searchTerm)))
-                .OrderBy(a =>
-                    a.InternalName.ToLower() == searchTerm ? 0 :
-                    a.InternalName.ToLower().StartsWith(searchTerm) ? 1 :
-                    a.InternalName.ToLower().Contains(searchTerm) ? 2 :
-                    3)
-                .ThenBy(a => a.InternalName)
+                .SearchBy(searchTerm)
                 .Take(limit)
+                .AsDto()
                 .ToListAsync();
-
-            return assets.Select(MapToDto).ToList();
         });
     }
 
@@ -66,12 +54,10 @@ public class AssetsLocalEf : IAssets
             using var scope = _serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            var asset = await context.Assets
-                .Include(entity => entity.Translations)
+            return await context.Assets
                 .Where(entity => entity.Id == id)
+                .AsDto()
                 .FirstOrDefaultAsync();
-
-            return asset == null ? null : MapToDto(asset);
         });
     }
 
@@ -82,13 +68,13 @@ public class AssetsLocalEf : IAssets
             using var scope = _serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            var assetWithLinkedContent = await context.Assets
-                .Include(entity => entity.LinkedContent)
-                .ThenInclude(entity => entity.Translations)
+            return await context.Assets
                 .Where(entity => entity.Id == assetId)
-                .FirstOrDefaultAsync();
-
-            return assetWithLinkedContent?.LinkedContent.Select(MapToDto).ToList() ?? [];
+                .Select(a => a.LinkedContent
+                    .AsQueryable()
+                    .AsDto())
+                .First()
+                .ToListAsync();
         });
     }
 

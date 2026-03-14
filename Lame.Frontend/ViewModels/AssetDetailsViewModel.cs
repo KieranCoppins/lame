@@ -74,6 +74,11 @@ public class AssetDetailsViewModel : PageViewModel
 
         RemoveAssetLinkCommand = new AsyncRelayCommand<AssetDto>(UnLinkAsset);
 
+        EditTranslationCommand = new RelayCommand<TranslationDto>(translation =>
+            _dialogService.ShowDialog<EditTranslationDialogViewModel>(translation));
+
+        _dialogService.ActiveDialogChanged += DialogServiceOnActiveDialogChanged;
+
         Page = AppPage.Library;
     }
 
@@ -94,6 +99,7 @@ public class AssetDetailsViewModel : PageViewModel
     public ICommand ViewLinkedAssetDetails { get; }
     public ICommand OpenLinkAssetDialogCommand { get; }
     public ICommand RemoveAssetLinkCommand { get; }
+    public ICommand EditTranslationCommand { get; }
 
     public string InternalName
     {
@@ -126,10 +132,21 @@ public class AssetDetailsViewModel : PageViewModel
 
     public Func<Task<List<Tag>>> GetTags => () => _tagsService.Get();
 
+    private void DialogServiceOnActiveDialogChanged()
+    {
+        if (_dialogService.ActiveDialog == null) OnNavigatedTo();
+    }
+
     public override void OnNavigatedTo()
     {
         base.OnNavigatedTo();
         LoadAsset();
+    }
+
+    public override void OnNavigatedFrom()
+    {
+        base.OnNavigatedFrom();
+        _dialogService.ActiveDialogChanged -= DialogServiceOnActiveDialogChanged;
     }
 
     private void LoadAsset()

@@ -75,12 +75,12 @@
                            Bottom="{StaticResource Margin.Small}" />
             </Setter.Value>
         </Setter>
-        <Setter Property="Background" Value="{StaticResource Brush.White}" />
+        <Setter Property="Background" Value="Transparent" />
         <Setter Property="Foreground" Value="{StaticResource Brush.Black}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="BorderBrush" Value="{StaticResource Brush.LightGrey}" />
 
-        <Setter Property="helpers:ButtonHelpers.HoverBackground" Value="{StaticResource Brush.LighterGrey}" />
+        <Setter Property="helpers:ButtonHelpers.HoverBackground" Value="#10000000" />
         <Setter Property="helpers:CommonHelpers.IsLoading" Value="False" />
 
         <Setter Property="Template">

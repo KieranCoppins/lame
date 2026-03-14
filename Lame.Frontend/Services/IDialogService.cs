@@ -7,6 +7,8 @@ public interface IDialogService
 
     void ShowDialog(object viewModel);
 
+    void ShowDialog<T>(params object[] args);
+
     void CloseDialog();
 
     public event Action ActiveDialogChanged;
