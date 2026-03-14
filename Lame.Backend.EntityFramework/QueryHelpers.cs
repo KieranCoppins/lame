@@ -17,6 +17,14 @@ public static class QueryHelpers
             )));
     }
 
+    public static IQueryable<TranslationEntity> TargetTranslationPerLanguage(
+        this IQueryable<AssetEntity> query)
+    {
+        return query
+            .SelectMany(asset => asset.TargetedTranslations)
+            .Select(target => target.Translation);
+    }
+
     // TODO make this more generic so I dont have to keep redefining it for each entity type
     public static IQueryable<AssetEntity> SearchBy(
         this IQueryable<AssetEntity> query,

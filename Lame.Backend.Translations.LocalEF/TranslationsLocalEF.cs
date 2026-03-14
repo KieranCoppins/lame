@@ -22,9 +22,9 @@ public class TranslationsLocalEF : ITranslations
             using var scope = _serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            var results = await context.Translations
-                .Where(entity => entity.AssetId == assetId)
-                .LatestVersionPerLanguage()
+            var results = await context.Assets
+                .Where(asset => asset.Id == assetId)
+                .TargetTranslationPerLanguage()
                 .AsDto()
                 .ToListAsync();
 
@@ -55,6 +55,29 @@ public class TranslationsLocalEF : ITranslations
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             translation.CreatedAt = DateTime.UtcNow;
             context.Translations.Add(MapToEntity(translation));
+
+            // Always target a new translation
+            var target = context.TargetAssetTranslations.FirstOrDefault(t =>
+                t.AssetId == translation.AssetId && t.Language == translation.Language);
+
+            if (target != null)
+            {
+                // Update existing target translation to point to the new translation
+                target.TranslationId = translation.Id;
+                context.TargetAssetTranslations.Update(target);
+            }
+            else
+            {
+                // Create a new target
+                context.TargetAssetTranslations.Add(new TargetAssetTranslationEntity
+                {
+                    AssetId = translation.AssetId,
+                    Language = translation.Language,
+                    TranslationId = translation.Id
+                });
+            }
+
+
             return context.SaveChangesAsync();
         });
     }

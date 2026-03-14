@@ -14,6 +14,7 @@ public class AppDbContext : DbContext
     public DbSet<TranslationEntity> Translations { get; set; }
     public DbSet<TagEntity> Tags { get; set; }
     public DbSet<LanguageEntity> Languages { get; set; }
+    public DbSet<TargetAssetTranslationEntity> TargetAssetTranslations { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -62,6 +63,22 @@ public class AppDbContext : DbContext
         // Languages Table
         modelBuilder.Entity<LanguageEntity>()
             .HasKey(l => l.LanguageCode);
+
+        // Target Asset Translations table - used to store which translation version we are targeting for an asset's language
+        modelBuilder.Entity<TargetAssetTranslationEntity>()
+            .HasKey(t => new { t.AssetId, t.Language });
+
+        modelBuilder.Entity<TargetAssetTranslationEntity>()
+            .HasOne(t => t.Asset)
+            .WithMany(a => a.TargetedTranslations)
+            .HasForeignKey(t => t.AssetId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<TargetAssetTranslationEntity>()
+            .HasOne(t => t.Translation)
+            .WithMany()
+            .HasForeignKey(t => t.TranslationId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 
     public static string GetConnectionString()
