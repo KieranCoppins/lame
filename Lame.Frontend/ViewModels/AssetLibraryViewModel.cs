@@ -37,6 +37,8 @@ public class AssetLibraryViewModel : PageViewModel
         Page = AppPage.Library;
     }
 
+    public Task SearchQueryTask { get; set; }
+
     public bool IsLoading
     {
         get;
@@ -49,7 +51,7 @@ public class AssetLibraryViewModel : PageViewModel
         set
         {
             SetField(ref field, value);
-            _ = LoadAssets();
+            SearchQueryTask = LoadAssets();
         }
     }
 
@@ -63,17 +65,31 @@ public class AssetLibraryViewModel : PageViewModel
         private set => SetField(ref field, value);
     }
 
-    public override void OnNavigatedTo()
+    public override async Task OnNavigatedTo()
     {
-        base.OnNavigatedTo();
-        _ = LoadAssets();
-        _ = GetSupportedLanguagesCount();
+        await base.OnNavigatedTo();
+
+        await Task.WhenAll(LoadAssets(), GetSupportedLanguagesCount());
     }
 
     private async Task GetSupportedLanguagesCount()
     {
-        var languages = await _languagesService.Get();
-        SupportedLanguagesCount = languages.Count;
+        try
+        {
+            var languages = await _languagesService.Get();
+            SupportedLanguagesCount = languages.Count;
+        }
+        catch (Exception ex)
+        {
+            _notificationService.EmitNotification(
+                new Notification
+                {
+                    Title = "Error",
+                    Message = ex.Message,
+                    Type = NotificationType.Failure
+                }
+            );
+        }
     }
 
     private async Task LoadAssets()

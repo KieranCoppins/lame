@@ -125,11 +125,10 @@ public class CreateAssetViewModel : PageViewModel
 
     public int SupportedLanguagesCount { get; set; }
 
-    public override void OnNavigatedTo()
+    public override async Task OnNavigatedTo()
     {
-        base.OnNavigatedTo();
-
-        _ = GetSupportedLanguagesCount();
+        await base.OnNavigatedTo();
+        await GetSupportedLanguagesCount();
     }
 
     private void ValidateForm()

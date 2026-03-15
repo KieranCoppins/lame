@@ -10,11 +10,13 @@ public abstract class PageViewModel : BaseViewModel
         protected set => SetField(ref field, value);
     }
 
-    public virtual void OnNavigatedTo()
+    public virtual Task OnNavigatedTo()
     {
+        return Task.CompletedTask;
     }
 
-    public virtual void OnNavigatedFrom()
+    public virtual Task OnNavigatedFrom()
     {
+        return Task.CompletedTask;
     }
 }

@@ -46,6 +46,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.Backend.Exports.LocalE
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.Backend.Exports.Tests", "Lame.Backend.Exports.Tests\Lame.Backend.Exports.Tests.csproj", "{049F319E-C40C-49D7-A679-F7ECC7B9D40D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.Frontend.Tests", "Lame.Frontend.Tests\Lame.Frontend.Tests.csproj", "{0270E6F3-BAC3-4672-9FCC-3C010C6934C6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -144,5 +146,9 @@ Global
 		{049F319E-C40C-49D7-A679-F7ECC7B9D40D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{049F319E-C40C-49D7-A679-F7ECC7B9D40D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{049F319E-C40C-49D7-A679-F7ECC7B9D40D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0270E6F3-BAC3-4672-9FCC-3C010C6934C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0270E6F3-BAC3-4672-9FCC-3C010C6934C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0270E6F3-BAC3-4672-9FCC-3C010C6934C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0270E6F3-BAC3-4672-9FCC-3C010C6934C6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

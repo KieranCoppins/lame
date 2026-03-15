@@ -144,21 +144,21 @@ public class AssetDetailsViewModel : PageViewModel
         if (_dialogService.ActiveDialog == null) OnNavigatedTo();
     }
 
-    public override void OnNavigatedTo()
+    public override async Task OnNavigatedTo()
     {
-        base.OnNavigatedTo();
-        LoadAsset();
+        await base.OnNavigatedTo();
+        await LoadAsset();
     }
 
-    public override void OnNavigatedFrom()
+    public override async Task OnNavigatedFrom()
     {
-        base.OnNavigatedFrom();
+        await base.OnNavigatedFrom();
         _dialogService.ActiveDialogChanged -= DialogServiceOnActiveDialogChanged;
     }
 
-    private void LoadAsset()
+    private async Task LoadAsset()
     {
-        Task.WhenAll(LoadTranslations(), LoadLinkedAssets(), LoadTags());
+        await Task.WhenAll(LoadTranslations(), LoadLinkedAssets(), LoadTags());
     }
 
     private async Task LoadTranslations()

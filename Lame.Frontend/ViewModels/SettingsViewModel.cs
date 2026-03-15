@@ -32,18 +32,16 @@ public class SettingsViewModel : PageViewModel
 
     public ObservableCollection<LanguageViewModel> SupportedLanguages { get; }
 
-    public override void OnNavigatedTo()
+    public override async Task OnNavigatedTo()
     {
-        base.OnNavigatedTo();
-
-        _ = LoadLanguages();
+        await base.OnNavigatedTo();
         _dialogService.ActiveDialogChanged += OnDialogChanged;
+        await LoadLanguages();
     }
 
-    public override void OnNavigatedFrom()
+    public override async Task OnNavigatedFrom()
     {
-        base.OnNavigatedFrom();
-
+        await base.OnNavigatedFrom();
         _dialogService.ActiveDialogChanged -= OnDialogChanged;
     }
 

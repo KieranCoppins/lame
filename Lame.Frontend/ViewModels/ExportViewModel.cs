@@ -71,10 +71,10 @@ public class ExportViewModel : PageViewModel
         }
     }
 
-    public override void OnNavigatedTo()
+    public override async Task OnNavigatedTo()
     {
-        base.OnNavigatedTo();
-        _ = LoadAvailableLanguages();
+        await base.OnNavigatedTo();
+        await LoadAvailableLanguages();
     }
 
     private async Task Export()

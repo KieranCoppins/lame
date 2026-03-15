@@ -31,10 +31,10 @@ public class DashboardViewModel : PageViewModel
 
     public int TotalTranslations => ProjectStatistics.TotalAssets * ProjectStatistics.TotalLanguages;
 
-    public override void OnNavigatedTo()
+    public override async Task OnNavigatedTo()
     {
-        base.OnNavigatedTo();
-        _ = LoadStatistics();
+        await base.OnNavigatedTo();
+        await LoadStatistics();
     }
 
     private async Task LoadStatistics()
