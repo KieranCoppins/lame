@@ -65,18 +65,16 @@ public class AssetsLocalEf : IAssets
 
     public async Task<List<AssetDto>> GetLinkedAssets(Guid assetId)
     {
-        return await Task.Run(async () =>
+        return await Task.Run(() =>
         {
             using var scope = _serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            return await context.Assets
+            return context.Assets
                 .Where(entity => entity.Id == assetId)
-                .Select(a => a.LinkedContent
-                    .Where(a => a.Status != AssetStatus.Deleted)
-                    .AsQueryable()
-                    .AsDto())
-                .First()
+                .SelectMany(a => a.LinkedContent
+                    .Where(linkedAsset => linkedAsset.Status != AssetStatus.Deleted))
+                .AsDto()
                 .ToListAsync();
         });
     }
