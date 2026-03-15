@@ -79,6 +79,11 @@ public class AssetDetailsViewModel : PageViewModel
 
         _dialogService.ActiveDialogChanged += DialogServiceOnActiveDialogChanged;
 
+        ArchiveAssetCommand = new RelayCommand(() =>
+        {
+            _dialogService.ShowDialog<ArchiveAssetDialogViewModel>(Asset);
+        });
+
         Page = AppPage.Library;
     }
 
@@ -100,6 +105,8 @@ public class AssetDetailsViewModel : PageViewModel
     public ICommand OpenLinkAssetDialogCommand { get; }
     public ICommand RemoveAssetLinkCommand { get; }
     public ICommand EditTranslationCommand { get; }
+    public ICommand ArchiveAssetCommand { get; }
+
 
     public string InternalName
     {

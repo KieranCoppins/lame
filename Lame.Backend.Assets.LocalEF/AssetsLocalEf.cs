@@ -24,6 +24,7 @@ public class AssetsLocalEf : IAssets
 
             // TODO consider pagination if the dataset grows large
             return await context.Assets
+                .Where(a => a.Status != AssetStatus.Deleted)
                 .AsDto()
                 .ToListAsync();
         });
@@ -40,6 +41,7 @@ public class AssetsLocalEf : IAssets
 
             return await context.Assets
                 .Include(a => a.Tags)
+                .Where(a => a.Status != AssetStatus.Deleted)
                 .SearchBy(searchTerm)
                 .Take(limit)
                 .AsDto()
@@ -71,6 +73,7 @@ public class AssetsLocalEf : IAssets
             return await context.Assets
                 .Where(entity => entity.Id == assetId)
                 .Select(a => a.LinkedContent
+                    .Where(a => a.Status != AssetStatus.Deleted)
                     .AsQueryable()
                     .AsDto())
                 .First()
@@ -193,21 +196,6 @@ public class AssetsLocalEf : IAssets
             LastUpdatedAt = asset.LastUpdatedAt,
             CreatedAt = asset.CreatedAt,
             Status = asset.Status
-        };
-    }
-
-    private static AssetDto MapToDto(AssetEntity entity)
-    {
-        return new AssetDto
-        {
-            Id = entity.Id,
-            AssetType = entity.AssetType,
-            ContextNotes = entity.ContextNotes,
-            InternalName = entity.InternalName,
-            LastUpdatedAt = entity.LastUpdatedAt,
-            CreatedAt = entity.CreatedAt,
-            Status = entity.Status,
-            NumTranslations = entity.Translations.Count
         };
     }
 }

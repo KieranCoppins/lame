@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModels="clr-namespace:Lame.Frontend.ViewModels"
              xmlns:controls="clr-namespace:Lame.Frontend.Controls"
+             xmlns:helpers="clr-namespace:Lame.Frontend.Helpers"
              mc:Ignorable="d"
              d:DesignHeight="1080" d:DesignWidth="1920"
              d:DataContext="{d:DesignInstance Type=viewModels:AssetDetailsViewModel}">
@@ -17,14 +18,11 @@
             <!-- Back Button -->
             <Button Command="{Binding ReturnToLibraryCommand}"
                     Style="{StaticResource ClickableText}">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="← Back to Asset Library"
-                               FontSize="14"
-                               Style="{StaticResource Link}"
-                               Foreground="{StaticResource Brush.Primary}" />
-                </StackPanel>
+                <TextBlock Text="← Back to Asset Library"
+                           FontSize="14"
+                           Style="{StaticResource Link}"
+                           Foreground="{StaticResource Brush.Primary}" />
             </Button>
-
             <!-- Header Card -->
             <Border Style="{StaticResource CardBorderStyle}">
 
@@ -336,6 +334,17 @@
                     </ItemsControl>
                 </StackPanel>
             </Border>
+
+            <Button Command="{Binding ArchiveAssetCommand}"
+                    HorizontalAlignment="Right"
+                    Style="{StaticResource PrimaryButton}"
+                    Background="{StaticResource Brush.NotificationFailure}"
+                    helpers:ButtonHelpers.HoverBackground="{StaticResource Brush.NotificationFailureHover }">
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Archive Asset"
+                           Foreground="{StaticResource Brush.White}"
+                           FontWeight="Bold" />
+            </Button>
         </StackPanel>
     </Grid>
 </UserControl>

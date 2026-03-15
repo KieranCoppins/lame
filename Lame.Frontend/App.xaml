@@ -57,6 +57,9 @@
             <DataTemplate DataType="{x:Type dialogViewModels:EditTranslationDialogViewModel}">
                 <dialogViews:EditTranslationDialogView />
             </DataTemplate>
+            <DataTemplate DataType="{x:Type dialogViewModels:ArchiveAssetDialogViewModel}">
+                <dialogViews:ArchiveAssetDialogViewModel />
+            </DataTemplate>
             <DataTemplate DataType="{x:Type viewModels:MainWindowViewModel}">
                 <local:MainWindow />
             </DataTemplate>

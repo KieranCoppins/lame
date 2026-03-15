@@ -143,6 +143,11 @@ public class EditTranslationDialogViewModel : BaseViewModel
             }
             else if (Translation.Status == TranslationStatus.UpToDate && HasMajorChanges)
             {
+                // Because up to date does not always mean the latest major version, we need to get the latest major version and increment it
+                Translation.MajorVersion = Translations
+                    .OrderByDescending(t => t.MajorVersion)
+                    .FirstOrDefault()?.MajorVersion ?? 0;
+
                 Translation.MajorVersion++;
                 Translation.MinorVersion = 0;
             }

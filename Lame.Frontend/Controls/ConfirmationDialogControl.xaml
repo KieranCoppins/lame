@@ -1,0 +1,56 @@
+﻿<UserControl x:Class="Lame.Frontend.Controls.ConfirmationDialogControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:template-Selectors="clr-namespace:Lame.Frontend.Helpers.TemplateSelectors"
+             xmlns:helpers="clr-namespace:Lame.Frontend.Helpers"
+             x:Name="Root"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <!-- Default Title Template -->
+        <DataTemplate x:Key="DefaultTitleTemplate">
+            <TextBlock Text="{Binding}" Style="{StaticResource Header2}" />
+        </DataTemplate>
+
+        <!-- Default Body Template -->
+        <DataTemplate x:Key="DefaultBodyTemplate">
+            <TextBlock Text="{Binding}" Style="{StaticResource Body}" TextWrapping="Wrap" />
+        </DataTemplate>
+
+        <!-- Template Selectors -->
+        <template-Selectors:OptionalTemplateSelector x:Key="TitleTemplateSelector"
+                                                     DefaultTemplate="{StaticResource DefaultTitleTemplate}" />
+
+        <template-Selectors:OptionalTemplateSelector x:Key="BodyTemplateSelector"
+                                                     DefaultTemplate="{StaticResource DefaultBodyTemplate}" />
+    </UserControl.Resources>
+
+    <StackPanel>
+        <!-- Title -->
+        <ContentPresenter Content="{Binding Title, ElementName=Root}"
+                          ContentTemplate="{Binding TitleTemplate, ElementName=Root}"
+                          ContentTemplateSelector="{StaticResource TitleTemplateSelector}" />
+
+        <!-- Body -->
+        <ContentPresenter Content="{Binding Body, ElementName=Root}"
+                          ContentTemplate="{Binding BodyTemplate, ElementName=Root}"
+                          ContentTemplateSelector="{StaticResource BodyTemplateSelector}" />
+
+        <!-- Buttons -->
+        <WrapPanel HorizontalAlignment="Right" Margin="0,20,0,0">
+            <Button Content="{Binding SecondaryButtonLabel, ElementName=Root}"
+                    Style="{StaticResource SecondaryButton}"
+                    Command="{Binding SecondaryCommand, ElementName=Root}" />
+
+            <Button Content="{Binding PrimaryButtonLabel, ElementName=Root}"
+                    Command="{Binding PrimaryCommand, ElementName=Root}"
+                    Style="{StaticResource PrimaryButton}"
+                    Background="{Binding PrimaryButtonColour, ElementName=Root}"
+                    helpers:ButtonHelpers.HoverBackground="{Binding PrimaryButtonHoverColour, ElementName=Root}"
+                    helpers:CommonHelpers.IsLoading="{Binding IsLoading, ElementName=Root}" />
+        </WrapPanel>
+
+    </StackPanel>
+</UserControl>

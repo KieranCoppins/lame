@@ -26,6 +26,7 @@ public class StatisticsLocalEF : IStatistics
             // Total assets
             statistics.TotalAssets = await context.Assets
                 .AsNoTracking()
+                .Where(a => a.Status != AssetStatus.Deleted)
                 .CountAsync();
 
             // Total languages
@@ -35,6 +36,7 @@ public class StatisticsLocalEF : IStatistics
 
             var upToDateTranslationsPerAsset = context.TargetAssetTranslations
                 .AsNoTracking()
+                .Where(t => t.Asset.Status != AssetStatus.Deleted)
                 // Only consider translations that are up to date with the english translation for their asset
                 .WithUptoDateOnly();
 
@@ -62,6 +64,7 @@ public class StatisticsLocalEF : IStatistics
             // Assets by type
             statistics.AssetsByType = await context.Assets
                 .AsNoTracking()
+                .Where(a => a.Status != AssetStatus.Deleted)
                 .GroupBy(a => a.AssetType)
                 .Select(g => new { Type = g.Key, Count = g.Count() })
                 .ToDictionaryAsync(x => x.Type, x => x.Count);
@@ -72,7 +75,7 @@ public class StatisticsLocalEF : IStatistics
                 .Select(t => new
                 {
                     Tag = (Tag)t,
-                    Count = t.Assets.Count()
+                    Count = t.Assets.Count(a => a.Status != AssetStatus.Deleted)
                 })
                 .OrderByDescending(x => x.Count)
                 .Take(10)
