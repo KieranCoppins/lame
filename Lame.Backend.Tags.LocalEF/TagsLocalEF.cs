@@ -77,7 +77,7 @@ public class TagsLocalEF : ITags
             return resourceType switch
             {
                 ResourceType.Asset => await GetResourcesWithTag<AssetEntity>(context, tagId),
-                ResourceType.Translation => await GetResourcesWithTag<AssetEntity>(context, tagId),
+                ResourceType.Translation => await GetResourcesWithTag<TranslationEntity>(context, tagId),
                 _ => throw new ArgumentException("Invalid resource type", nameof(resourceType))
             };
         });
@@ -95,12 +95,17 @@ public class TagsLocalEF : ITags
 
             if (existingTag == null) await Create(tag);
 
-            return resourceType switch
+            switch (resourceType)
             {
-                ResourceType.Asset => AddTagToResource<AssetEntity>(context, tag.Id, resourceId),
-                ResourceType.Translation => AddTagToResource<TranslationEntity>(context, tag.Id, resourceId),
-                _ => throw new ArgumentException("Invalid resource type", nameof(resourceType))
-            };
+                case ResourceType.Asset:
+                    await AddTagToResource<AssetEntity>(context, tag.Id, resourceId);
+                    break;
+                case ResourceType.Translation:
+                    await AddTagToResource<TranslationEntity>(context, tag.Id, resourceId);
+                    break;
+                default:
+                    throw new ArgumentException("Invalid resource type", nameof(resourceType));
+            }
         });
     }
 
