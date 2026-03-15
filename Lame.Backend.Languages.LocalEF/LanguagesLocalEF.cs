@@ -30,13 +30,20 @@ public class LanguagesLocalEF : ILanguages
 
     public Task RegisterLanguage(Language language)
     {
-        return Task.Run(() =>
+        return Task.Run(async () =>
         {
             using var scope = _serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
+            if (string.IsNullOrWhiteSpace(language?.LanguageCode)) return;
+
+            var existingLanguage = await context.Languages
+                .FirstOrDefaultAsync(l => l.LanguageCode == language.LanguageCode);
+
+            if (existingLanguage != null) return;
+
             context.Languages.Add(MapToEntity(language));
-            return context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         });
     }
 
