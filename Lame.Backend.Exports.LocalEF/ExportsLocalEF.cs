@@ -8,11 +8,13 @@ namespace Lame.Backend.Exports.LocalEF;
 
 public class ExportsLocalEF : IExports
 {
+    private readonly IExporterFactory _exporterFactory;
     private readonly IServiceProvider _serviceProvider;
 
-    public ExportsLocalEF(IServiceProvider serviceProvider)
+    public ExportsLocalEF(IServiceProvider serviceProvider, IExporterFactory exporterFactory)
     {
         _serviceProvider = serviceProvider;
+        _exporterFactory = exporterFactory;
     }
 
     public Task<byte[]> Export(ExportOptions exportOptions)
@@ -21,6 +23,9 @@ public class ExportsLocalEF : IExports
         {
             using var scope = _serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            if (exportOptions == null) throw new ArgumentNullException(nameof(exportOptions));
+            if (exportOptions.LanguageCode == null) throw new ArgumentNullException(nameof(exportOptions.LanguageCode));
 
             var records = await context.Assets
                 .Where(a =>
@@ -47,7 +52,7 @@ public class ExportsLocalEF : IExports
                         .Select(t =>
                             new TranslationExportData
                             {
-                                Id = t.AssetId,
+                                Id = t.TranslationId,
                                 Content = t.Translation.Content ?? string.Empty
                             }).FirstOrDefault(),
 
@@ -60,17 +65,14 @@ public class ExportsLocalEF : IExports
                         .Select(t =>
                             new TranslationExportData
                             {
-                                Id = t.AssetId,
+                                Id = t.TranslationId,
                                 Content = t.Translation.Content ?? string.Empty
                             }).FirstOrDefault()
                 }).ToListAsync();
 
-            return exportOptions.Format switch
-            {
-                ExportFormatType.JSON => ExportHelpers.ExportToJson(records),
-                ExportFormatType.XLIFF => ExportHelpers.ExportToXliff12(records, "en", exportOptions.LanguageCode),
-                _ => []
-            };
+            return _exporterFactory
+                .GetExporter(exportOptions.Format)
+                .Export(records, "en", exportOptions.LanguageCode);
         });
     }
 }

@@ -3,6 +3,7 @@ using Lame.Backend.Assets;
 using Lame.Backend.Assets.LocalEF;
 using Lame.Backend.EntityFramework;
 using Lame.Backend.Exports;
+using Lame.Backend.Exports.Exporters;
 using Lame.Backend.Exports.LocalEF;
 using Lame.Backend.Languages;
 using Lame.Backend.Languages.LocalEF;
@@ -45,6 +46,9 @@ public partial class App : Application
         services.AddScoped<ILanguages, LanguagesLocalEF>();
         services.AddScoped<IStatistics, StatisticsLocalEF>();
         services.AddScoped<IExports, ExportsLocalEF>();
+        services.AddTransient<IExporterFactory, ExporterFactory>();
+        services.AddTransient<JsonExporter>();
+        services.AddTransient<Xliff12Exporter>();
 
         // View Models
         services.AddSingleton<MainWindowViewModel>();

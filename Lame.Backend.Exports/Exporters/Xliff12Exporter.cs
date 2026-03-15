@@ -1,40 +1,18 @@
 ﻿using System.Security;
 using System.Text;
-using System.Text.Json;
 using Lame.Backend.Exports.Models;
 
-namespace Lame.Backend.Exports;
+namespace Lame.Backend.Exports.Exporters;
 
-public static class ExportHelpers
+public class Xliff12Exporter : IExporter
 {
-    public static byte[] ExportToJson(List<AssetExportData> records)
-    {
-        var options = new JsonSerializerOptions
-        {
-            WriteIndented = true
-        };
-
-        // Export an array of objects with the internal name and the target translation content.
-        var json = JsonSerializer.Serialize(
-            records.Select(r => new
-            {
-                r.InternalName,
-                r.TargetTranslation?.Content
-            }), options);
-
-        return Encoding.UTF8.GetBytes(json);
-    }
-
-    public static byte[] ExportToXliff12(
-        List<AssetExportData> records,
-        string sourceLanguageCode,
-        string targetLanguageCode)
+    public byte[] Export(List<AssetExportData> records, string sourceLanguage, string targetLanguage)
     {
         var sb = new StringBuilder();
         sb.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         sb.AppendLine("<xliff version=\"1.2\" xmlns=\"urn:oasis:names:tc:xliff:document:1.2\">");
         sb.AppendLine(
-            $"\t<file source-language=\"{sourceLanguageCode}\" target-language=\"{targetLanguageCode}\" datatype=\"plaintext\">");
+            $"\t<file source-language=\"{sourceLanguage}\" target-language=\"{targetLanguage}\" datatype=\"plaintext\">");
         sb.AppendLine("\t\t<body>");
 
         foreach (var record in records)
