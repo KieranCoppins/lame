@@ -81,7 +81,11 @@ public class EditTranslationDialogViewModel : BaseViewModel
         var versions = await _translationsService.GetAllForLanguageForAsset(Translation.AssetId, Translation.Language);
 
         Translations.Clear();
-        foreach (var version in versions) Translations.Add(version);
+        foreach (var version in versions)
+            if (version.Id == SelectedTranslation.Id)
+                Translations.Add(SelectedTranslation);
+            else
+                Translations.Add(version);
     }
 
     private async Task SaveChanges()

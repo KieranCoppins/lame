@@ -18,7 +18,7 @@ public class NotificationService : INotificationService
         Notifications.Add(notification);
         NotificationsChanged?.Invoke();
 
-        // Optionally remove after a delay
+        // TODO: Abstract dispatch provider for better testability
         Task.Delay(5000).ContinueWith(_ =>
         {
             App.Current.Dispatcher.Invoke(() =>

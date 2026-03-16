@@ -17,7 +17,14 @@ public class LanguageCodeToEnglishConverter : IValueConverter
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        var resolver = new LanguageCodeResolver().Select(LanguageCodeEntity.Alpha2);
-        return LanguageCodeHelper.Resolve((string)value, resolver);
+        if (value is not string plainText) return null;
+
+        return ISOGeneratorResourceProvider
+            .ISOGeneratorResources
+            .LanguageDescriptorList
+            .FirstOrDefault(ld =>
+                !string.IsNullOrEmpty(ld.Part1) &&
+                ld.RefName.Equals(plainText, StringComparison.InvariantCultureIgnoreCase)
+            )?.Part1;
     }
 }
