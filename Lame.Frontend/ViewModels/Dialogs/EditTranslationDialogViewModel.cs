@@ -23,6 +23,7 @@ public class EditTranslationDialogViewModel : BaseViewModel
         _translationsService = translationsService;
         _notificationService = notificationService;
         Translation = translation;
+        SelectedTranslation = translation;
         Content = translation.Content;
 
         Translations = [];
@@ -30,8 +31,10 @@ public class EditTranslationDialogViewModel : BaseViewModel
         CancelCommand = new RelayCommand(_dialogService.CloseDialog);
         SaveChangesCommand = new AsyncRelayCommand(SaveChanges);
 
-        _ = LoadTranslationVersions();
+        TranslationVersionTask = LoadTranslationVersions();
     }
+
+    public Task TranslationVersionTask { get; }
 
     public TranslationDto Translation { get; }
 
@@ -78,13 +81,7 @@ public class EditTranslationDialogViewModel : BaseViewModel
         var versions = await _translationsService.GetAllForLanguageForAsset(Translation.AssetId, Translation.Language);
 
         Translations.Clear();
-        foreach (var version in versions)
-        {
-            Translations.Add(version);
-
-            if (version.Id == Translation.Id)
-                SelectedTranslation = version;
-        }
+        foreach (var version in versions) Translations.Add(version);
     }
 
     private async Task SaveChanges()

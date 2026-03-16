@@ -9,6 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Folder Include="Factories\"/>
         <Folder Include="Models\"/>
     </ItemGroup>
 

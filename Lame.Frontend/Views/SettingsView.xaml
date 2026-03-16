@@ -42,8 +42,9 @@
                                         Background="{StaticResource Brush.LightestGrey}"
                                         Margin="8">
                                     <StackPanel>
-                                        <TextBlock Text="{Binding Name}"
-                                                   Style="{StaticResource Header3}" />
+                                        <TextBlock
+                                            Text="{Binding LanguageCode, Converter={StaticResource LanguageCodeToEnglishConverter}}"
+                                            Style="{StaticResource Header3}" />
                                         <TextBlock Style="{StaticResource Subtitle}">
                                             <Run>Code: </Run>
                                             <Run Text="{Binding LanguageCode, Mode=OneWay}" />

@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Lame.Backend.Languages;
+using Lame.DomainModel;
 using Lame.Frontend.Commands;
 using Lame.Frontend.Enums;
 using Lame.Frontend.Services;
@@ -12,13 +13,11 @@ public class SettingsViewModel : PageViewModel
 {
     private readonly IDialogService _dialogService;
     private readonly ILanguages _languagesService;
-    private readonly IServiceProvider _serviceProvider;
 
-    public SettingsViewModel(IDialogService dialogService, IServiceProvider serviceProvider,
+    public SettingsViewModel(IDialogService dialogService,
         ILanguages languagesService)
     {
         _dialogService = dialogService;
-        _serviceProvider = serviceProvider;
         _languagesService = languagesService;
 
         Page = AppPage.Settings;
@@ -30,7 +29,7 @@ public class SettingsViewModel : PageViewModel
 
     public ICommand OpenAddLanguageDialogCommand { get; }
 
-    public ObservableCollection<LanguageViewModel> SupportedLanguages { get; }
+    public ObservableCollection<Language> SupportedLanguages { get; }
 
     public override async Task OnNavigatedTo()
     {
@@ -49,7 +48,7 @@ public class SettingsViewModel : PageViewModel
     {
         var languages = await _languagesService.Get();
         SupportedLanguages.Clear();
-        foreach (var language in languages) SupportedLanguages.Add(new LanguageViewModel(language));
+        foreach (var language in languages) SupportedLanguages.Add(language);
     }
 
     private void OnDialogChanged()

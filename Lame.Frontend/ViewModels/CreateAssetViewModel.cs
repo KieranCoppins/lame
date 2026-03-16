@@ -8,7 +8,6 @@ using Lame.Backend.Translations;
 using Lame.DomainModel;
 using Lame.Frontend.Commands;
 using Lame.Frontend.Enums;
-using Lame.Frontend.Factories;
 using Lame.Frontend.Services;
 using Lame.Frontend.ViewModels.Dialogs;
 
@@ -20,25 +19,22 @@ public class CreateAssetViewModel : PageViewModel
     private readonly IDialogService _dialogService;
     private readonly ILanguages _languagesService;
     private readonly INotificationService _notificationService;
-    private readonly IServiceProvider _serviceProvider;
     private readonly ITags _tags;
     private readonly ITranslations _translations;
     private LinkAssetsDialogViewModel _linkAssetsDialogViewModel;
 
-    public CreateAssetViewModel(IAssets assets,
+    public CreateAssetViewModel(
+        IAssets assets,
         ITranslations translations,
         ITags tags,
         INotificationService notificationService,
-        IServiceProvider serviceProvider,
         IDialogService dialogService,
-        ILanguages languagesService,
-        LinkAssetsDialogViewModelFactory linkAssetsDialogViewModelFactory)
+        ILanguages languagesService)
     {
         _assets = assets;
         _translations = translations;
         _tags = tags;
         _notificationService = notificationService;
-        _serviceProvider = serviceProvider;
         _dialogService = dialogService;
         _languagesService = languagesService;
 
@@ -51,15 +47,16 @@ public class CreateAssetViewModel : PageViewModel
         RemoveAssetLinkCommand = new RelayCommand<AssetDto>(linkedAsset => AssetsToLink.Remove(linkedAsset));
 
         OpenLinkAssetDialogCommand = new RelayCommand(() =>
-        {
-            _linkAssetsDialogViewModel = linkAssetsDialogViewModelFactory.Create(null, LinkToAsset);
-            _dialogService.ShowDialog(_linkAssetsDialogViewModel);
-        });
+            _dialogService.ShowDialog<LinkAssetsDialogViewModel>(LinkToAsset));
     }
 
     public Func<Task<List<Tag>>> TagSearch => () => _tags.Get();
 
-    public ObservableCollection<AssetDto> AssetsToLink { get; }
+    public ObservableCollection<AssetDto> AssetsToLink
+    {
+        get;
+        set => SetField(ref field, value);
+    }
 
     public Array AssetTypes => Enum.GetValues<AssetType>();
 
@@ -140,7 +137,7 @@ public class CreateAssetViewModel : PageViewModel
             throw new ValidationException("Content is required.");
     }
 
-    private async Task CreateAsset()
+    public async Task CreateAsset()
     {
         CreatingAsset = true;
 
@@ -227,7 +224,7 @@ public class CreateAssetViewModel : PageViewModel
         ClearError(nameof(EnglishContent));
     }
 
-    private Task LinkToAsset(AssetDto asset)
+    public Task LinkToAsset(AssetDto asset)
     {
         AssetsToLink.Add(asset);
         return Task.CompletedTask;

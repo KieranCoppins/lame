@@ -6,7 +6,6 @@ using Lame.DomainModel;
 using Lame.Frontend.Commands;
 using Lame.Frontend.Enums;
 using Lame.Frontend.Services;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Lame.Frontend.ViewModels;
 
@@ -37,7 +36,7 @@ public class AssetLibraryViewModel : PageViewModel
         Page = AppPage.Library;
     }
 
-    public Task SearchQueryTask { get; set; }
+    public Task? SearchQueryTask { get; private set; }
 
     public bool IsLoading
     {
@@ -127,10 +126,6 @@ public class AssetLibraryViewModel : PageViewModel
 
     private void OnViewAssetDetails(AssetDto asset)
     {
-        _navigationService.NavigateTo(() =>
-            ActivatorUtilities.CreateInstance<AssetDetailsViewModel>(
-                _serviceProvider,
-                asset,
-                SupportedLanguagesCount));
+        _navigationService.NavigateTo<AssetDetailsViewModel>(asset, SupportedLanguagesCount);
     }
 }

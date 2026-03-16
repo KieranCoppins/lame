@@ -119,8 +119,31 @@ public class AssetLibraryViewModelTests
         vm.SearchQuery = "test";
 
         // Assert
-        await vm.SearchQueryTask;
+        await vm.SearchQueryTask!;
         assetsService.Verify(x => x.Get("test"), Times.Once);
         Assert.Single(vm.Assets);
+    }
+
+    [Fact]
+    public void ViewAssetDetailsCommand_Execute_NavigatesToAssetDetailsViewModel()
+    {
+        // Arrange
+        var asset = new AssetDtoBuilder().Build();
+
+        var navigationService = new Mock<INavigationService>();
+
+        var vm = AssetLibraryViewModelFactory.Create(navigationService: navigationService.Object);
+
+        // Act
+        vm.ViewAssetDetailsCommand.Execute(asset);
+
+        // Assert
+        navigationService.Verify(
+            x => x.NavigateTo<AssetDetailsViewModel>(
+                It.Is<object[]>(args =>
+                    args.OfType<AssetDto>().Any(a => a.Id == asset.Id)
+                )
+            ),
+            Times.Once);
     }
 }

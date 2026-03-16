@@ -3,7 +3,6 @@ using System.Windows.Input;
 using Lame.Frontend.Commands;
 using Lame.Frontend.Enums;
 using Lame.Frontend.Services;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Lame.Frontend.ViewModels;
 
@@ -38,19 +37,19 @@ public class MainWindowViewModel : BaseViewModel
         };
 
         NavigateToLibraryCommand = new RelayCommand(() =>
-            _navigationService.NavigateTo(serviceProvider.GetRequiredService<AssetLibraryViewModel>));
+            _navigationService.NavigateTo<AssetLibraryViewModel>());
 
         NavigateToDashboardCommand = new RelayCommand(() =>
-            _navigationService.NavigateTo(serviceProvider.GetRequiredService<DashboardViewModel>));
+            _navigationService.NavigateTo<DashboardViewModel>());
 
         NavigateToCreateAssetCommand = new RelayCommand(() =>
-            _navigationService.NavigateTo(serviceProvider.GetRequiredService<CreateAssetViewModel>));
+            _navigationService.NavigateTo<CreateAssetViewModel>());
 
         NavigateToSettingsCommand = new RelayCommand(() =>
-            _navigationService.NavigateTo(serviceProvider.GetRequiredService<SettingsViewModel>));
+            _navigationService.NavigateTo<SettingsViewModel>());
 
         NavigateToExportXliffCommand = new RelayCommand(() =>
-            navigationService.NavigateTo(serviceProvider.GetRequiredService<ExportViewModel>));
+            navigationService.NavigateTo<ExportViewModel>());
 
         CloseDialogCommand = new RelayCommand(dialogService.CloseDialog);
     }

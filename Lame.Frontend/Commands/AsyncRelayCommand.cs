@@ -9,9 +9,11 @@ public class AsyncRelayCommand<T> : BaseRelayCommand<T>
         _execute = execute;
     }
 
-    public override async void Execute(object? parameter)
+    public Task? CommandTask { get; private set; }
+
+    public override void Execute(object? parameter)
     {
-        await _execute(GetParameterValue(parameter));
+        CommandTask = _execute(GetParameterValue(parameter));
     }
 }
 

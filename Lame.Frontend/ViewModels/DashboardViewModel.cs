@@ -19,7 +19,7 @@ public class DashboardViewModel : PageViewModel
     public ProjectStatistics ProjectStatistics
     {
         get;
-        private set
+        set
         {
             SetField(ref field, value);
             OnPropertyChanged(nameof(CompletedTranslations));

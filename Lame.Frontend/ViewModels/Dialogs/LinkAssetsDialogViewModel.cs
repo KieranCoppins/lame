@@ -15,11 +15,11 @@ public class LinkAssetsDialogViewModel : BaseViewModel
     private readonly INotificationService _notificationService;
 
     public LinkAssetsDialogViewModel(
-        AssetDto? asset,
         Func<AssetDto, Task> handleLinkAsset,
         IAssets assetService,
         INotificationService notificationService,
-        IDialogService dialogService)
+        IDialogService dialogService,
+        AssetDto? asset = null)
     {
         _handleLinkAsset = handleLinkAsset;
         _assetService = assetService;

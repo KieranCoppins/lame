@@ -2,9 +2,9 @@
 
 namespace Lame.Frontend.Views.Dialogs;
 
-public partial class ArchiveAssetDialogViewModel : UserControl
+public partial class ArchiveAssetDialogView : UserControl
 {
-    public ArchiveAssetDialogViewModel()
+    public ArchiveAssetDialogView()
     {
         InitializeComponent();
     }

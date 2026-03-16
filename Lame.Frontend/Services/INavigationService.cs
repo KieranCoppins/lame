@@ -6,6 +6,7 @@ public interface INavigationService
 {
     PageViewModel CurrentViewModel { get; }
     event Action CurrentViewModelChanged;
-    
+
     void NavigateTo<TViewModel>(Func<TViewModel> factory) where TViewModel : PageViewModel;
+    void NavigateTo<TViewModel>(params object[] args) where TViewModel : PageViewModel;
 }

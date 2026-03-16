@@ -13,7 +13,6 @@ using Lame.Backend.Tags;
 using Lame.Backend.Tags.LocalEF;
 using Lame.Backend.Translations;
 using Lame.Backend.Translations.LocalEF;
-using Lame.Frontend.Factories;
 using Lame.Frontend.Services;
 using Lame.Frontend.ViewModels;
 using Lame.Frontend.ViewModels.Dialogs;
@@ -60,9 +59,6 @@ public partial class App : Application
         services.AddTransient<SettingsViewModel>();
         services.AddTransient<ExportViewModel>();
         services.AddTransient<EditTranslationDialogViewModel>();
-
-        // Register Factories
-        services.AddSingleton<LinkAssetsDialogViewModelFactory>();
 
         // Build the service provider
         ServiceProvider = services.BuildServiceProvider();

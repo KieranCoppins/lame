@@ -1,16 +1,13 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Lame.Backend.Assets;
-using Lame.Backend.Languages;
 using Lame.Backend.Tags;
 using Lame.Backend.Translations;
 using Lame.DomainModel;
 using Lame.Frontend.Commands;
 using Lame.Frontend.Enums;
-using Lame.Frontend.Factories;
 using Lame.Frontend.Services;
 using Lame.Frontend.ViewModels.Dialogs;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Lame.Frontend.ViewModels;
 
@@ -18,14 +15,11 @@ public class AssetDetailsViewModel : PageViewModel
 {
     private readonly IAssets _assetsService;
     private readonly IDialogService _dialogService;
-    private readonly ILanguages _languagesService;
 
     private readonly INavigationService _navigationService;
     private readonly INotificationService _notificationService;
     private readonly ITags _tagsService;
     private readonly ITranslations _translationsService;
-
-    private LinkAssetsDialogViewModel? _linkAssetsDialogViewModel;
 
     public AssetDetailsViewModel(
         INavigationService navigationService,
@@ -35,8 +29,6 @@ public class AssetDetailsViewModel : PageViewModel
         IAssets assetsService,
         IDialogService dialogService,
         INotificationService notificationService,
-        ILanguages languagesService,
-        LinkAssetsDialogViewModelFactory linkAssetsDialogViewModelFactory,
         AssetDto asset,
         int supportedLanguagesCount)
     {
@@ -46,7 +38,6 @@ public class AssetDetailsViewModel : PageViewModel
         _assetsService = assetsService;
         _dialogService = dialogService;
         _notificationService = notificationService;
-        _languagesService = languagesService;
 
         Translations = [];
         LinkedAssets = [];
@@ -56,21 +47,14 @@ public class AssetDetailsViewModel : PageViewModel
         SupportedLanguagesCount = supportedLanguagesCount;
 
         ReturnToLibraryCommand = new RelayCommand(() =>
-            _navigationService.NavigateTo(serviceProvider.GetRequiredService<AssetLibraryViewModel>));
+            _navigationService.NavigateTo<AssetLibraryViewModel>());
 
         ViewLinkedAssetDetails = new RelayCommand<AssetDto>(linkedAsset =>
-            _navigationService.NavigateTo(() =>
-                ActivatorUtilities.CreateInstance<AssetDetailsViewModel>(
-                    serviceProvider,
-                    linkedAsset,
-                    SupportedLanguagesCount
-                )));
+            _navigationService.NavigateTo<AssetDetailsViewModel>(linkedAsset, SupportedLanguagesCount));
 
         OpenLinkAssetDialogCommand = new RelayCommand(() =>
-        {
-            _linkAssetsDialogViewModel = linkAssetsDialogViewModelFactory.Create(Asset, LinkToAsset);
-            _dialogService.ShowDialog(_linkAssetsDialogViewModel);
-        });
+            _dialogService.ShowDialog<LinkAssetsDialogViewModel>(Asset, LinkToAsset)
+        );
 
         RemoveAssetLinkCommand = new AsyncRelayCommand<AssetDto>(UnLinkAsset);
 
@@ -107,6 +91,7 @@ public class AssetDetailsViewModel : PageViewModel
     public ICommand EditTranslationCommand { get; }
     public ICommand ArchiveAssetCommand { get; }
 
+    public Task? UpdateAssetTask { get; private set; }
 
     public string InternalName
     {
@@ -119,7 +104,7 @@ public class AssetDetailsViewModel : PageViewModel
             Asset.InternalName = value;
             OnPropertyChanged();
 
-            _ = UpdateAsset();
+            UpdateAssetTask = UpdateAsset();
         }
     }
 
@@ -133,7 +118,7 @@ public class AssetDetailsViewModel : PageViewModel
             Asset.ContextNotes = value;
             OnPropertyChanged();
 
-            _ = UpdateAsset();
+            UpdateAssetTask = UpdateAsset();
         }
     }
 
@@ -141,7 +126,8 @@ public class AssetDetailsViewModel : PageViewModel
 
     private void DialogServiceOnActiveDialogChanged()
     {
-        if (_dialogService.ActiveDialog == null) OnNavigatedTo();
+        if (_dialogService.ActiveDialog == null)
+            _ = OnNavigatedTo();
     }
 
     public override async Task OnNavigatedTo()
@@ -184,7 +170,7 @@ public class AssetDetailsViewModel : PageViewModel
         foreach (var tag in tags) Tags.Add(tag);
     }
 
-    private async Task LinkToAsset(AssetDto asset)
+    public async Task LinkToAsset(AssetDto asset)
     {
         try
         {
@@ -210,7 +196,7 @@ public class AssetDetailsViewModel : PageViewModel
         }
     }
 
-    private async Task UnLinkAsset(AssetDto asset)
+    public async Task UnLinkAsset(AssetDto asset)
     {
         try
         {
@@ -236,7 +222,7 @@ public class AssetDetailsViewModel : PageViewModel
         }
     }
 
-    private async Task UpdateAsset()
+    public async Task UpdateAsset()
     {
         try
         {

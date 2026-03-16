@@ -14,7 +14,9 @@ public class AddSupportedLanguageDialogViewModel : BaseViewModel
     private readonly ILanguages _languagesService;
     private readonly INotificationService _notificationService;
 
-    public AddSupportedLanguageDialogViewModel(IDialogService dialogService, ILanguages languagesService,
+    public AddSupportedLanguageDialogViewModel(
+        IDialogService dialogService,
+        ILanguages languagesService,
         INotificationService notificationService)
     {
         _dialogService = dialogService;
