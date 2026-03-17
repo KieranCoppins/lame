@@ -120,7 +120,7 @@ public class EditTranslationDialogViewModel : BaseViewModel
                     {
                         Title = "Changed translation version",
                         Message =
-                            $"Successfully changed translation version to {Translation.MajorVersion}.{Translation.MinorVersion}.",
+                            $"Successfully changed translation version to {SelectedTranslation.MajorVersion}.{SelectedTranslation.MinorVersion}.",
                         Type = NotificationType.Success
                     });
 

@@ -6,9 +6,9 @@
              mc:Ignorable="d"
              x:Name="Root"
              d:DesignHeight="300" d:DesignWidth="300">
-    <!-- TODO fix file dropping -->
     <Border
         Style="{StaticResource CardBorderStyle}"
+        AllowDrop="True"
         Drop="FileDrop">
         <StackPanel
             VerticalAlignment="Center"

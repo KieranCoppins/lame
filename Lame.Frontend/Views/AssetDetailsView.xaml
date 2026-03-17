@@ -299,9 +299,11 @@
                                             </TextBlock>
                                         </Grid>
 
-                                        <TextBlock x:Name="ContentText"
-                                                   Text="{Binding Content}"
-                                                   Style="{StaticResource Body}" />
+                                        <controls:TranslationContentDisplay x:Name="ContentText"
+                                                                            TranslationContent="{Binding Content}"
+                                                                            AssetType="{Binding DataContext.Asset.AssetType, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                            DownloadCommand="{Binding DataContext.DownloadTranslationCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                            DownloadCommandParameter="{Binding}" />
 
                                         <TextBlock x:Name="MissingText"
                                                    Text="Missing translation content."

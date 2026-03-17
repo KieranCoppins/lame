@@ -1,6 +1,8 @@
 ﻿using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows.Input;
 using Lame.Backend.Assets;
+using Lame.Backend.FileStorage;
 using Lame.Backend.Tags;
 using Lame.Backend.Translations;
 using Lame.DomainModel;
@@ -8,6 +10,7 @@ using Lame.Frontend.Commands;
 using Lame.Frontend.Enums;
 using Lame.Frontend.Services;
 using Lame.Frontend.ViewModels.Dialogs;
+using Microsoft.Win32;
 
 namespace Lame.Frontend.ViewModels;
 
@@ -15,6 +18,7 @@ public class AssetDetailsViewModel : PageViewModel
 {
     private readonly IAssets _assetsService;
     private readonly IDialogService _dialogService;
+    private readonly IFileStorage _fileStorage;
 
     private readonly INavigationService _navigationService;
     private readonly INotificationService _notificationService;
@@ -23,12 +27,12 @@ public class AssetDetailsViewModel : PageViewModel
 
     public AssetDetailsViewModel(
         INavigationService navigationService,
-        IServiceProvider serviceProvider,
         ITranslations translationsService,
         ITags tagsService,
         IAssets assetsService,
         IDialogService dialogService,
         INotificationService notificationService,
+        IFileStorage fileStorage,
         AssetDto asset,
         int supportedLanguagesCount)
     {
@@ -38,6 +42,7 @@ public class AssetDetailsViewModel : PageViewModel
         _assetsService = assetsService;
         _dialogService = dialogService;
         _notificationService = notificationService;
+        _fileStorage = fileStorage;
 
         Translations = [];
         LinkedAssets = [];
@@ -68,6 +73,8 @@ public class AssetDetailsViewModel : PageViewModel
             _dialogService.ShowDialog<ArchiveAssetDialogViewModel>(Asset);
         });
 
+        DownloadTranslationCommand = new AsyncRelayCommand<TranslationDto>(DownloadTranslation);
+
         Page = AppPage.Library;
     }
 
@@ -90,6 +97,7 @@ public class AssetDetailsViewModel : PageViewModel
     public ICommand RemoveAssetLinkCommand { get; }
     public ICommand EditTranslationCommand { get; }
     public ICommand ArchiveAssetCommand { get; }
+    public ICommand DownloadTranslationCommand { get; }
 
     public Task? UpdateAssetTask { get; private set; }
 
@@ -293,6 +301,49 @@ public class AssetDetailsViewModel : PageViewModel
                     Message = $"An error occurred while updating the asset's tags: {ex.Message}",
                     Type = NotificationType.Failure
                 });
+        }
+    }
+
+    private async Task DownloadTranslation(TranslationDto translation)
+    {
+        try
+        {
+            var data = await _fileStorage.Get(translation.Content);
+
+            var extension = Path.GetExtension(translation.Content).ToLower();
+
+            var dialog = new SaveFileDialog
+            {
+                Filter = "All files (*.*)|*.*",
+                FileName =
+                    $"{Asset.InternalName}_{translation.Language}_{translation.MajorVersion}-{translation.MinorVersion}{extension}",
+                Title = "Select Download Destination"
+            };
+
+            var result = dialog.ShowDialog();
+            if (result == false) return;
+
+            var filePath = dialog.FileName;
+
+            await using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
+
+            await data.CopyToAsync(fileStream);
+
+            _notificationService.EmitNotification(new Notification
+            {
+                Title = "Download Complete",
+                Message = "Translation file downloaded successfully",
+                Type = NotificationType.Success
+            });
+        }
+        catch (Exception ex)
+        {
+            _notificationService.EmitNotification(new Notification
+            {
+                Message = ex.Message,
+                Type = NotificationType.Failure,
+                Title = "Download Failed"
+            });
         }
     }
 }
