@@ -28,6 +28,8 @@ public class ExportsLocalEF : IExports
             if (exportOptions.LanguageCode == null) throw new ArgumentNullException(nameof(exportOptions.LanguageCode));
 
             var records = await context.Assets
+                // Currently only support test assets with our export types
+                .Where(a => a.AssetType == AssetType.Text)
                 // Apply translation status filter
                 .Where(a =>
                     // All filter applies no filter

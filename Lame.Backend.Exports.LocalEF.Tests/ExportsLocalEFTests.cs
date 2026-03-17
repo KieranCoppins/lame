@@ -1,5 +1,4 @@
 ﻿using Lame.Backend.EntityFramework;
-using Lame.Backend.EntityFramework.Models;
 using Lame.Backend.EntityFramework.Tests;
 using Lame.Backend.EntityFramework.Tests.EntityBuilders;
 using Lame.Backend.Exports.Models;
@@ -21,25 +20,11 @@ public class ExportsLocalEFTests
 
         var asset = new AssetEntityBuilder().Build();
 
-        var translationEn = new TranslationEntity { Id = Guid.NewGuid(), Language = "en", Content = "Hello" };
-        var targetTranslationEn = new TargetAssetTranslationEntity
-        {
-            AssetId = asset.Id,
-            TranslationId = translationEn.Id,
-            Asset = asset,
-            Translation = translationEn,
-            Language = "en"
-        };
+        var translationEn = new TranslationEntityBuilder(asset).WithLanguage("en").Build();
+        var targetTranslationEn = TargetAssetTranslationEntityBuilder.Build(asset, translationEn);
 
-        var translationFr = new TranslationEntity { Id = Guid.NewGuid(), Language = "fr", Content = "Bonjour" };
-        var targetTranslationFr = new TargetAssetTranslationEntity
-        {
-            AssetId = asset.Id,
-            TranslationId = translationFr.Id,
-            Asset = asset,
-            Translation = translationFr,
-            Language = "fr"
-        };
+        var translationFr = new TranslationEntityBuilder(asset).WithLanguage("fr").Build();
+        var targetTranslationFr = TargetAssetTranslationEntityBuilder.Build(asset, translationFr);
 
         context.Assets.Add(asset);
         context.Translations.AddRange(translationEn, translationFr);
@@ -556,5 +541,54 @@ public class ExportsLocalEFTests
                     "en", "fr"),
             Times.Once);
         Assert.Equal(new byte[] { 5 }, result);
+    }
+
+    [Fact]
+    public async Task Export_WithTextAndAudioAssets_ReturnsTextAssetsOnly()
+    {
+        // Arrange
+        var dbName = Guid.NewGuid().ToString();
+        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var asset1 = new AssetEntityBuilder().WithAssetType(AssetType.Text).Build();
+        var asset2 = new AssetEntityBuilder().WithAssetType(AssetType.Audio).Build();
+
+        context.Assets.AddRange(asset1, asset2);
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var exporterMock = new Mock<IExporter>();
+        exporterMock.Setup(e => e.Export(It.IsAny<List<AssetExportData>>(), "en", "fr"))
+            .Returns(new byte[] { 1 });
+
+        var exporterFactoryMock = new Mock<IExporterFactory>();
+        exporterFactoryMock.Setup(f => f.GetExporter(ExportFormatType.JSON)).Returns(exporterMock.Object);
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var exportsLocalEf = new ExportsLocalEF(serviceProvider, exporterFactoryMock.Object);
+
+        var options = new ExportOptions
+        {
+            Format = ExportFormatType.JSON,
+            LanguageCode = "fr",
+            TagFilter = ExportTagFilterType.Any,
+            Tags = []
+        };
+
+        // Act
+        var result = await exportsLocalEf.Export(options);
+
+        // Assert
+        exporterMock.Verify(e =>
+                e.Export(
+                    It.Is<List<AssetExportData>>(records =>
+                        records.Count == 1 &&
+                        records.Any(r => r.Id == asset1.Id)
+                    ),
+                    "en", "fr"),
+            Times.Once);
+        Assert.Equal(new byte[] { 1 }, result);
     }
 }
