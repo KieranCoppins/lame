@@ -28,14 +28,61 @@
 
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
-                    <TextBlock Text="Export Localization Files"
-                               Style="{StaticResource Header2}" />
+                    <TextBlock
+                        Text="Export Tag Filters"
+                        Style="{StaticResource Header2}" />
 
+                    <controls:TagsContainer
+                        Tags="{Binding Tags}"
+                        GetTags="{Binding GetTags}"
+                        Margin="0, 8" />
+
+
+                    <controls:DescriptiveRadioButton
+                        IsChecked="{Binding SelectedExportTagFilter, 
+                                                         Converter={StaticResource EnumToBooleanConverter}, 
+                                                         ConverterParameter={x:Static domainModel:ExportTagFilterType.Any}}"
+
+                        Command="{Binding SetSelectedExportTagFilterTypeCommand}"
+                        CommandParameter="{x:Static domainModel:ExportTagFilterType.Any}"
+
+                        TitleText="Any Tags"
+                        BodyText="Exports assets with all of the tags provided" />
+
+                    <controls:DescriptiveRadioButton
+                        IsChecked="{Binding SelectedExportTagFilter, 
+                                                         Converter={StaticResource EnumToBooleanConverter}, 
+                                                         ConverterParameter={x:Static domainModel:ExportTagFilterType.All}}"
+
+                        Command="{Binding SetSelectedExportTagFilterTypeCommand}"
+                        CommandParameter="{x:Static domainModel:ExportTagFilterType.All}"
+
+                        TitleText="All Tags"
+                        BodyText="Exports assets with any of the tags provided" />
+
+                    <controls:DescriptiveRadioButton
+                        IsChecked="{Binding SelectedExportTagFilter, 
+                                                         Converter={StaticResource EnumToBooleanConverter}, 
+                                                         ConverterParameter={x:Static domainModel:ExportTagFilterType.Only}}"
+
+                        Command="{Binding SetSelectedExportTagFilterTypeCommand}"
+                        CommandParameter="{x:Static domainModel:ExportTagFilterType.Only}"
+
+                        TitleText="Only Tags"
+                        BodyText="Exports assets with only the tags provided, and no other tags" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardBorderStyle}">
+                <StackPanel>
+                    <TextBlock Text="Export File Type"
+                               Style="{StaticResource Header2}" />
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
+
 
                         <controls:DescriptiveRadioButton Grid.Column="0"
                                                          IsChecked="{Binding SelectedExportFormat, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static domainModel:ExportFormatType.XLIFF}}"

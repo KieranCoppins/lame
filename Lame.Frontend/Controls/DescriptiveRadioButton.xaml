@@ -12,8 +12,13 @@
                     BorderThickness="2"
                     Cursor="Hand">
 
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Grid Width="16"
+                <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0"
+                          Width="16"
                           Height="16"
                           Margin="0,0,12,0">
                         <Ellipse Stroke="{StaticResource Brush.Primary}"
@@ -41,16 +46,35 @@
                         </Ellipse>
                     </Grid>
 
-                    <StackPanel>
+                    <StackPanel Grid.Column="1">
                         <TextBlock Text="{Binding TitleText, RelativeSource={RelativeSource AncestorType=RadioButton}}"
                                    Style="{StaticResource Header3}"
-                                   Margin="0, 0, 0, 2" />
-                        <TextBlock Text="{Binding BodyText, RelativeSource={RelativeSource AncestorType=RadioButton}}"
-                                   Style="{StaticResource Subtitle}"
+                                   Margin="0, 0, 0, 2"
+                                   TextWrapping="Wrap" />
+                        <TextBlock x:Name="BodyTextBlock"
+                                   Text="{Binding BodyText, RelativeSource={RelativeSource AncestorType=RadioButton}}"
                                    FontSize="12"
-                                   Margin="0" />
+                                   Margin="0"
+                                   TextWrapping="Wrap">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource Subtitle}">
+                                    <Style.Triggers>
+                                        <DataTrigger
+                                            Binding="{Binding BodyText, RelativeSource={RelativeSource AncestorType=RadioButton}}"
+                                            Value="">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                        <DataTrigger
+                                            Binding="{Binding BodyText, RelativeSource={RelativeSource AncestorType=RadioButton}}"
+                                            Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                     </StackPanel>
-                </StackPanel>
+                </Grid>
             </Border>
 
             <ControlTemplate.Triggers>

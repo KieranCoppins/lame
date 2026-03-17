@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows.Input;
 using Lame.Backend.Exports;
 using Lame.Backend.Languages;
+using Lame.Backend.Tags;
 using Lame.DomainModel;
 using Lame.Frontend.Commands;
 using Lame.Frontend.Enums;
@@ -17,25 +18,30 @@ public class ExportViewModel : PageViewModel
     private readonly IExports _exportsService;
     private readonly ILanguages _languagesService;
     private readonly INotificationService _notificationService;
+    private readonly ITags _tags;
 
     public ExportViewModel(INotificationService notificationService,
         ILanguages languagesService,
-        IExports exportsService)
+        IExports exportsService,
+        ITags tags)
     {
         _notificationService = notificationService;
         _languagesService = languagesService;
         _exportsService = exportsService;
+        _tags = tags;
 
         Page = AppPage.ExportXliff;
 
-        SetSelectedExportFormatCommand = new RelayCommand<ExportFormatType>(exportType =>
-        {
-            SelectedExportFormat = exportType;
-        });
+        SetSelectedExportFormatCommand =
+            new RelayCommand<ExportFormatType>(exportType => SelectedExportFormat = exportType);
+
+        SetSelectedExportTagFilterTypeCommand =
+            new RelayCommand<ExportTagFilterType>(exportTagFilterType => SelectedExportTagFilter = exportTagFilterType);
 
         ExportCommand = new AsyncRelayCommand(Export);
 
         AvailableLanguages = [];
+        Tags = [];
 
         SelectedExportFormat = ExportFormatType.XLIFF;
     }
@@ -47,6 +53,7 @@ public class ExportViewModel : PageViewModel
     }
 
     public ICommand SetSelectedExportFormatCommand { get; }
+    public ICommand SetSelectedExportTagFilterTypeCommand { get; }
     public ICommand ExportCommand { get; }
 
     public ObservableCollection<Language> AvailableLanguages
@@ -54,6 +61,14 @@ public class ExportViewModel : PageViewModel
         get;
         private set => SetField(ref field, value);
     }
+
+    public ObservableCollection<Tag> Tags
+    {
+        get;
+        set => SetField(ref field, value);
+    }
+
+    public Func<Task<List<Tag>>> GetTags => _tags.Get;
 
     public ExportFormatType SelectedExportFormat
     {
@@ -71,6 +86,12 @@ public class ExportViewModel : PageViewModel
         }
     }
 
+    public ExportTagFilterType SelectedExportTagFilter
+    {
+        get;
+        set => SetField(ref field, value);
+    }
+
     public override async Task OnNavigatedTo()
     {
         await base.OnNavigatedTo();
@@ -85,6 +106,8 @@ public class ExportViewModel : PageViewModel
             if (ExportFormatView == null) throw new NullReferenceException("No export format selected");
 
             var options = ExportFormatView.GetExportOptions();
+            options.TagFilter = SelectedExportTagFilter;
+            options.Tags = Tags.ToList();
 
             // Get a save destination
             var dialog = new SaveFileDialog

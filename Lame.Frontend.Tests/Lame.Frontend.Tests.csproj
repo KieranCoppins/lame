@@ -22,6 +22,7 @@
         <ProjectReference Include="..\Lame.Backend.Assets\Lame.Backend.Assets.csproj"/>
         <ProjectReference Include="..\Lame.Backend.Languages\Lame.Backend.Languages.csproj"/>
         <ProjectReference Include="..\Lame.Frontend\Lame.Frontend.csproj"/>
+        <ProjectReference Include="..\Lame.TestingHelpers\Lame.TestingHelpers.csproj"/>
     </ItemGroup>
 
 </Project>

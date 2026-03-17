@@ -1,8 +1,8 @@
 ﻿using Lame.Backend.Assets;
 using Lame.Frontend.Commands;
 using Lame.Frontend.Services;
-using Lame.Frontend.Tests.TestingHelpers;
 using Lame.Frontend.Tests.ViewModelFactories.Dialog;
+using Lame.TestingHelpers;
 using Moq;
 
 namespace Lame.Frontend.Tests.ViewModelTests.DialogTests;

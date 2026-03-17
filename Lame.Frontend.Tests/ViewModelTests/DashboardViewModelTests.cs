@@ -1,6 +1,6 @@
 ﻿using Lame.Backend.Statistics;
-using Lame.Frontend.Tests.TestingHelpers;
 using Lame.Frontend.Tests.ViewModelFactories;
+using Lame.TestingHelpers;
 using Moq;
 
 namespace Lame.Frontend.Tests.ViewModelTests;

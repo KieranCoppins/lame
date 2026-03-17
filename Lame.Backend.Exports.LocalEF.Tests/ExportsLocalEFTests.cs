@@ -1,6 +1,7 @@
 ﻿using Lame.Backend.EntityFramework;
 using Lame.Backend.EntityFramework.Models;
 using Lame.Backend.EntityFramework.Tests;
+using Lame.Backend.EntityFramework.Tests.EntityBuilders;
 using Lame.Backend.Exports.Models;
 using Lame.DomainModel;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +19,7 @@ public class ExportsLocalEFTests
         var dbName = Guid.NewGuid().ToString();
         await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
 
-        var asset = new AssetEntity { Id = Guid.NewGuid(), InternalName = "asset1" };
+        var asset = new AssetEntityBuilder().Build();
 
         var translationEn = new TranslationEntity { Id = Guid.NewGuid(), Language = "en", Content = "Hello" };
         var targetTranslationEn = new TargetAssetTranslationEntity
@@ -62,7 +63,8 @@ public class ExportsLocalEFTests
         {
             Format = ExportFormatType.JSON,
             LanguageCode = "fr",
-            TranslationStatusFilter = ExportTranslationStatusFilter.All
+            TranslationStatusFilter = ExportTranslationStatusFilter.All,
+            Tags = []
         };
 
         // Act
@@ -114,7 +116,8 @@ public class ExportsLocalEFTests
         {
             Format = ExportFormatType.JSON,
             LanguageCode = "fr",
-            TranslationStatusFilter = ExportTranslationStatusFilter.All
+            TranslationStatusFilter = ExportTranslationStatusFilter.All,
+            Tags = []
         };
 
         // Act
@@ -152,16 +155,9 @@ public class ExportsLocalEFTests
         var dbName = Guid.NewGuid().ToString();
         await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
 
-        var asset = new AssetEntity { Id = Guid.NewGuid(), InternalName = "asset1" };
-        var translationEn = new TranslationEntity { Id = Guid.NewGuid(), Language = "en", Content = "Hello" };
-        var targetTranslationEn = new TargetAssetTranslationEntity
-        {
-            AssetId = asset.Id,
-            TranslationId = translationEn.Id,
-            Asset = asset,
-            Translation = translationEn,
-            Language = "en"
-        };
+        var asset = new AssetEntityBuilder().Build();
+        var translationEn = new TranslationEntityBuilder(asset).WithLanguage("en").Build();
+        var targetTranslationEn = TargetAssetTranslationEntityBuilder.Build(asset, translationEn);
 
         context.Assets.Add(asset);
         context.Translations.Add(translationEn);
@@ -185,7 +181,8 @@ public class ExportsLocalEFTests
         {
             Format = ExportFormatType.JSON,
             LanguageCode = "de",
-            TranslationStatusFilter = ExportTranslationStatusFilter.Complete
+            TranslationStatusFilter = ExportTranslationStatusFilter.Complete,
+            Tags = []
         };
 
         // Act
@@ -198,5 +195,366 @@ public class ExportsLocalEFTests
                 "en",
                 "de"),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task Export_WithTagFilterAny_ReturnsAssetsWithAnyMatchingTag()
+    {
+        // Arrange
+        var dbName = Guid.NewGuid().ToString();
+        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var tag1 = new TagEntityBuilder().Build();
+        var tag2 = new TagEntityBuilder().Build();
+
+        var asset1 = new AssetEntityBuilder().AddTag(tag1).Build();
+        var asset2 = new AssetEntityBuilder().AddTag(tag2).Build();
+        var asset3 = new AssetEntityBuilder().Build();
+
+        context.Tags.AddRange(tag1, tag2);
+        context.Assets.AddRange(asset1, asset2, asset3);
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var exporterMock = new Mock<IExporter>();
+        exporterMock.Setup(e => e.Export(It.IsAny<List<AssetExportData>>(), "en", "fr"))
+            .Returns(new byte[] { 1 });
+
+        var exporterFactoryMock = new Mock<IExporterFactory>();
+        exporterFactoryMock.Setup(f => f.GetExporter(ExportFormatType.JSON)).Returns(exporterMock.Object);
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var exportsLocalEf = new ExportsLocalEF(serviceProvider, exporterFactoryMock.Object);
+
+        var options = new ExportOptions
+        {
+            Format = ExportFormatType.JSON,
+            LanguageCode = "fr",
+            TagFilter = ExportTagFilterType.Any,
+            Tags = [tag1, tag2]
+        };
+
+        // Act
+        var result = await exportsLocalEf.Export(options);
+
+        // Assert
+        exporterMock.Verify(e =>
+                e.Export(
+                    It.Is<List<AssetExportData>>(records =>
+                        records.Count == 2 &&
+                        records.Any(r => r.Id == asset1.Id) &&
+                        records.Any(r => r.Id == asset2.Id)
+                    ),
+                    "en", "fr"),
+            Times.Once);
+        Assert.Equal(new byte[] { 1 }, result);
+    }
+
+    [Fact]
+    public async Task Export_WithTagFilterAnyAndNoTagsProvided_ExportsAllAssets()
+    {
+        // Arrange
+        var dbName = Guid.NewGuid().ToString();
+        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var tag1 = new TagEntityBuilder().Build();
+
+        var asset1 = new AssetEntityBuilder().Build();
+        var asset2 = new AssetEntityBuilder().AddTag(tag1).Build();
+
+        context.Assets.AddRange(asset1, asset2);
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var exporterMock = new Mock<IExporter>();
+        exporterMock.Setup(e => e.Export(It.IsAny<List<AssetExportData>>(), "en", "fr"))
+            .Returns(new byte[] { 4 });
+
+        var exporterFactoryMock = new Mock<IExporterFactory>();
+        exporterFactoryMock.Setup(f => f.GetExporter(ExportFormatType.JSON)).Returns(exporterMock.Object);
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var exportsLocalEf = new ExportsLocalEF(serviceProvider, exporterFactoryMock.Object);
+
+        var options = new ExportOptions
+        {
+            Format = ExportFormatType.JSON,
+            LanguageCode = "fr",
+            TagFilter = ExportTagFilterType.Any,
+            Tags = []
+        };
+
+        // Act
+        var result = await exportsLocalEf.Export(options);
+
+        // Assert
+        exporterMock.Verify(e =>
+                e.Export(
+                    It.Is<List<AssetExportData>>(records =>
+                        records.Count == 2 &&
+                        records.Any(r => r.Id == asset1.Id) &&
+                        records.Any(r => r.Id == asset2.Id)
+                    ),
+                    "en", "fr"),
+            Times.Once);
+        Assert.Equal(new byte[] { 4 }, result);
+    }
+
+    [Fact]
+    public async Task Export_WithTagFilterAnyAndTagsProvided_AssetWithNoTagsIsNotExported()
+    {
+        // Arrange
+        var dbName = Guid.NewGuid().ToString();
+        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var tag1 = new TagEntityBuilder().Build();
+        var asset1 = new AssetEntityBuilder().Build();
+
+        context.Tags.Add(tag1);
+        context.Assets.Add(asset1);
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var exporterMock = new Mock<IExporter>();
+        exporterMock.Setup(e => e.Export(It.IsAny<List<AssetExportData>>(), "en", "fr"))
+            .Returns(new byte[0]);
+
+        var exporterFactoryMock = new Mock<IExporterFactory>();
+        exporterFactoryMock.Setup(f => f.GetExporter(ExportFormatType.JSON)).Returns(exporterMock.Object);
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var exportsLocalEf = new ExportsLocalEF(serviceProvider, exporterFactoryMock.Object);
+
+        var options = new ExportOptions
+        {
+            Format = ExportFormatType.JSON,
+            LanguageCode = "fr",
+            TagFilter = ExportTagFilterType.Any,
+            Tags = [tag1]
+        };
+
+        // Act
+        var result = await exportsLocalEf.Export(options);
+
+        // Assert
+        exporterMock.Verify(e =>
+                e.Export(
+                    It.Is<List<AssetExportData>>(records => records.Count == 0),
+                    "en", "fr"),
+            Times.Once);
+        Assert.Empty(result);
+    }
+
+
+    [Fact]
+    public async Task Export_WithTagFilterAll_ReturnsAssetsWithAllTags()
+    {
+        // Arrange
+        var dbName = Guid.NewGuid().ToString();
+        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var tag1 = new TagEntityBuilder().Build();
+        var tag2 = new TagEntityBuilder().Build();
+
+        var asset1 = new AssetEntityBuilder().AddTag(tag1).AddTag(tag2).Build();
+        var asset2 = new AssetEntityBuilder().AddTag(tag1).Build();
+
+        context.Tags.AddRange(tag1, tag2);
+        context.Assets.AddRange(asset1, asset2);
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var exporterMock = new Mock<IExporter>();
+        exporterMock.Setup(e => e.Export(It.IsAny<List<AssetExportData>>(), "en", "fr"))
+            .Returns(new byte[] { 2 });
+
+        var exporterFactoryMock = new Mock<IExporterFactory>();
+        exporterFactoryMock.Setup(f => f.GetExporter(ExportFormatType.JSON)).Returns(exporterMock.Object);
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var exportsLocalEf = new ExportsLocalEF(serviceProvider, exporterFactoryMock.Object);
+
+        var options = new ExportOptions
+        {
+            Format = ExportFormatType.JSON,
+            LanguageCode = "fr",
+            TagFilter = ExportTagFilterType.All,
+            Tags = [tag1, tag2]
+        };
+
+        // Act
+        var result = await exportsLocalEf.Export(options);
+
+        // Assert
+        exporterMock.Verify(e =>
+                e.Export(
+                    It.Is<List<AssetExportData>>(records =>
+                        records.Count == 1 &&
+                        records[0].Id == asset1.Id
+                    ),
+                    "en", "fr"),
+            Times.Once);
+        Assert.Equal(new byte[] { 2 }, result);
+    }
+
+    [Fact]
+    public async Task Export_WithTagFilterOnly_ReturnsAssetsWithOnlySpecifiedTags()
+    {
+        // Arrange
+        var dbName = Guid.NewGuid().ToString();
+        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var tag1 = new TagEntityBuilder().Build();
+        var tag2 = new TagEntityBuilder().Build();
+
+        var asset1 = new AssetEntityBuilder().AddTag(tag1).AddTag(tag2).Build();
+        var asset2 = new AssetEntityBuilder().AddTag(tag1).Build();
+
+        context.Tags.AddRange(tag1, tag2);
+        context.Assets.AddRange(asset1, asset2);
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var exporterMock = new Mock<IExporter>();
+        exporterMock.Setup(e => e.Export(It.IsAny<List<AssetExportData>>(), "en", "fr"))
+            .Returns(new byte[] { 3 });
+
+        var exporterFactoryMock = new Mock<IExporterFactory>();
+        exporterFactoryMock.Setup(f => f.GetExporter(ExportFormatType.JSON)).Returns(exporterMock.Object);
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var exportsLocalEf = new ExportsLocalEF(serviceProvider, exporterFactoryMock.Object);
+
+        var options = new ExportOptions
+        {
+            Format = ExportFormatType.JSON,
+            LanguageCode = "fr",
+            TagFilter = ExportTagFilterType.Only,
+            Tags = [tag1]
+        };
+
+        // Act
+        var result = await exportsLocalEf.Export(options);
+
+        // Assert
+        exporterMock.Verify(e =>
+                e.Export(
+                    It.Is<List<AssetExportData>>(records =>
+                        records.Count == 1 &&
+                        records[0].Id == asset2.Id
+                    ),
+                    "en", "fr"),
+            Times.Once);
+        Assert.Equal(new byte[] { 3 }, result);
+    }
+
+    [Fact]
+    public async Task Export_WithTagFilterAndNoMatchingAssets_ReturnsEmpty()
+    {
+        // Arrange
+        var dbName = Guid.NewGuid().ToString();
+        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var tag1 = new TagEntityBuilder().Build();
+        var tag2 = new TagEntityBuilder().Build();
+
+        var asset1 = new AssetEntityBuilder().AddTag(tag1).Build();
+
+        context.Tags.AddRange(tag1, tag2);
+        context.Assets.Add(asset1);
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var exporterMock = new Mock<IExporter>();
+        exporterMock.Setup(e => e.Export(It.IsAny<List<AssetExportData>>(), "en", "fr"))
+            .Returns(new byte[0]);
+
+        var exporterFactoryMock = new Mock<IExporterFactory>();
+        exporterFactoryMock.Setup(f => f.GetExporter(ExportFormatType.JSON)).Returns(exporterMock.Object);
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var exportsLocalEf = new ExportsLocalEF(serviceProvider, exporterFactoryMock.Object);
+
+        var options = new ExportOptions
+        {
+            Format = ExportFormatType.JSON,
+            LanguageCode = "fr",
+            TagFilter = ExportTagFilterType.All,
+            Tags = [tag2]
+        };
+
+        // Act
+        var result = await exportsLocalEf.Export(options);
+
+        // Assert
+        exporterMock.Verify(e =>
+                e.Export(
+                    It.Is<List<AssetExportData>>(records => records.Count == 0),
+                    "en", "fr"),
+            Times.Once);
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task Export_WithTagFilterOnlyAndNoTagsProvided_ExportsOnlyAssetsWithNoTags()
+    {
+        // Arrange
+        var dbName = Guid.NewGuid().ToString();
+        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var tag1 = new TagEntityBuilder().Build();
+        var assetWithTag = new AssetEntityBuilder().AddTag(tag1).Build();
+        var assetWithoutTag = new AssetEntityBuilder().Build();
+
+        context.Tags.Add(tag1);
+        context.Assets.AddRange(assetWithTag, assetWithoutTag);
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var exporterMock = new Mock<IExporter>();
+        exporterMock.Setup(e => e.Export(It.IsAny<List<AssetExportData>>(), "en", "fr"))
+            .Returns(new byte[] { 5 });
+
+        var exporterFactoryMock = new Mock<IExporterFactory>();
+        exporterFactoryMock.Setup(f => f.GetExporter(ExportFormatType.JSON)).Returns(exporterMock.Object);
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var exportsLocalEf = new ExportsLocalEF(serviceProvider, exporterFactoryMock.Object);
+
+        var options = new ExportOptions
+        {
+            Format = ExportFormatType.JSON,
+            LanguageCode = "fr",
+            TagFilter = ExportTagFilterType.Only,
+            Tags = []
+        };
+
+        // Act
+        var result = await exportsLocalEf.Export(options);
+
+        // Assert
+        exporterMock.Verify(e =>
+                e.Export(
+                    It.Is<List<AssetExportData>>(records =>
+                        records.Count == 1 &&
+                        records[0].Id == assetWithoutTag.Id
+                    ),
+                    "en", "fr"),
+            Times.Once);
+        Assert.Equal(new byte[] { 5 }, result);
     }
 }

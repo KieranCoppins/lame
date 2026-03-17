@@ -6,9 +6,9 @@ using Lame.Backend.Translations;
 using Lame.DomainModel;
 using Lame.Frontend.Commands;
 using Lame.Frontend.Services;
-using Lame.Frontend.Tests.TestingHelpers;
 using Lame.Frontend.Tests.ViewModelFactories;
 using Lame.Frontend.ViewModels.Dialogs;
+using Lame.TestingHelpers;
 using Moq;
 
 namespace Lame.Frontend.Tests.ViewModelTests;

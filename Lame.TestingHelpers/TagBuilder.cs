@@ -1,6 +1,6 @@
 ﻿using Lame.DomainModel;
 
-namespace Lame.Frontend.Tests.TestingHelpers;
+namespace Lame.TestingHelpers;
 
 public class TagBuilder
 {
