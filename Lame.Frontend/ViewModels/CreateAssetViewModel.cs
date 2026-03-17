@@ -2,12 +2,14 @@
 using System.ComponentModel.DataAnnotations;
 using System.Windows.Input;
 using Lame.Backend.Assets;
+using Lame.Backend.FileStorage;
 using Lame.Backend.Languages;
 using Lame.Backend.Tags;
 using Lame.Backend.Translations;
 using Lame.DomainModel;
 using Lame.Frontend.Commands;
 using Lame.Frontend.Enums;
+using Lame.Frontend.Helpers;
 using Lame.Frontend.Services;
 using Lame.Frontend.ViewModels.Dialogs;
 
@@ -17,6 +19,7 @@ public class CreateAssetViewModel : PageViewModel
 {
     private readonly IAssets _assets;
     private readonly IDialogService _dialogService;
+    private readonly IFileStorage _fileStorage;
     private readonly ILanguages _languagesService;
     private readonly INotificationService _notificationService;
     private readonly ITags _tags;
@@ -29,7 +32,8 @@ public class CreateAssetViewModel : PageViewModel
         ITags tags,
         INotificationService notificationService,
         IDialogService dialogService,
-        ILanguages languagesService)
+        ILanguages languagesService,
+        IFileStorage fileStorage)
     {
         _assets = assets;
         _translations = translations;
@@ -37,6 +41,7 @@ public class CreateAssetViewModel : PageViewModel
         _notificationService = notificationService;
         _dialogService = dialogService;
         _languagesService = languagesService;
+        _fileStorage = fileStorage;
 
         Page = AppPage.CreateAsset;
         AssetsToLink = [];
@@ -77,7 +82,13 @@ public class CreateAssetViewModel : PageViewModel
     public AssetType SelectedAssetType
     {
         get;
-        set => SetField(ref field, value);
+        set
+        {
+            if (!SetField(ref field, value)) return;
+
+            EnglishContent = string.Empty;
+            ClearError(nameof(EnglishContent));
+        }
     } = AssetType.Text;
 
     public ObservableCollection<Tag> Tags
@@ -146,31 +157,40 @@ public class CreateAssetViewModel : PageViewModel
             ValidateForm();
 
             // Create our asset
-            var assetId = Guid.NewGuid();
-            await _assets.Create(new Asset
+            var asset = new Asset
             {
-                Id = assetId,
+                Id = Guid.NewGuid(),
                 InternalName = InternalName,
                 AssetType = SelectedAssetType,
                 ContextNotes = ContextNotes
-            });
+            };
+
+
+            await _assets.Create(asset);
 
             // Create the english translation of the asset
-            await _translations.Create(new Translation
+            var translation = new Translation
             {
                 Id = Guid.NewGuid(),
-                AssetId = assetId,
+                AssetId = asset.Id,
                 Language = "en",
                 Content = EnglishContent,
                 MajorVersion = 1,
                 MinorVersion = 0
-            });
+            };
+
+            await TranslationHelpers.CreateTranslation(
+                _translations,
+                _fileStorage,
+                asset.AssetType,
+                translation
+            );
 
             // Tag our asset
-            foreach (var tag in Tags) await _tags.AddTagToResource(tag, assetId, ResourceType.Asset);
+            foreach (var tag in Tags) await _tags.AddTagToResource(tag, asset.Id, ResourceType.Asset);
 
             // Create asset links
-            foreach (var linkedAsset in AssetsToLink) await _assets.LinkAssets(linkedAsset.Id, assetId);
+            foreach (var linkedAsset in AssetsToLink) await _assets.LinkAssets(linkedAsset.Id, asset.Id);
 
             _notificationService.EmitNotification(
                 new Notification

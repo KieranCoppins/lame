@@ -3,10 +3,39 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:Lame.Frontend.Controls"
              mc:Ignorable="d"
+             x:Name="Root"
              d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
-        
-    </Grid>
+    <!-- TODO fix file dropping -->
+    <Border
+        Style="{StaticResource CardBorderStyle}"
+        Drop="FileDrop">
+        <StackPanel
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center">
+            <TextBlock Text="{Binding BodyText, ElementName=Root}"
+                       Style="{StaticResource Header3}"
+                       TextWrapping="Wrap"
+                       FontWeight="Normal"
+                       TextAlignment="Center" />
+
+            <TextBlock
+                Style="{StaticResource Body}"
+                TextAlignment="Center"
+                TextWrapping="Wrap"
+                Foreground="{StaticResource Brush.DarkGrey}">
+                <TextBlock.Text>
+                    <MultiBinding StringFormat="{}Supports {0} formats.">
+                        <Binding Path="ReadableFileFilter" ElementName="Root" />
+                    </MultiBinding>
+                </TextBlock.Text>
+            </TextBlock>
+
+            <Button Content="Browse file..."
+                    Style="{StaticResource PrimaryButton}"
+                    Click="Browse_Click"
+                    HorizontalAlignment="Center"
+                    Margin="0, 8" />
+        </StackPanel>
+    </Border>
 </UserControl>

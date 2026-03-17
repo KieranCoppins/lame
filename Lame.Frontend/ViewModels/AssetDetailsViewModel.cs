@@ -59,7 +59,7 @@ public class AssetDetailsViewModel : PageViewModel
         RemoveAssetLinkCommand = new AsyncRelayCommand<AssetDto>(UnLinkAsset);
 
         EditTranslationCommand = new RelayCommand<TranslationDto>(translation =>
-            _dialogService.ShowDialog<EditTranslationDialogViewModel>(translation));
+            _dialogService.ShowDialog<EditTranslationDialogViewModel>(Asset, translation));
 
         _dialogService.ActiveDialogChanged += DialogServiceOnActiveDialogChanged;
 

@@ -50,6 +50,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.Frontend.Tests", "Lame
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.TestingHelpers", "Lame.TestingHelpers\Lame.TestingHelpers.csproj", "{7DF0A8AC-8B5F-4E97-B643-D1546A4CAF16}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.Backend.FileStorage", "Lame.Backend.FileStorage\Lame.Backend.FileStorage.csproj", "{010BDE5E-47EF-45A3-A15C-7BD885E4BD83}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.Backend.FileStorage.Local", "Lame.Backend.FileStorage.Local\Lame.Backend.FileStorage.Local.csproj", "{2DAA7DCC-1F91-4971-A648-4D54C8802E31}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -156,5 +160,13 @@ Global
 		{7DF0A8AC-8B5F-4E97-B643-D1546A4CAF16}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7DF0A8AC-8B5F-4E97-B643-D1546A4CAF16}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7DF0A8AC-8B5F-4E97-B643-D1546A4CAF16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{010BDE5E-47EF-45A3-A15C-7BD885E4BD83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{010BDE5E-47EF-45A3-A15C-7BD885E4BD83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{010BDE5E-47EF-45A3-A15C-7BD885E4BD83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{010BDE5E-47EF-45A3-A15C-7BD885E4BD83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2DAA7DCC-1F91-4971-A648-4D54C8802E31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DAA7DCC-1F91-4971-A648-4D54C8802E31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DAA7DCC-1F91-4971-A648-4D54C8802E31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DAA7DCC-1F91-4971-A648-4D54C8802E31}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

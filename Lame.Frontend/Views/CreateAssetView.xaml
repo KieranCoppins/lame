@@ -42,6 +42,7 @@
 
                     <TextBlock Text="Asset Type"
                                Style="{StaticResource FieldLabel}" />
+
                     <ComboBox Style="{StaticResource BlankComboBox}"
                               ItemTemplate="{StaticResource TextComboBoxItemTemplate}"
                               ItemsSource="{Binding AssetTypes}"
@@ -135,16 +136,10 @@
                         <Run>Content</Run>
                         <Run Foreground="{StaticResource Brush.NotificationFailure}">*</Run>
                     </TextBlock>
-                    <TextBox Style="{StaticResource StyledInputBox}"
-                             AcceptsReturn="True"
-                             TextWrapping="Wrap"
-                             VerticalScrollBarVisibility="Auto"
-                             HorizontalScrollBarVisibility="Disabled"
-                             MinHeight="60"
-                             helpers:TextBoxHelpers.Placeholder="Enter UI text or label..."
-                             Text="{Binding EnglishContent,
-                                 ValidatesOnNotifyDataErrors=True,
-                                 UpdateSourceTrigger=PropertyChanged}" />
+
+                    <controls:TranslationContentEditor
+                        AssetType="{Binding SelectedAssetType}"
+                        TranslationContent="{Binding EnglishContent, UpdateSourceTrigger=PropertyChanged}" />
 
                     <TextBlock Text="Notes / Context"
                                Style="{StaticResource FieldLabel}" />

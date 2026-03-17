@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:helpers="clr-namespace:Lame.Frontend.Helpers"
              xmlns:viewModels="clr-namespace:Lame.Frontend.ViewModels.Dialogs"
+             xmlns:controls="clr-namespace:Lame.Frontend.Controls"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance viewModels:EditTranslationDialogViewModel}">
@@ -39,14 +40,10 @@
 
         <TextBlock Text="Content"
                    Style="{StaticResource FieldLabel}" />
-        <TextBox Style="{StaticResource StyledInputBox}"
-                 AcceptsReturn="True"
-                 TextWrapping="Wrap"
-                 VerticalScrollBarVisibility="Auto"
-                 HorizontalScrollBarVisibility="Disabled"
-                 MinHeight="60"
-                 helpers:TextBoxHelpers.Placeholder="Enter UI text or label..."
-                 Text="{Binding Content, UpdateSourceTrigger=PropertyChanged}" />
+
+        <controls:TranslationContentEditor
+            TranslationContent="{Binding Content}"
+            AssetType="{Binding OwningAsset.AssetType}" />
 
 
         <CheckBox Style="{StaticResource Body}"

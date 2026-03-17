@@ -1,4 +1,5 @@
 ﻿using Lame.Backend.Assets;
+using Lame.Backend.FileStorage;
 using Lame.Backend.Languages;
 using Lame.Backend.Tags;
 using Lame.Backend.Translations;
@@ -16,7 +17,8 @@ public class CreateAssetViewModelFactory
         IAssets? assetsService = null,
         IDialogService? dialogService = null,
         ILanguages? languagesService = null,
-        INotificationService? notificationService = null
+        INotificationService? notificationService = null,
+        IFileStorage? fileStorageService = null
     )
     {
         return new CreateAssetViewModel(
@@ -25,7 +27,8 @@ public class CreateAssetViewModelFactory
             tagsService ?? new Mock<ITags>().Object,
             notificationService ?? new Mock<INotificationService>().Object,
             dialogService ?? new Mock<IDialogService>().Object,
-            languagesService ?? new Mock<ILanguages>().Object
+            languagesService ?? new Mock<ILanguages>().Object,
+            fileStorageService ?? new Mock<IFileStorage>().Object
         );
     }
 }

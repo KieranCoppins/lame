@@ -5,6 +5,8 @@ using Lame.Backend.EntityFramework;
 using Lame.Backend.Exports;
 using Lame.Backend.Exports.Exporters;
 using Lame.Backend.Exports.LocalEF;
+using Lame.Backend.FileStorage;
+using Lame.Backend.FileStorage.Local;
 using Lame.Backend.Languages;
 using Lame.Backend.Languages.LocalEF;
 using Lame.Backend.Statistics;
@@ -39,6 +41,7 @@ public partial class App : Application
         services.AddSingleton<IDialogService, DialogService>();
 
         // Backend Services
+        services.AddSingleton<IFileStorage, LocalFileStorage>();
         services.AddScoped<IAssets, AssetsLocalEf>();
         services.AddScoped<ITranslations, TranslationsLocalEF>();
         services.AddScoped<ITags, TagsLocalEF>();

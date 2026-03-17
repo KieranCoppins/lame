@@ -7,8 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Lame.Backend.EntityFramework\Lame.Backend.EntityFramework.csproj"/>
-        <ProjectReference Include="..\Lame.Backend.Assets\Lame.Backend.Assets.csproj"/>
         <ProjectReference Include="..\Lame.Backend.FileStorage\Lame.Backend.FileStorage.csproj"/>
     </ItemGroup>
 

@@ -1,8 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
+using Lame.Backend.FileStorage;
 using Lame.Backend.Translations;
 using Lame.DomainModel;
 using Lame.Frontend.Commands;
+using Lame.Frontend.Helpers;
 using Lame.Frontend.Services;
 
 namespace Lame.Frontend.ViewModels.Dialogs;
@@ -10,18 +12,23 @@ namespace Lame.Frontend.ViewModels.Dialogs;
 public class EditTranslationDialogViewModel : BaseViewModel
 {
     private readonly IDialogService _dialogService;
+    private readonly IFileStorage _fileStorageService;
     private readonly INotificationService _notificationService;
     private readonly ITranslations _translationsService;
 
     public EditTranslationDialogViewModel(
+        AssetDto owningAsset,
         TranslationDto translation,
         IDialogService dialogService,
         ITranslations translationsService,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        IFileStorage fileStorageService)
     {
+        OwningAsset = owningAsset;
         _dialogService = dialogService;
         _translationsService = translationsService;
         _notificationService = notificationService;
+        _fileStorageService = fileStorageService;
         Translation = translation;
         SelectedTranslation = translation;
         Content = translation.Content;
@@ -33,6 +40,8 @@ public class EditTranslationDialogViewModel : BaseViewModel
 
         TranslationVersionTask = LoadTranslationVersions();
     }
+
+    public AssetDto OwningAsset { get; }
 
     public Task TranslationVersionTask { get; }
 
@@ -160,7 +169,13 @@ public class EditTranslationDialogViewModel : BaseViewModel
             // Always create new translations, never update existing ones, to allow version control
             Translation.Id = Guid.NewGuid();
             Translation.CreatedAt = DateTime.UtcNow;
-            await _translationsService.Create(Translation);
+
+            await TranslationHelpers.CreateTranslation(
+                _translationsService,
+                _fileStorageService,
+                OwningAsset.AssetType,
+                Translation
+            );
 
             _notificationService.EmitNotification(
                 new Notification
