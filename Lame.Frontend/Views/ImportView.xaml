@@ -18,7 +18,7 @@
                 <TextBlock Text="Import"
                            Style="{StaticResource Header1}" />
                 <TextBlock
-                    Text="Import localization data and populate your project with new or updated translations. Supported formats include XLIFF and JSON."
+                    Text="Import localization data and populate your project with new or updated translations."
                     Style="{StaticResource Subtitle}"
                     TextWrapping="Wrap" />
             </StackPanel>
