@@ -13,6 +13,7 @@ public class TranslationEntityBuilder
             Id = Guid.NewGuid(),
             Language = "en",
             Content = "Hello",
+            AssetId = asset.Id,
             Asset = asset,
             Tags = new List<TagEntity>(),
             CreatedAt = DateTime.UtcNow - TimeSpan.FromDays(1),

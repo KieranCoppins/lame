@@ -1,9 +1,13 @@
-﻿using Lame.Backend.Languages;
+﻿using Lame.Backend.Exports;
+using Lame.Backend.Languages;
 using Lame.Backend.Tags;
 using Lame.DomainModel;
+using Lame.Frontend.Commands;
+using Lame.Frontend.Services;
 using Lame.Frontend.Tests.ViewModelFactories;
 using Lame.Frontend.ViewModels.Exports;
 using Lame.TestingHelpers;
+using Microsoft.Win32;
 using Moq;
 
 namespace Lame.Frontend.Tests.ViewModelTests;
@@ -137,11 +141,141 @@ public class ExportViewModelTests
     [Fact]
     public async Task GetTags_ThrowsException_WhenTagsServiceThrows()
     {
+        // Arrange
         var tagsService = new Mock<ITags>();
         tagsService.Setup(t => t.Get()).ThrowsAsync(new Exception("error"));
 
         var vm = ExportViewModelFactory.Create(tagsService: tagsService.Object);
 
+        // Act & Assert
         await Assert.ThrowsAsync<Exception>(() => vm.GetTags());
+    }
+
+    [Fact]
+    public async Task Export_WhenExportFormatViewIsNull_ShouldEmitFailureNotification()
+    {
+        // Arrange
+        var notificationService = new Mock<INotificationService>();
+        var vm = ExportViewModelFactory.Create(notificationService.Object);
+        vm.ExportFormatView = null;
+
+        // Act
+        vm.ExportCommand.Execute(null);
+
+        // Assert
+        await ((AsyncRelayCommand)vm.ExportCommand).CommandTask!;
+
+        notificationService.Verify(
+            x => x.EmitNotification(
+                It.Is<Notification>(n => n.Type == NotificationType.Failure)
+            ),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task Export_WhenUserCancelsSaveDialog_ShouldNotExportOrNotify()
+    {
+        // Arrange
+        var notificationService = new Mock<INotificationService>();
+        var systemIo = new Mock<ISystemIO>();
+        systemIo.Setup(s => s.OpenSaveFileDialog(It.IsAny<SaveFileDialog>())).Returns(false);
+
+        var vm = ExportViewModelFactory.Create(
+            notificationService.Object,
+            systemIo: systemIo.Object);
+
+        vm.ExportFormatView = new TestExportFormatViewModel();
+
+        // Act
+        vm.ExportCommand.Execute(null);
+
+        // Assert
+        await ((AsyncRelayCommand)vm.ExportCommand).CommandTask!;
+
+        systemIo.Verify(s => s.WriteAllBytesAsync(It.IsAny<string>(), It.IsAny<byte[]>()), Times.Never);
+        notificationService.Verify(n => n.EmitNotification(It.IsAny<Notification>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Export_WhenExportSucceeds_ShouldWriteFileAndEmitSuccessNotification()
+    {
+        // Arrange
+        var notificationService = new Mock<INotificationService>();
+        var systemIo = new Mock<ISystemIO>();
+        var exportsService = new Mock<IExports>();
+        var fileData = new byte[] { 1, 2, 3 };
+        var testFilePath = "test_export.xliff";
+
+        systemIo
+            .Setup(s => s.OpenSaveFileDialog(It.IsAny<SaveFileDialog>()))
+            .Callback<SaveFileDialog>(dlg => dlg.FileName = testFilePath)
+            .Returns(true);
+        systemIo.Setup(s => s.WriteAllBytesAsync(It.IsAny<string>(), fileData)).Returns(Task.CompletedTask);
+        exportsService.Setup(e => e.Export(It.IsAny<ExportOptions>())).ReturnsAsync(fileData);
+
+        var vm = ExportViewModelFactory.Create(
+            notificationService.Object,
+            systemIo: systemIo.Object,
+            exportsService: exportsService.Object);
+
+        vm.ExportFormatView = new TestExportFormatViewModel();
+
+        // Act
+        vm.ExportCommand.Execute(null);
+
+        // Assert
+        await ((AsyncRelayCommand)vm.ExportCommand).CommandTask!;
+
+        systemIo.Verify(s => s.WriteAllBytesAsync(testFilePath, fileData), Times.Once);
+        notificationService.Verify(
+            x => x.EmitNotification(
+                It.Is<Notification>(n => n.Type == NotificationType.Success)
+            ),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task Export_WhenExportServiceThrows_ShouldEmitFailureNotification()
+    {
+        // Arrange
+        var notificationService = new Mock<INotificationService>();
+        var systemIo = new Mock<ISystemIO>();
+        var exportsService = new Mock<IExports>();
+        systemIo.Setup(s => s.OpenSaveFileDialog(It.IsAny<SaveFileDialog>())).Returns(true);
+        exportsService.Setup(e => e.Export(It.IsAny<ExportOptions>())).ThrowsAsync(new Exception("export error"));
+
+        var vm = ExportViewModelFactory.Create(
+            notificationService.Object,
+            systemIo: systemIo.Object,
+            exportsService: exportsService.Object);
+
+        vm.ExportFormatView = new TestExportFormatViewModel();
+
+        // Act
+        vm.ExportCommand.Execute(null);
+
+        // Assert
+        await ((AsyncRelayCommand)vm.ExportCommand).CommandTask!;
+
+        notificationService.Verify(
+            x => x.EmitNotification(
+                It.Is<Notification>(n => n.Type == NotificationType.Failure)
+            ),
+            Times.Once);
+    }
+
+    private class TestExportFormatViewModel : IExportOptionsViewModel
+    {
+        public ExportOptions GetExportOptions()
+        {
+            return new ExportOptions
+            {
+                Format = ExportFormatType.XLIFF,
+                LanguageCode = "en",
+                TagFilter = ExportTagFilterType.Any,
+                Tags = [],
+                TranslationStatusFilter = ExportTranslationStatusFilter.All
+            };
+        }
     }
 }

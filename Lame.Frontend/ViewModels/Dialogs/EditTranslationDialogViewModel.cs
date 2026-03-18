@@ -14,6 +14,7 @@ public class EditTranslationDialogViewModel : BaseViewModel
     private readonly IDialogService _dialogService;
     private readonly IFileStorage _fileStorageService;
     private readonly INotificationService _notificationService;
+    private readonly ISystemIO _systemIo;
     private readonly ITranslations _translationsService;
 
     public EditTranslationDialogViewModel(
@@ -22,13 +23,15 @@ public class EditTranslationDialogViewModel : BaseViewModel
         IDialogService dialogService,
         ITranslations translationsService,
         INotificationService notificationService,
-        IFileStorage fileStorageService)
+        IFileStorage fileStorageService,
+        ISystemIO systemIo)
     {
         OwningAsset = owningAsset;
         _dialogService = dialogService;
         _translationsService = translationsService;
         _notificationService = notificationService;
         _fileStorageService = fileStorageService;
+        _systemIo = systemIo;
         Translation = translation;
         SelectedTranslation = translation;
         Content = translation.Content;
@@ -173,6 +176,7 @@ public class EditTranslationDialogViewModel : BaseViewModel
             await TranslationHelpers.CreateTranslation(
                 _translationsService,
                 _fileStorageService,
+                _systemIo,
                 OwningAsset.AssetType,
                 Translation
             );

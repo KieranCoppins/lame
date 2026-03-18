@@ -19,9 +19,10 @@ public class CreateAssetViewModel : PageViewModel
 {
     private readonly IAssets _assets;
     private readonly IDialogService _dialogService;
-    private readonly IFileStorage _fileStorage;
+    private readonly IFileStorage _fileStorageService;
     private readonly ILanguages _languagesService;
     private readonly INotificationService _notificationService;
+    private readonly ISystemIO _systemIo;
     private readonly ITags _tags;
     private readonly ITranslations _translations;
     private LinkAssetsDialogViewModel _linkAssetsDialogViewModel;
@@ -33,7 +34,8 @@ public class CreateAssetViewModel : PageViewModel
         INotificationService notificationService,
         IDialogService dialogService,
         ILanguages languagesService,
-        IFileStorage fileStorage)
+        IFileStorage fileStorageService,
+        ISystemIO systemIo)
     {
         _assets = assets;
         _translations = translations;
@@ -41,7 +43,8 @@ public class CreateAssetViewModel : PageViewModel
         _notificationService = notificationService;
         _dialogService = dialogService;
         _languagesService = languagesService;
-        _fileStorage = fileStorage;
+        _fileStorageService = fileStorageService;
+        _systemIo = systemIo;
 
         Page = AppPage.CreateAsset;
         AssetsToLink = [];
@@ -181,7 +184,8 @@ public class CreateAssetViewModel : PageViewModel
 
             await TranslationHelpers.CreateTranslation(
                 _translations,
-                _fileStorage,
+                _fileStorageService,
+                _systemIo,
                 asset.AssetType,
                 translation
             );

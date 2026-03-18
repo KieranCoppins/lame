@@ -7,6 +7,8 @@ using Lame.Backend.Exports.Exporters;
 using Lame.Backend.Exports.LocalEF;
 using Lame.Backend.FileStorage;
 using Lame.Backend.FileStorage.Local;
+using Lame.Backend.Imports;
+using Lame.Backend.Imports.LocalEF;
 using Lame.Backend.Languages;
 using Lame.Backend.Languages.LocalEF;
 using Lame.Backend.Statistics;
@@ -39,6 +41,7 @@ public partial class App : Application
         services.AddSingleton<INavigationService, NavigationService>();
         services.AddSingleton<INotificationService, NotificationService>();
         services.AddSingleton<IDialogService, DialogService>();
+        services.AddSingleton<ISystemIO, WindowsSystemIO>();
 
         // Backend Services
         services.AddSingleton<IFileStorage, LocalFileStorage>();
@@ -48,6 +51,7 @@ public partial class App : Application
         services.AddScoped<ILanguages, LanguagesLocalEF>();
         services.AddScoped<IStatistics, StatisticsLocalEF>();
         services.AddScoped<IExports, ExportsLocalEF>();
+        services.AddScoped<IImports, ImportsLocalEF>();
         services.AddTransient<IExporterFactory, ExporterFactory>();
         services.AddTransient<JsonExporter>();
         services.AddTransient<Xliff12Exporter>();

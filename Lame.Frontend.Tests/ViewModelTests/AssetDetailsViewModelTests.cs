@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using Lame.Backend.Assets;
+using Lame.Backend.FileStorage;
 using Lame.Backend.Tags;
 using Lame.Backend.Translations;
 using Lame.DomainModel;
@@ -9,6 +10,7 @@ using Lame.Frontend.Tests.ViewModelFactories;
 using Lame.Frontend.ViewModels;
 using Lame.Frontend.ViewModels.Dialogs;
 using Lame.TestingHelpers;
+using Microsoft.Win32;
 using Moq;
 
 namespace Lame.Frontend.Tests.ViewModelTests;
@@ -705,6 +707,152 @@ public class AssetDetailsViewModelTests
                     args.OfType<AssetDto>().Any(a => a.Id == asset.Id)
                 )
             ),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task DownloadTranslation_WhenSaveDialogCancelled_DoesNotWriteFileOrNotify()
+    {
+        // Arrange
+        var fileStorage = new Mock<IFileStorage>();
+        var systemIo = new Mock<ISystemIO>();
+        var notificationService = new Mock<INotificationService>();
+        var asset = new AssetDtoBuilder().WithInternalName("Asset1").Build();
+        var translation = new TranslationDtoBuilder()
+            .WithContent("file.txt")
+            .WithLanguageCode("en")
+            .WithVersion(1, 0)
+            .Build();
+
+        fileStorage.Setup(f => f.Get(translation.Content)).ReturnsAsync(new byte[] { 1, 2, 3 });
+        systemIo.Setup(s => s.OpenSaveFileDialog(It.IsAny<SaveFileDialog>())).Returns(false);
+
+        var vm = AssetDetailsViewModelFactory.Create(
+            asset,
+            fileStorageService: fileStorage.Object,
+            systemIo: systemIo.Object,
+            notificationService: notificationService.Object);
+
+        // Act
+        vm.DownloadTranslationCommand.Execute(translation);
+
+        // Assert
+        await ((AsyncRelayCommand<TranslationDto>)vm.DownloadTranslationCommand).CommandTask!;
+
+        systemIo.Verify(s => s.WriteAllBytesAsync(It.IsAny<string>(), It.IsAny<byte[]>()), Times.Never);
+        notificationService.Verify(n => n.EmitNotification(It.IsAny<Notification>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task DownloadTranslation_WhenFileStorageThrows_EmitsFailureNotification()
+    {
+        // Arrange
+        var fileStorage = new Mock<IFileStorage>();
+        var systemIo = new Mock<ISystemIO>();
+        var notificationService = new Mock<INotificationService>();
+        var asset = new AssetDtoBuilder().WithInternalName("Asset1").Build();
+        var translation = new TranslationDtoBuilder()
+            .WithContent("file.txt")
+            .WithLanguageCode("en")
+            .WithVersion(1, 0)
+            .Build();
+
+        fileStorage.Setup(f => f.Get(translation.Content)).ThrowsAsync(new Exception("storage error"));
+
+        var vm = AssetDetailsViewModelFactory.Create(
+            asset,
+            fileStorageService: fileStorage.Object,
+            systemIo: systemIo.Object,
+            notificationService: notificationService.Object);
+
+        // Act
+        vm.DownloadTranslationCommand.Execute(translation);
+
+        // Assert
+        await ((AsyncRelayCommand<TranslationDto>)vm.DownloadTranslationCommand).CommandTask!;
+
+        notificationService.Verify(n => n.EmitNotification(
+            It.Is<Notification>(notif =>
+                notif.Type == NotificationType.Failure && notif.Title == "Download Failed" &&
+                notif.Message == "storage error")), Times.Once);
+    }
+
+    [Fact]
+    public async Task DownloadTranslation_WhenWriteAllBytesThrows_EmitsFailureNotification()
+    {
+        // Arrange
+        var fileStorage = new Mock<IFileStorage>();
+        var systemIo = new Mock<ISystemIO>();
+        var notificationService = new Mock<INotificationService>();
+        var asset = new AssetDtoBuilder().WithInternalName("Asset1").Build();
+        var translation = new TranslationDtoBuilder()
+            .WithContent("file.txt")
+            .WithLanguageCode("en")
+            .WithVersion(1, 0)
+            .Build();
+
+        fileStorage.Setup(f => f.Get(translation.Content)).ReturnsAsync(new byte[] { 1, 2, 3 });
+        systemIo.Setup(s => s.OpenSaveFileDialog(It.IsAny<SaveFileDialog>()))
+            .Callback<SaveFileDialog>(dlg => dlg.FileName = "test.txt")
+            .Returns(true);
+        systemIo.Setup(s => s.WriteAllBytesAsync("test.txt", It.IsAny<byte[]>()))
+            .ThrowsAsync(new Exception("write error"));
+
+        var vm = AssetDetailsViewModelFactory.Create(
+            asset,
+            fileStorageService: fileStorage.Object,
+            systemIo: systemIo.Object,
+            notificationService: notificationService.Object);
+
+        // Act
+        vm.DownloadTranslationCommand.Execute(translation);
+
+        // Assert
+        await ((AsyncRelayCommand<TranslationDto>)vm.DownloadTranslationCommand).CommandTask!;
+
+        notificationService.Verify(n => n.EmitNotification(
+            It.Is<Notification>(notif =>
+                notif.Type == NotificationType.Failure && notif.Title == "Download Failed" &&
+                notif.Message == "write error")), Times.Once);
+    }
+
+    [Fact]
+    public async Task DownloadTranslation_WhenSuccessful_WritesFileAndEmitsSuccessNotification()
+    {
+        // Arrange
+        var fileStorage = new Mock<IFileStorage>();
+        var systemIo = new Mock<ISystemIO>();
+        var notificationService = new Mock<INotificationService>();
+        var asset = new AssetDtoBuilder().WithInternalName("Asset1").Build();
+        var translation = new TranslationDtoBuilder()
+            .WithContent("file.txt")
+            .WithLanguageCode("en")
+            .WithVersion(1, 0)
+            .Build();
+
+        var fileData = new byte[] { 1, 2, 3 };
+        fileStorage.Setup(f => f.Get(translation.Content)).ReturnsAsync(fileData);
+        systemIo.Setup(s => s.OpenSaveFileDialog(It.IsAny<SaveFileDialog>()))
+            .Callback<SaveFileDialog>(dlg => dlg.FileName = "Asset1_en_1-0.txt")
+            .Returns(true);
+        systemIo.Setup(s => s.WriteAllBytesAsync("Asset1_en_1-0.txt", fileData)).Returns(Task.CompletedTask);
+
+        var vm = AssetDetailsViewModelFactory.Create(
+            asset,
+            fileStorageService: fileStorage.Object,
+            systemIo: systemIo.Object,
+            notificationService: notificationService.Object);
+
+        // Act
+        vm.DownloadTranslationCommand.Execute(translation);
+
+        // Assert
+        await ((AsyncRelayCommand<TranslationDto>)vm.DownloadTranslationCommand).CommandTask!;
+
+        systemIo.Verify(s => s.WriteAllBytesAsync("Asset1_en_1-0.txt", fileData), Times.Once);
+        notificationService.Verify(n => n.EmitNotification(
+                It.Is<Notification>(notif =>
+                    notif.Type == NotificationType.Success && notif.Title == "Download Complete")),
             Times.Once);
     }
 }

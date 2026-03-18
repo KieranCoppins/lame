@@ -1,0 +1,122 @@
+﻿<UserControl x:Class="Lame.Frontend.Views.ImportView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:controls="clr-namespace:Lame.Frontend.Controls"
+             xmlns:viewModels="clr-namespace:Lame.Frontend.ViewModels"
+             mc:Ignorable="d"
+             d:DesignHeight="1080" d:DesignWidth="750" d:DataContext="{d:DesignInstance viewModels:ImportViewModel}">
+    <Grid Margin="32"
+          MaxWidth="750"
+          HorizontalAlignment="Left">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <StackPanel>
+            <StackPanel Style="{StaticResource SectionStyle}">
+                <TextBlock Text="Import"
+                           Style="{StaticResource Header1}" />
+                <TextBlock
+                    Text="Import localization data and populate your project with new or updated translations. Supported formats include XLIFF and JSON."
+                    Style="{StaticResource Subtitle}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+
+            <Border Style="{StaticResource CardBorderStyle}">
+                <StackPanel>
+                    <TextBlock Text="Import File" Style="{StaticResource Header2}" />
+
+                    <controls:FileUploaderControl
+                        FilePath="{Binding FilePath}"
+                        FileFilter="Xliff Files|*.xliff;" />
+
+                    <CheckBox Style="{StaticResource Body}"
+                              IsChecked="{Binding ContainsMajorChanges}">
+                        <CheckBox.ToolTip>
+                            <TextBlock Style="{StaticResource Body}">
+                                When creating new translations, increment the major version.
+                                <LineBreak />
+                                Note, if the source content is unchanged with the existing source content, the major version will match
+                                <LineBreak />
+                                the existing source content's major version.
+                                <LineBreak />
+                                Target translation will always be created with the same major version as the source translation
+                                <LineBreak />
+                                regardless of this option.
+                            </TextBlock>
+                        </CheckBox.ToolTip>
+
+                        <CheckBox.ContentTemplate>
+                            <DataTemplate>
+                                <TextBlock Style="{StaticResource Body}"
+                                           Foreground="{StaticResource Brush.DarkGrey}"
+                                           TextWrapping="Wrap"
+                                           Margin="8, 0">
+
+                                    <Run Text="Contains major content changes" />
+
+                                    <InlineUIContainer BaselineAlignment="Center">
+                                        <Border Width="16"
+                                                Height="16"
+                                                Background="{StaticResource Brush.LightGrey}"
+                                                CornerRadius="8"
+                                                Cursor="Hand">
+                                            <TextBlock Text="?"
+                                                       FontSize="10"
+                                                       FontWeight="Bold"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       TextAlignment="Center" />
+                                        </Border>
+                                    </InlineUIContainer>
+                                </TextBlock>
+                            </DataTemplate>
+                        </CheckBox.ContentTemplate>
+                    </CheckBox>
+
+                    <CheckBox Style="{StaticResource Body}"
+                              IsChecked="{Binding CreateMissingAssets}">
+                        <CheckBox.ToolTip>
+                            <TextBlock Style="{StaticResource Body}">
+                                Any assets provided in import data that do not exist in the project will be created
+                            </TextBlock>
+                        </CheckBox.ToolTip>
+
+                        <CheckBox.ContentTemplate>
+                            <DataTemplate>
+                                <TextBlock Style="{StaticResource Body}"
+                                           Foreground="{StaticResource Brush.DarkGrey}"
+                                           TextWrapping="Wrap"
+                                           Margin="8, 0">
+
+                                    <Run Text="Create missing assets" />
+
+                                    <InlineUIContainer BaselineAlignment="Center">
+                                        <Border Width="16"
+                                                Height="16"
+                                                Background="{StaticResource Brush.LightGrey}"
+                                                CornerRadius="8"
+                                                Cursor="Hand">
+                                            <TextBlock Text="?"
+                                                       FontSize="10"
+                                                       FontWeight="Bold"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       TextAlignment="Center" />
+                                        </Border>
+                                    </InlineUIContainer>
+                                </TextBlock>
+                            </DataTemplate>
+                        </CheckBox.ContentTemplate>
+                    </CheckBox>
+                </StackPanel>
+            </Border>
+
+            <Button Style="{StaticResource PrimaryButton}"
+                    Command="{Binding ImportCommand}"
+                    Content="Import"
+                    HorizontalAlignment="Left" />
+        </StackPanel>
+    </Grid>
+</UserControl>

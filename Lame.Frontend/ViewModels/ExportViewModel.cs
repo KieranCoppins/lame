@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.IO;
 using System.Windows.Input;
 using Lame.Backend.Exports;
 using Lame.Backend.Languages;
@@ -18,17 +17,21 @@ public class ExportViewModel : PageViewModel
     private readonly IExports _exportsService;
     private readonly ILanguages _languagesService;
     private readonly INotificationService _notificationService;
+    private readonly ISystemIO _systemIo;
     private readonly ITags _tags;
 
-    public ExportViewModel(INotificationService notificationService,
+    public ExportViewModel(
+        INotificationService notificationService,
         ILanguages languagesService,
         IExports exportsService,
-        ITags tags)
+        ITags tags,
+        ISystemIO systemIo)
     {
         _notificationService = notificationService;
         _languagesService = languagesService;
         _exportsService = exportsService;
         _tags = tags;
+        _systemIo = systemIo;
 
         Page = AppPage.ExportXliff;
 
@@ -98,7 +101,6 @@ public class ExportViewModel : PageViewModel
         await LoadAvailableLanguages();
     }
 
-    // TODO Abstract file saving logic to a service and add unit tests for export logic
     private async Task Export()
     {
         try
@@ -123,13 +125,13 @@ public class ExportViewModel : PageViewModel
                 Title = "Select Export Destination"
             };
 
-            var result = dialog.ShowDialog();
+            var result = _systemIo.OpenSaveFileDialog(dialog);
             if (result == false) return;
 
             var filePath = dialog.FileName;
             var fileData = await _exportsService.Export(options);
 
-            await File.WriteAllBytesAsync(filePath, fileData);
+            await _systemIo.WriteAllBytesAsync(filePath, fileData);
 
             _notificationService.EmitNotification(new Notification
             {

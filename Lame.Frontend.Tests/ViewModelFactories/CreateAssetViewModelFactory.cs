@@ -18,7 +18,8 @@ public class CreateAssetViewModelFactory
         IDialogService? dialogService = null,
         ILanguages? languagesService = null,
         INotificationService? notificationService = null,
-        IFileStorage? fileStorageService = null
+        IFileStorage? fileStorageService = null,
+        ISystemIO? systemIo = null
     )
     {
         return new CreateAssetViewModel(
@@ -28,7 +29,8 @@ public class CreateAssetViewModelFactory
             notificationService ?? new Mock<INotificationService>().Object,
             dialogService ?? new Mock<IDialogService>().Object,
             languagesService ?? new Mock<ILanguages>().Object,
-            fileStorageService ?? new Mock<IFileStorage>().Object
+            fileStorageService ?? new Mock<IFileStorage>().Object,
+            systemIo ?? new Mock<ISystemIO>().Object
         );
     }
 }

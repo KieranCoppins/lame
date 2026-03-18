@@ -31,8 +31,8 @@ public class Xliff12ExporterTests
 
         Assert.Contains("<source>Hello</source>", xml);
         Assert.Contains("<target>Bonjour</target>", xml);
-        Assert.Contains("<note from=\"context\">Greeting</note>", xml);
-        Assert.Contains("<note from=\"internal-name\">asset1</note>", xml);
+        Assert.Contains("<note>Greeting</note>", xml);
+        Assert.Contains("resname=\"asset1\"", xml);
         Assert.Contains("source-language=\"en\"", xml);
         Assert.Contains("target-language=\"fr\"", xml);
     }
@@ -114,8 +114,7 @@ public class Xliff12ExporterTests
                 Id = Guid.NewGuid(),
                 SourceTranslation = new TranslationExportData { Content = "<tag>&\"'" },
                 TargetTranslation = new TranslationExportData { Content = "<target>&\"'" },
-                Context = "<context>&\"'",
-                InternalName = "<internal>&\"'"
+                Context = "<context>&\"'"
             }
         };
 
@@ -128,7 +127,6 @@ public class Xliff12ExporterTests
         Assert.Contains("&lt;tag&gt;&amp;&quot;&apos;", xml);
         Assert.Contains("&lt;target&gt;&amp;&quot;&apos;", xml);
         Assert.Contains("&lt;context&gt;&amp;&quot;&apos;", xml);
-        Assert.Contains("&lt;internal&gt;&amp;&quot;&apos;", xml);
     }
 
     [Fact]

@@ -48,8 +48,11 @@ public class MainWindowViewModel : BaseViewModel
         NavigateToSettingsCommand = new RelayCommand(() =>
             _navigationService.NavigateTo<SettingsViewModel>());
 
+        NavigateToImportXliffCommand = new RelayCommand(() =>
+            _navigationService.NavigateTo<ImportViewModel>());
+
         NavigateToExportXliffCommand = new RelayCommand(() =>
-            navigationService.NavigateTo<ExportViewModel>());
+            _navigationService.NavigateTo<ExportViewModel>());
 
         CloseDialogCommand = new RelayCommand(dialogService.CloseDialog);
     }
@@ -67,6 +70,7 @@ public class MainWindowViewModel : BaseViewModel
     public ICommand NavigateToLibraryCommand { get; }
     public ICommand NavigateToCreateAssetCommand { get; }
     public ICommand NavigateToSettingsCommand { get; }
+    public ICommand NavigateToImportXliffCommand { get; }
     public ICommand NavigateToExportXliffCommand { get; }
     public ICommand CloseDialogCommand { get; }
 }

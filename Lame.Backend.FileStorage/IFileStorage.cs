@@ -2,6 +2,6 @@
 
 public interface IFileStorage
 {
-    Task<string> Save(Stream stream, string fileName);
-    Task<Stream> Get(string path);
+    Task<string> Save(byte[] data, string fileName);
+    Task<byte[]> Get(string path);
 }

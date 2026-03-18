@@ -7,5 +7,6 @@ public enum AppPage
     Library,
     CreateAsset,
     Settings,
-    ExportXliff
+    ExportXliff,
+    ImportXliff
 }

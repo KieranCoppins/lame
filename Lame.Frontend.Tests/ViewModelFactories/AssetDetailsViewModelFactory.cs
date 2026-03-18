@@ -20,6 +20,7 @@ public class AssetDetailsViewModelFactory
         IDialogService? dialogService = null,
         INotificationService? notificationService = null,
         IFileStorage? fileStorageService = null,
+        ISystemIO? systemIo = null,
         int supportedLanguagesCount = 0
     )
     {
@@ -31,6 +32,7 @@ public class AssetDetailsViewModelFactory
             dialogService ?? new Mock<IDialogService>().Object,
             notificationService ?? new Mock<INotificationService>().Object,
             fileStorageService ?? new Mock<IFileStorage>().Object,
+            systemIo ?? new Mock<ISystemIO>().Object,
             asset,
             supportedLanguagesCount
         );

@@ -13,14 +13,16 @@ public class ExportViewModelFactory
         INotificationService? notificationService = null,
         ILanguages? languagesService = null,
         IExports? exportsService = null,
-        ITags? tagsService = null
+        ITags? tagsService = null,
+        ISystemIO? systemIo = null
     )
     {
         return new ExportViewModel(
             notificationService ?? new Mock<INotificationService>().Object,
             languagesService ?? new Mock<ILanguages>().Object,
             exportsService ?? new Mock<IExports>().Object,
-            tagsService ?? new Mock<ITags>().Object
+            tagsService ?? new Mock<ITags>().Object,
+            systemIo ?? new Mock<ISystemIO>().Object
         );
     }
 }

@@ -16,7 +16,8 @@ public class EditTranslationDialogViewModelFactory
         ITranslations? translationsService = null,
         INotificationService? notificationService = null,
         AssetDto? owningAsset = null,
-        IFileStorage? fileStorageService = null
+        IFileStorage? fileStorageService = null,
+        ISystemIO? systemIo = null
     )
     {
         return new EditTranslationDialogViewModel(
@@ -25,7 +26,8 @@ public class EditTranslationDialogViewModelFactory
             dialogService ?? new Mock<IDialogService>().Object,
             translationsService ?? new Mock<ITranslations>().Object,
             notificationService ?? new Mock<INotificationService>().Object,
-            fileStorageService ?? new Mock<IFileStorage>().Object
+            fileStorageService ?? new Mock<IFileStorage>().Object,
+            systemIo ?? new Mock<ISystemIO>().Object
         );
     }
 }

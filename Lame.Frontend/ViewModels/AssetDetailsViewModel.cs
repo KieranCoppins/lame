@@ -18,10 +18,11 @@ public class AssetDetailsViewModel : PageViewModel
 {
     private readonly IAssets _assetsService;
     private readonly IDialogService _dialogService;
-    private readonly IFileStorage _fileStorage;
+    private readonly IFileStorage _fileStorageService;
 
     private readonly INavigationService _navigationService;
     private readonly INotificationService _notificationService;
+    private readonly ISystemIO _systemIo;
     private readonly ITags _tagsService;
     private readonly ITranslations _translationsService;
 
@@ -32,7 +33,8 @@ public class AssetDetailsViewModel : PageViewModel
         IAssets assetsService,
         IDialogService dialogService,
         INotificationService notificationService,
-        IFileStorage fileStorage,
+        IFileStorage fileStorageService,
+        ISystemIO systemIo,
         AssetDto asset,
         int supportedLanguagesCount)
     {
@@ -42,7 +44,8 @@ public class AssetDetailsViewModel : PageViewModel
         _assetsService = assetsService;
         _dialogService = dialogService;
         _notificationService = notificationService;
-        _fileStorage = fileStorage;
+        _fileStorageService = fileStorageService;
+        _systemIo = systemIo;
 
         Translations = [];
         LinkedAssets = [];
@@ -308,7 +311,7 @@ public class AssetDetailsViewModel : PageViewModel
     {
         try
         {
-            var data = await _fileStorage.Get(translation.Content);
+            var data = await _fileStorageService.Get(translation.Content);
 
             var extension = Path.GetExtension(translation.Content).ToLower();
 
@@ -320,14 +323,12 @@ public class AssetDetailsViewModel : PageViewModel
                 Title = "Select Download Destination"
             };
 
-            var result = dialog.ShowDialog();
+            var result = _systemIo.OpenSaveFileDialog(dialog);
             if (result == false) return;
 
             var filePath = dialog.FileName;
 
-            await using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
-
-            await data.CopyToAsync(fileStream);
+            await _systemIo.WriteAllBytesAsync(filePath, data);
 
             _notificationService.EmitNotification(new Notification
             {

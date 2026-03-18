@@ -55,6 +55,11 @@
                                  Style="{StaticResource NavigationButton}"
                                  IsChecked="{Binding CurrentPage, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static enums:AppPage.CreateAsset}}"
                                  Command="{Binding NavigateToCreateAssetCommand}" />
+                    <RadioButton Content="Import"
+                                 GroupName="SidebarNavigation"
+                                 Style="{StaticResource NavigationButton}"
+                                 IsChecked="{Binding CurrentPage, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static enums:AppPage.ImportXliff}}"
+                                 Command="{Binding NavigateToImportXliffCommand}" />
                     <RadioButton Content="Export"
                                  GroupName="SidebarNavigation"
                                  Style="{StaticResource NavigationButton}"

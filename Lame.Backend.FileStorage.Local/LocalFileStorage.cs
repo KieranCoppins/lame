@@ -11,20 +11,17 @@ public class LocalFileStorage : IFileStorage
         Directory.CreateDirectory(_baseDirectory);
     }
 
-    public async Task<string> Save(Stream stream, string fileName)
+    public async Task<string> Save(byte[] data, string fileName)
     {
         var filePath = Path.Combine(_baseDirectory, fileName);
 
-        await using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
-
-        await stream.CopyToAsync(fileStream);
+        await File.WriteAllBytesAsync(filePath, data);
 
         return filePath;
     }
 
-    public Task<Stream> Get(string path)
+    public Task<byte[]> Get(string path)
     {
-        Stream stream = File.OpenRead(path);
-        return Task.FromResult(stream);
+        return File.ReadAllBytesAsync(path);
     }
 }
