@@ -7,7 +7,6 @@ on:
     
 env:
     PROJECT_NAME: "Lame.Frontend/Lame.Frontend.csproj"
-    VERSION: ${{ github.ref_name }}
     
 jobs:
   deploy:
@@ -25,14 +24,14 @@ jobs:
         run: dotnet restore 
         
       - name: Set version
-        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+        run: echo "INFORMATIONVERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
         
       - name: Build
         run: |
           dotnet build ${{ env.PROJECT_NAME }} \ 
             -c Release \ 
             --no-restore \
-            -p:InformationalVersion=${{ env.VERSION }}
+            -p:InformationalVersion=${{ env.INFORMATIONVERSION }}
 
       - name: Publish
         run: |
