@@ -26,6 +26,6 @@ jobs:
 
       - name: Run tests
         run: |
-        dotnet test \
-        -c Release \ 
-        --no-build
+          dotnet test \
+            -c Release \ 
+            --no-build
