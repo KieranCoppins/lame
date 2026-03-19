@@ -76,10 +76,16 @@
                     <Border Style="{StaticResource SectionLineBorderStyle}"
                             VerticalAlignment="Bottom">
                         <StackPanel>
-                            <TextBlock Text="Version: 1.0.0"
-                                       Style="{StaticResource Subtitle}"
+                            <TextBlock Style="{StaticResource Subtitle}"
                                        FontSize="10"
-                                       Margin="0" />
+                                       Margin="0"
+                                       TextWrapping="Wrap">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="{}Version: {0}">
+                                        <Binding Path="AppVersion" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
                             <TextBlock Text="By Kieran Coppins"
                                        Style="{StaticResource Subtitle}"
                                        FontSize="10"

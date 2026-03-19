@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Reflection;
 using System.Windows.Input;
 using Lame.Frontend.Commands;
 using Lame.Frontend.Enums;
@@ -63,6 +64,11 @@ public class MainWindowViewModel : BaseViewModel
 
     public PageViewModel CurrentView => _navigationService.CurrentViewModel;
     public AppPage CurrentPage => _navigationService.CurrentViewModel?.Page ?? AppPage.None;
+
+    public string AppVersion => Assembly
+        .GetExecutingAssembly()
+        .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+        ?.InformationalVersion.Split('+')[0] ?? "Unknown";
 
     public ObservableCollection<Notification> Notifications => _notificationService.Notifications;
 
