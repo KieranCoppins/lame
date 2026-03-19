@@ -35,12 +35,11 @@ jobs:
       - name: Zip output
         run: Compress-Archive -Path publish/* -DestinationPath lame-${{ github.ref_name }}-win-x64.zip
  
-# Skip whilst testing    
-#      - name: Create Release
-#        uses: softprops/action-gh-release
-#        with:
-#          files: lame-${{ github.ref_name }}-win-x64.zip
-#          prerelease: ${{ contains(github.ref, 'beta') }}
-#        env:
-#            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Release
+        uses: softprops/action-gh-release
+        with:
+          files: lame-${{ github.ref_name }}-win-x64.zip
+          prerelease: ${{ contains(github.ref, 'beta') }}
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             
