@@ -36,7 +36,7 @@ jobs:
         run: Compress-Archive -Path publish/* -DestinationPath lame-${{ github.ref_name }}-win-x64.zip
  
       - name: Create Release
-        uses: softprops/action-gh-release
+        uses: softprops/action-gh-release@v2
         with:
           files: lame-${{ github.ref_name }}-win-x64.zip
           prerelease: ${{ contains(github.ref, 'beta') }}
