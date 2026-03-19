@@ -25,9 +25,12 @@ jobs:
         
       - name: Set version
         run: echo "INFORMATIONVERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+        
+      - name: Build
+        run: dotnet build ${{ env.PROJECT_NAME }} -c Release --no-restore -p:InformationalVersion=${{ env.INFORMATIONVERSION }}
 
-      - name: Build & Publish
-        run: dotnet publish ${{ env.PROJECT_NAME }} -c Release --no-restore --self-contained -r win-x64 -o ./publish -p:PublishSingleFile=true -p:InformationalVersion=${{ env.INFORMATIONVERSION }}
+      - name: Publish
+        run: dotnet publish ${{ env.PROJECT_NAME }} -c Release --self-contained --no-build -r win-x64 -o ./publish -p:PublishSingleFile=true
 
       - name: Zip output
         run: Compress-Archive -Path publish/* -DestinationPath lame-${{ github.ref_name }}-win-x64.zip
