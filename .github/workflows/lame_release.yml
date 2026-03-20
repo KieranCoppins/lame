@@ -107,8 +107,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files:
-            - lame-${{ needs.version.outputs.semVer }}-win-x64.zip
-            - lame-${{ needs.version.outputs.semVer }}-debug-symbols-win-x64.zip
+            lame-${{ needs.version.outputs.semVer }}-win-x64.zip
+            lame-${{ needs.version.outputs.semVer }}-debug-symbols-win-x64.zip
           tag_name: v${{ needs.version.outputs.semVer }}
           name: v${{ needs.version.outputs.semVer }}
           prerelease: ${{ github.ref == 'refs/heads/develop' }}
