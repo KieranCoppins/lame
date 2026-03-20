@@ -77,6 +77,13 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        // Apply DB migrations
+        using (var scope = ServiceProvider.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Database.Migrate();
+        }
+
         MainWindow = new MainWindow
         {
             DataContext = ServiceProvider.GetRequiredService<MainWindowViewModel>()
