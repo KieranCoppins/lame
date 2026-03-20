@@ -72,8 +72,8 @@ jobs:
       
   release:
     needs: 
-      version
-      build
+      - version
+      - build
     runs-on: windows-latest
     steps:
       - name: Download artifact
