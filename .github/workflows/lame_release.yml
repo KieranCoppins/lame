@@ -77,7 +77,7 @@ jobs:
       - name: Separate debug symbols
         run: |
           mkdir -p ./publish/symbols
-          copy publish/app/*.pdb publish/symbols/
+          move publish/app/*.pdb publish/symbols/
 
       - name: Zip output
         run: |
