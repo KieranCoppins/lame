@@ -8,6 +8,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <UseWPF>true</UseWPF>
         <InformationalVersion>1.0.0</InformationalVersion>
+        <ApplicationIcon>Assets/LameIcon.ico</ApplicationIcon>
+        <AssemblyName>LAME</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>
