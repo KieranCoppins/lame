@@ -7,7 +7,10 @@ on:
       - develop
     
 env:
-    PROJECT_NAME: "Lame.Frontend/Lame.Frontend.csproj"
+  PROJECT_NAME: "Lame.Frontend/Lame.Frontend.csproj"
+
+permissions:
+  contents: write
     
 jobs:
   version:
