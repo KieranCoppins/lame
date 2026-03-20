@@ -5,13 +5,13 @@ on:
     branches:
       - main
       - develop
-    
+
 env:
   PROJECT_NAME: "Lame.Frontend/Lame.Frontend.csproj"
 
 permissions:
   contents: write
-    
+
 jobs:
   version:
     runs-on: windows-latest
@@ -61,7 +61,7 @@ jobs:
           -p:AssemblyVersion=${{ needs.version.outputs.assemblySemVer }} 
           -p:FileVersion=${{ needs.version.outputs.assemblySemFileVer }} 
           -p:InformationalVersion=${{ needs.version.outputs.informationalVersion }}
-          
+
       - name: Publish
         run: >
           dotnet publish ${{ env.PROJECT_NAME }} 
@@ -73,27 +73,27 @@ jobs:
           -p:PublishSingleFile=true
           -p:IncludeAllContentForSelfExtract=true 
           -p:EnableCompressionInSingleFile=true
-          
+
       - name: Separate debug symbols
         run: |
           mkdir -p ./publish/symbols
-          copy publish\app\*.pdb publish\symbols\
-        
+          copy publish/app/*.pdb publish/symbols/
+
       - name: Zip output
         run: |
-          Compress-Archive -Path publish\app\* -DestinationPath lame-${{ needs.version.outputs.semVer }}-win-x64.zip
-          Compress-Archive -Path publish\symbols\* -DestinationPath lame-${{ needs.version.outputs.semVer }}-debug-symbols-win-x64.zip
-        
+          Compress-Archive -Path publish/app/* -DestinationPath lame-${{ needs.version.outputs.semVer }}-win-x64.zip
+          Compress-Archive -Path publish/symbols/* -DestinationPath lame-${{ needs.version.outputs.semVer }}-debug-symbols-win-x64.zip
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: build-output
           path: |
             lame-${{ needs.version.outputs.semVer }}-win-x64.zip
-            lame-${{ needs.version.outputs.semVer }}--debug-symbols-win-x64.zip
-        
+            lame-${{ needs.version.outputs.semVer }}-debug-symbols-win-x64.zip
+  
   release:
-    needs: 
+    needs:
       - version
       - build
     runs-on: windows-latest
@@ -102,11 +102,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-output
-        
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: lame-${{ needs.version.outputs.semVer }}-win-x64.zip
+          files:
+            lame-${{ needs.version.outputs.semVer }}-win-x64.zip
+            lame-${{ needs.version.outputs.semVer }}-debug-symbols-win-x64.zip
           tag_name: v${{ needs.version.outputs.semVer }}
           name: v${{ needs.version.outputs.semVer }}
           prerelease: ${{ github.ref == 'refs/heads/develop' }}
