@@ -56,23 +56,42 @@ jobs:
           dotnet build ${{ env.PROJECT_NAME }} 
           -c Release 
           --no-restore 
+          --self-contained
           -p:Version=${{ needs.version.outputs.semVer }} 
           -p:AssemblyVersion=${{ needs.version.outputs.assemblySemVer }} 
           -p:FileVersion=${{ needs.version.outputs.assemblySemFileVer }} 
           -p:InformationalVersion=${{ needs.version.outputs.informationalVersion }}
-
+          
       - name: Publish
-        run: dotnet publish ${{ env.PROJECT_NAME }} -c Release --self-contained --no-build -r win-x64 -o ./publish -p:PublishSingleFile=true
+        run: >
+          dotnet publish ${{ env.PROJECT_NAME }} 
+          -c Release 
+          --self-contained 
+          --no-build 
+          -r win-x64 
+          -o ./publish/app 
+          -p:PublishSingleFile=true
+          -p:IncludeAllContentForSelfExtract=true 
+          -p:EnableCompressionInSingleFile=true
+          
+      - name: Separate debug symbols
+        run: |
+          mkdir -p ./publish/symbols
+          copy publish\app\*.pdb publish\symbols\
         
       - name: Zip output
-        run: Compress-Archive -Path publish/* -DestinationPath lame-${{ needs.version.outputs.semVer }}-win-x64.zip
+        run: |
+          Compress-Archive -Path publish\app\* -DestinationPath lame-${{ needs.version.outputs.semVer }}-win-x64.zip
+          Compress-Archive -Path publish\symbols\* -DestinationPath lame-${{ needs.version.outputs.semVer }}-debug-symbols-win-x64.zip
         
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: build-output
-          path: lame-${{ needs.version.outputs.semVer }}-win-x64.zip
-      
+          path: |
+            lame-${{ needs.version.outputs.semVer }}-win-x64.zip
+            lame-${{ needs.version.outputs.semVer }}--debug-symbols-win-x64.zip
+        
   release:
     needs: 
       - version
