@@ -63,6 +63,20 @@ public class AssetsLocalEf : IAssets
         });
     }
 
+    public Task<List<AssetDto>> Get(List<Guid> ids)
+    {
+        return Task.Run(async () =>
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            return await context.Assets
+                .Where(entity => ids.Contains(entity.Id))
+                .AsDto()
+                .ToListAsync();
+        });
+    }
+
     public async Task<List<AssetDto>> GetLinkedAssets(Guid assetId)
     {
         return await Task.Run(() =>
@@ -72,66 +86,10 @@ public class AssetsLocalEf : IAssets
 
             return context.Assets
                 .Where(entity => entity.Id == assetId)
-                .SelectMany(a => a.LinkedContent
+                .SelectMany(a => a.LinkedTo.Select(x => x.LinkedAssetEntity)
                     .Where(linkedAsset => linkedAsset.Status != AssetStatus.Deleted))
                 .AsDto()
                 .ToListAsync();
-        });
-    }
-
-    public Task LinkAssets(Guid assetA, Guid assetB)
-    {
-        return Task.Run(async () =>
-        {
-            using var scope = _serviceProvider.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-            var assetAEntity = await context.Assets
-                .Include(entity => entity.LinkedContent)
-                .Where(entity => entity.Id == assetA)
-                .FirstOrDefaultAsync();
-
-            var assetBEntity = await context.Assets
-                .Include(entity => entity.LinkedContent)
-                .Where(entity => entity.Id == assetB)
-                .FirstOrDefaultAsync();
-
-            if (assetAEntity == null || assetBEntity == null) return Task.CompletedTask;
-
-            // TODO validate that the assets are not already linked?
-
-            assetAEntity.LinkedContent.Add(assetBEntity);
-            assetBEntity.LinkedContent.Add(assetAEntity);
-            context.Assets.UpdateRange(assetAEntity, assetBEntity);
-            return context.SaveChangesAsync();
-        });
-    }
-
-    public Task UnLinkAssets(Guid assetA, Guid assetB)
-    {
-        return Task.Run(async () =>
-        {
-            using var scope = _serviceProvider.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-            var assetAEntity = await context.Assets
-                .Include(entity => entity.LinkedContent)
-                .Where(entity => entity.Id == assetA)
-                .FirstOrDefaultAsync();
-
-            var assetBEntity = await context.Assets
-                .Include(entity => entity.LinkedContent)
-                .Where(entity => entity.Id == assetB)
-                .FirstOrDefaultAsync();
-
-            if (assetAEntity == null || assetBEntity == null) return Task.CompletedTask;
-
-            // TODO validate that the assets are actually linked?
-
-            assetAEntity.LinkedContent.Remove(assetBEntity);
-            assetBEntity.LinkedContent.Remove(assetAEntity);
-            context.Assets.UpdateRange(assetAEntity, assetBEntity);
-            return context.SaveChangesAsync();
         });
     }
 

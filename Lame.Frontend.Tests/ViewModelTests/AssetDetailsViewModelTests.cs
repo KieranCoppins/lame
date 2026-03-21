@@ -1,10 +1,12 @@
 ﻿using System.Collections.ObjectModel;
+using Lame.Backend.AssetLinks;
 using Lame.Backend.Assets;
 using Lame.Backend.FileStorage;
 using Lame.Backend.Tags;
 using Lame.Backend.Translations;
 using Lame.DomainModel;
 using Lame.Frontend.Commands;
+using Lame.Frontend.Models;
 using Lame.Frontend.Services;
 using Lame.Frontend.Tests.ViewModelFactories;
 using Lame.Frontend.ViewModels;
@@ -21,13 +23,16 @@ public class AssetDetailsViewModelTests
     public async Task OnNavigatedTo_WhenCalled_LoadsLinkedAssetsAndTranslationsAndTags()
     {
         // Arrange
-        var asset = new AssetDtoBuilder().Build();
-
         var linkedAssets = new List<AssetDto>
         {
             new AssetDtoBuilder().Build(),
             new AssetDtoBuilder().Build()
         };
+
+        var asset = new AssetDtoBuilder()
+            .AddLinkedAsset(linkedAssets[0])
+            .AddLinkedAsset(linkedAssets[1])
+            .Build();
 
         var translations = new List<TranslationDto>
         {
@@ -44,7 +49,15 @@ public class AssetDetailsViewModelTests
 
 
         var assetsService = new Mock<IAssets>();
-        assetsService.Setup(x => x.GetLinkedAssets(asset.Id)).ReturnsAsync(linkedAssets);
+        assetsService.Setup(x => x.Get(
+                It.Is<List<Guid>>(param =>
+                    param.All(id => linkedAssets
+                        .Select(linked => linked.Id)
+                        .Contains(id)
+                    )
+                )
+            ))
+            .ReturnsAsync(linkedAssets);
 
         var translationsService = new Mock<ITranslations>();
         translationsService.Setup(x => x.GetTargetedForAsset(asset.Id)).ReturnsAsync(translations);
@@ -94,18 +107,19 @@ public class AssetDetailsViewModelTests
         var asset = new AssetDtoBuilder().Build();
         var assetToLink = new AssetDtoBuilder().Build();
 
-        var assetsService = new Mock<IAssets>();
-        assetsService.Setup(x => x.LinkAssets(asset.Id, assetToLink.Id)).Returns(Task.CompletedTask);
+        var assetLinksService = new Mock<IAssetLinks>();
+        assetLinksService.Setup(x => x.Create(asset.Id, assetToLink.Id))
+            .ReturnsAsync(new AssetLink { AssetEntityId = asset.Id, LinkedContentId = assetToLink.Id, Synced = false });
 
         var vm = AssetDetailsViewModelFactory.Create(
             asset,
-            assetsService: assetsService.Object);
+            assetLinksService: assetLinksService.Object);
 
         // Act
         await vm.LinkToAsset(assetToLink);
 
         // Assert
-        Assert.Contains(assetToLink, vm.LinkedAssets);
+        Assert.Contains(vm.LinkedAssets, x => x.LinkedContentId == assetToLink.Id);
     }
 
     [Fact]
@@ -115,14 +129,15 @@ public class AssetDetailsViewModelTests
         var asset = new AssetDtoBuilder().Build();
         var assetToLink = new AssetDtoBuilder().Build();
 
-        var assetsService = new Mock<IAssets>();
-        assetsService.Setup(x => x.LinkAssets(asset.Id, assetToLink.Id)).Returns(Task.CompletedTask);
+        var assetLinksService = new Mock<IAssetLinks>();
+        assetLinksService.Setup(x => x.Create(asset.Id, assetToLink.Id))
+            .ReturnsAsync(new AssetLink { AssetEntityId = asset.Id, LinkedContentId = assetToLink.Id, Synced = false });
 
         var notificationService = new Mock<INotificationService>();
 
         var vm = AssetDetailsViewModelFactory.Create(
             asset,
-            assetsService: assetsService.Object,
+            assetLinksService: assetLinksService.Object,
             notificationService: notificationService.Object);
 
         // Act
@@ -143,14 +158,14 @@ public class AssetDetailsViewModelTests
         var asset = new AssetDtoBuilder().Build();
         var assetToLink = new AssetDtoBuilder().Build();
 
-        var assetsService = new Mock<IAssets>();
-        assetsService.Setup(x => x.LinkAssets(asset.Id, assetToLink.Id)).ThrowsAsync(new Exception("Test exception"));
+        var assetLinksService = new Mock<IAssetLinks>();
+        assetLinksService.Setup(x => x.Create(asset.Id, assetToLink.Id)).ThrowsAsync(new Exception("Test exception"));
 
         var notificationService = new Mock<INotificationService>();
 
         var vm = AssetDetailsViewModelFactory.Create(
             asset,
-            assetsService: assetsService.Object,
+            assetLinksService: assetLinksService.Object,
             notificationService: notificationService.Object);
 
         // Act
@@ -171,38 +186,57 @@ public class AssetDetailsViewModelTests
         var asset = new AssetDtoBuilder().Build();
         var assetToUnLink = new AssetDtoBuilder().Build();
 
-        var assetsService = new Mock<IAssets>();
-        assetsService.Setup(x => x.UnLinkAssets(asset.Id, assetToUnLink.Id)).Returns(Task.CompletedTask);
+        var assetLinksService = new Mock<IAssetLinks>();
+        assetLinksService.Setup(x => x.Delete(asset.Id, assetToUnLink.Id)).Returns(Task.CompletedTask);
 
         var vm = AssetDetailsViewModelFactory.Create(
             asset,
-            assetsService: assetsService.Object);
+            assetLinksService: assetLinksService.Object);
 
-        vm.LinkedAssets.Add(assetToUnLink);
+        var link = new PopulatedAssetLink
+        {
+            Asset = asset,
+            AssetEntityId = asset.Id,
+            LinkedAsset = assetToUnLink,
+            LinkedContentId = assetToUnLink.Id
+        };
+        vm.LinkedAssets.Add(link);
 
         // Act
         await vm.UnLinkAsset(assetToUnLink);
 
         // Assert
-        Assert.DoesNotContain(assetToUnLink, vm.LinkedAssets);
+        Assert.DoesNotContain(vm.LinkedAssets, x => x.LinkedContentId == assetToUnLink.Id);
     }
 
     [Fact]
     public async Task UnLinkAsset_SuccessfullyUnLinks_EmitsSuccessNotification()
     {
         // Arrange
-        var asset = new AssetDtoBuilder().Build();
         var assetToUnLink = new AssetDtoBuilder().Build();
 
-        var assetsService = new Mock<IAssets>();
-        assetsService.Setup(x => x.UnLinkAssets(asset.Id, assetToUnLink.Id)).Returns(Task.CompletedTask);
+        var asset = new AssetDtoBuilder()
+            .AddLinkedAsset(assetToUnLink)
+            .Build();
+
+        var assetLinksService = new Mock<IAssetLinks>();
+        assetLinksService.Setup(x => x.Delete(asset.Id, assetToUnLink.Id)).Returns(Task.CompletedTask);
 
         var notificationService = new Mock<INotificationService>();
 
         var vm = AssetDetailsViewModelFactory.Create(
             asset,
-            assetsService: assetsService.Object,
+            assetLinksService: assetLinksService.Object,
             notificationService: notificationService.Object);
+
+        var link = new PopulatedAssetLink
+        {
+            Asset = asset,
+            AssetEntityId = asset.Id,
+            LinkedAsset = assetToUnLink,
+            LinkedContentId = assetToUnLink.Id
+        };
+        vm.LinkedAssets.Add(link);
 
         // Act
         await vm.UnLinkAsset(assetToUnLink);
@@ -222,16 +256,16 @@ public class AssetDetailsViewModelTests
         var asset = new AssetDtoBuilder().Build();
         var assetToUnLink = new AssetDtoBuilder().Build();
 
-        var assetsService = new Mock<IAssets>();
-        assetsService
-            .Setup(x => x.UnLinkAssets(asset.Id, assetToUnLink.Id))
+        var assetLinksService = new Mock<IAssetLinks>();
+        assetLinksService
+            .Setup(x => x.Delete(asset.Id, assetToUnLink.Id))
             .ThrowsAsync(new Exception("Test exception"));
 
         var notificationService = new Mock<INotificationService>();
 
         var vm = AssetDetailsViewModelFactory.Create(
             asset,
-            assetsService: assetsService.Object,
+            assetLinksService: assetLinksService.Object,
             notificationService: notificationService.Object);
 
         // Act
@@ -588,8 +622,11 @@ public class AssetDetailsViewModelTests
     public void ViewLinkedAssetDetails_Execute_NavigatesToAssetDetailsForAsset()
     {
         // Arrange
-        var asset = new AssetDtoBuilder().Build();
         var linkedAsset = new AssetDtoBuilder().Build();
+
+        var asset = new AssetDtoBuilder()
+            .AddLinkedAsset(linkedAsset)
+            .Build();
 
         var navigationService = new Mock<INavigationService>();
 
@@ -597,8 +634,17 @@ public class AssetDetailsViewModelTests
             asset,
             navigationService.Object);
 
+        var link = new PopulatedAssetLink
+        {
+            Asset = asset,
+            AssetEntityId = asset.Id,
+            LinkedAsset = linkedAsset,
+            LinkedContentId = linkedAsset.Id
+        };
+        vm.LinkedAssets.Add(link);
+
         // Act
-        vm.ViewLinkedAssetDetails.Execute(linkedAsset);
+        vm.ViewLinkedAssetDetails.Execute(link);
 
         // Assert
         navigationService.Verify(
@@ -642,21 +688,30 @@ public class AssetDetailsViewModelTests
         var asset = new AssetDtoBuilder().Build();
         var linkedAssetToRemove = new AssetDtoBuilder().Build();
 
-        var assetsService = new Mock<IAssets>();
-        assetsService
-            .Setup(x => x.UnLinkAssets(It.IsAny<Guid>(), It.IsAny<Guid>()))
+        var assetLinksService = new Mock<IAssetLinks>();
+        assetLinksService
+            .Setup(x => x.Delete(It.IsAny<Guid>(), It.IsAny<Guid>()))
             .Returns(Task.CompletedTask);
 
         var vm = AssetDetailsViewModelFactory.Create(
             asset,
-            assetsService: assetsService.Object);
+            assetLinksService: assetLinksService.Object);
+
+        var link = new PopulatedAssetLink
+        {
+            Asset = asset,
+            AssetEntityId = asset.Id,
+            LinkedAsset = linkedAssetToRemove,
+            LinkedContentId = linkedAssetToRemove.Id
+        };
+        vm.LinkedAssets.Add(link);
 
         // Act
-        vm.RemoveAssetLinkCommand.Execute(linkedAssetToRemove);
+        vm.RemoveAssetLinkCommand.Execute(link);
 
         // Assert
-        await ((AsyncRelayCommand<AssetDto>)vm.RemoveAssetLinkCommand).CommandTask!;
-        assetsService.Verify(x => x.UnLinkAssets(asset.Id, linkedAssetToRemove.Id), Times.Once);
+        await ((AsyncRelayCommand<PopulatedAssetLink>)vm.RemoveAssetLinkCommand).CommandTask!;
+        assetLinksService.Verify(x => x.Delete(asset.Id, linkedAssetToRemove.Id), Times.Once);
     }
 
     [Fact]

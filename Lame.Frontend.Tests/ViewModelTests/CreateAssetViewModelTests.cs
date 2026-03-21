@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using Lame.Backend.AssetLinks;
 using Lame.Backend.Assets;
 using Lame.Backend.Languages;
 using Lame.Backend.Tags;
@@ -149,6 +150,7 @@ public class CreateAssetViewModelTests
         };
 
         var assetsService = new Mock<IAssets>();
+        var assetLinksService = new Mock<IAssetLinks>();
 
         var createdAssetId = Guid.Empty;
         assetsService
@@ -156,7 +158,8 @@ public class CreateAssetViewModelTests
             .Callback<Asset>(a => createdAssetId = a.Id);
 
         var vm = CreateAssetViewModelFactory.Create(
-            assetsService: assetsService.Object);
+            assetsService: assetsService.Object,
+            assetLinksService: assetLinksService.Object);
 
         var testInternalName = "TestAsset";
         var testAssetType = AssetType.Text;
@@ -175,7 +178,7 @@ public class CreateAssetViewModelTests
 
         // Assert
         foreach (var asset in linkedAssets)
-            assetsService.Verify(s => s.LinkAssets(
+            assetLinksService.Verify(s => s.Create(
                     asset.Id,
                     createdAssetId
                 ),

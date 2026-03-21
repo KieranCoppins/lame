@@ -15,6 +15,7 @@ public class AppDbContext : DbContext
     public DbSet<TagEntity> Tags { get; set; }
     public DbSet<LanguageEntity> Languages { get; set; }
     public DbSet<TargetAssetTranslationEntity> TargetAssetTranslations { get; set; }
+    public DbSet<AssetLinkEntity> AssetLinks { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -28,11 +29,22 @@ public class AppDbContext : DbContext
             .Property(s => s.Status)
             .HasDefaultValue(AssetStatus.Active);
 
-        // Create many-to-many relationship with a link table
-        modelBuilder.Entity<AssetEntity>()
-            .HasMany(s => s.LinkedContent)
-            .WithMany()
-            .UsingEntity(j => j.ToTable("AssetLinks"));
+        // Asset Links Table
+        modelBuilder.Entity<AssetLinkEntity>()
+            .ToTable("AssetLinks")
+            .HasKey(x => new { x.AssetEntityId, x.LinkedContentId });
+
+        modelBuilder.Entity<AssetLinkEntity>()
+            .HasOne(x => x.AssetEntity)
+            .WithMany(x => x.LinkedTo)
+            .HasForeignKey(x => x.AssetEntityId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<AssetLinkEntity>()
+            .HasOne(x => x.LinkedAssetEntity)
+            .WithMany(x => x.LinkedFrom)
+            .HasForeignKey(x => x.LinkedContentId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Translations Table
         modelBuilder.Entity<TranslationEntity>()

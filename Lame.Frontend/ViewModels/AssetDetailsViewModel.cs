@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows.Input;
+using Lame.Backend.AssetLinks;
 using Lame.Backend.Assets;
 using Lame.Backend.FileStorage;
 using Lame.Backend.Tags;
@@ -8,6 +9,7 @@ using Lame.Backend.Translations;
 using Lame.DomainModel;
 using Lame.Frontend.Commands;
 using Lame.Frontend.Enums;
+using Lame.Frontend.Models;
 using Lame.Frontend.Services;
 using Lame.Frontend.ViewModels.Dialogs;
 using Microsoft.Win32;
@@ -16,6 +18,7 @@ namespace Lame.Frontend.ViewModels;
 
 public class AssetDetailsViewModel : PageViewModel
 {
+    private readonly IAssetLinks _assetLinksService;
     private readonly IAssets _assetsService;
     private readonly IDialogService _dialogService;
     private readonly IFileStorage _fileStorageService;
@@ -35,6 +38,7 @@ public class AssetDetailsViewModel : PageViewModel
         INotificationService notificationService,
         IFileStorage fileStorageService,
         ISystemIO systemIo,
+        IAssetLinks assetLinksService,
         AssetDto asset,
         int supportedLanguagesCount)
     {
@@ -46,6 +50,7 @@ public class AssetDetailsViewModel : PageViewModel
         _notificationService = notificationService;
         _fileStorageService = fileStorageService;
         _systemIo = systemIo;
+        _assetLinksService = assetLinksService;
 
         Translations = [];
         LinkedAssets = [];
@@ -57,14 +62,14 @@ public class AssetDetailsViewModel : PageViewModel
         ReturnToLibraryCommand = new RelayCommand(() =>
             _navigationService.NavigateTo<AssetLibraryViewModel>());
 
-        ViewLinkedAssetDetails = new RelayCommand<AssetDto>(linkedAsset =>
-            _navigationService.NavigateTo<AssetDetailsViewModel>(linkedAsset, SupportedLanguagesCount));
+        ViewLinkedAssetDetails = new RelayCommand<PopulatedAssetLink>(link =>
+            _navigationService.NavigateTo<AssetDetailsViewModel>(link.LinkedAsset, SupportedLanguagesCount));
 
         OpenLinkAssetDialogCommand = new RelayCommand(() =>
             _dialogService.ShowDialog<LinkAssetsDialogViewModel>(Asset, LinkToAsset)
         );
 
-        RemoveAssetLinkCommand = new AsyncRelayCommand<AssetDto>(UnLinkAsset);
+        RemoveAssetLinkCommand = new AsyncRelayCommand<PopulatedAssetLink>(x => UnLinkAsset(x.LinkedAsset));
 
         EditTranslationCommand = new RelayCommand<TranslationDto>(translation =>
             _dialogService.ShowDialog<EditTranslationDialogViewModel>(Asset, translation));
@@ -86,7 +91,7 @@ public class AssetDetailsViewModel : PageViewModel
     public AssetDto Asset { get; }
 
     public ObservableCollection<TranslationDto> Translations { get; }
-    public ObservableCollection<AssetDto> LinkedAssets { get; }
+    public ObservableCollection<PopulatedAssetLink> LinkedAssets { get; }
 
     public ObservableCollection<Tag> Tags
     {
@@ -168,10 +173,27 @@ public class AssetDetailsViewModel : PageViewModel
 
     private async Task LoadLinkedAssets()
     {
-        var linkedAssets = await _assetsService.GetLinkedAssets(Asset.Id);
+        var linkedAssetIds = Asset.AssetLinks
+            .Select(x => x.LinkedContentId)
+            .ToList();
+
+        var linkedAssets = await _assetsService.Get(linkedAssetIds);
+
         LinkedAssets.Clear();
         foreach (var linkedAsset in linkedAssets)
-            LinkedAssets.Add(linkedAsset);
+        {
+            // This should always be here as it's how we got the asset in the first place.
+            var linkedAssetLink = Asset.AssetLinks.First(x => x.LinkedContentId == linkedAsset.Id);
+
+            LinkedAssets.Add(new PopulatedAssetLink
+            {
+                Asset = Asset,
+                LinkedAsset = linkedAsset,
+                AssetEntityId = Asset.Id,
+                LinkedContentId = linkedAsset.Id,
+                Synced = linkedAssetLink.Synced
+            });
+        }
     }
 
     private async Task LoadTags()
@@ -185,8 +207,17 @@ public class AssetDetailsViewModel : PageViewModel
     {
         try
         {
-            await _assetsService.LinkAssets(Asset.Id, asset.Id);
-            LinkedAssets.Add(asset);
+            var link = await _assetLinksService.Create(Asset.Id, asset.Id);
+
+            Asset.AssetLinks.Add(link);
+            LinkedAssets.Add(new PopulatedAssetLink
+            {
+                Asset = Asset,
+                LinkedAsset = asset,
+                AssetEntityId = Asset.Id,
+                LinkedContentId = asset.Id,
+                Synced = link.Synced
+            });
 
             _notificationService.EmitNotification(new Notification
             {
@@ -211,8 +242,13 @@ public class AssetDetailsViewModel : PageViewModel
     {
         try
         {
-            await _assetsService.UnLinkAssets(Asset.Id, asset.Id);
-            LinkedAssets.Remove(asset);
+            await _assetLinksService.Delete(Asset.Id, asset.Id);
+
+            var populatedLink = LinkedAssets.First(x => x.LinkedContentId == asset.Id);
+            LinkedAssets.Remove(populatedLink);
+
+            var assetLink = Asset.AssetLinks.First(x => x.LinkedContentId == asset.Id);
+            Asset.AssetLinks.Remove(assetLink);
 
             _notificationService.EmitNotification(new Notification
             {
