@@ -18,6 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Lame.Backend.AssetLinks.LocalEF\Lame.Backend.AssetLinks.LocalEF.csproj" />
         <ProjectReference Include="..\Lame.Backend.AssetLinks\Lame.Backend.AssetLinks.csproj"/>
         <ProjectReference Include="..\Lame.Backend.Assets.LocalEF\Lame.Backend.Assets.LocalEF.csproj"/>
         <ProjectReference Include="..\Lame.Backend.Exports.LocalEF\Lame.Backend.Exports.LocalEF.csproj"/>
