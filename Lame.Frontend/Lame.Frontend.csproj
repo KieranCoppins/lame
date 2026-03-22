@@ -18,7 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Lame.Backend.AssetLinks.LocalEF\Lame.Backend.AssetLinks.LocalEF.csproj" />
+        <ProjectReference Include="..\Lame.Backend.AssetLinks.LocalEF\Lame.Backend.AssetLinks.LocalEF.csproj"/>
         <ProjectReference Include="..\Lame.Backend.AssetLinks\Lame.Backend.AssetLinks.csproj"/>
         <ProjectReference Include="..\Lame.Backend.Assets.LocalEF\Lame.Backend.Assets.LocalEF.csproj"/>
         <ProjectReference Include="..\Lame.Backend.Exports.LocalEF\Lame.Backend.Exports.LocalEF.csproj"/>
@@ -35,6 +35,7 @@
         <ProjectReference Include="..\Lame.Backend.Translations.LocalEF\Lame.Backend.Translations.LocalEF.csproj"/>
         <ProjectReference Include="..\Lame.Backend.Translations\Lame.Backend.Translations.csproj"/>
         <ProjectReference Include="..\Lame.DomainModel\Lame.DomainModel.csproj"/>
+        <ProjectReference Include="..\Lame.TestingHelpers\Lame.TestingHelpers.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

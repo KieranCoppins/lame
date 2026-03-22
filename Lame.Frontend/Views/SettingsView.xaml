@@ -7,64 +7,69 @@
              mc:Ignorable="d"
              d:DesignHeight="1080" d:DesignWidth="1920"
              d:DataContext="{d:DesignInstance Type=viewModels:SettingsViewModel}">
-    <Grid Margin="32">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
 
-        <StackPanel>
-            <StackPanel Style="{StaticResource SectionStyle}">
-                <TextBlock Text="Settings"
-                           Style="{StaticResource Header1}" />
-                <TextBlock Text="Adjust the configuration of your localization project"
-                           Style="{StaticResource Subtitle}"
-                           Margin="0" />
-            </StackPanel>
+    <ScrollViewer
+        VerticalScrollBarVisibility="Auto"
+        Background="{StaticResource Brush.LightestGrey}">
+        <Grid Margin="32">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
 
-            <Border Style="{StaticResource CardBorderStyle}">
-                <StackPanel>
-                    <TextBlock Text="Supported Languages"
-                               Style="{StaticResource Header2}" />
-                    <TextBlock Text="Add supported languages for your project."
+            <StackPanel>
+                <StackPanel Style="{StaticResource SectionStyle}">
+                    <TextBlock Text="Settings"
+                               Style="{StaticResource Header1}" />
+                    <TextBlock Text="Adjust the configuration of your localization project"
                                Style="{StaticResource Subtitle}"
                                Margin="0" />
-
-                    <ItemsControl ItemsSource="{Binding SupportedLanguages}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <UniformGrid Columns="3" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border Style="{StaticResource SmallCardBorderStyle}"
-                                        Background="{StaticResource Brush.LightestGrey}"
-                                        Margin="8">
-                                    <StackPanel>
-                                        <TextBlock
-                                            Text="{Binding LanguageCode, Converter={StaticResource LanguageCodeToEnglishConverter}}"
-                                            Style="{StaticResource Header3}" />
-                                        <TextBlock Style="{StaticResource Subtitle}">
-                                            <Run>Code: </Run>
-                                            <Run Text="{Binding LanguageCode, Mode=OneWay}" />
-                                        </TextBlock>
-                                    </StackPanel>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-
-                    <Border Style="{StaticResource SectionLineBorderStyle}">
-                        <Button Style="{StaticResource ClickableText}"
-                                Command="{Binding OpenAddLanguageDialogCommand}">
-                            <TextBlock Text="Add New Language"
-                                       Style="{StaticResource Link}"
-                                       Foreground="{StaticResource Brush.Primary}" />
-                        </Button>
-                    </Border>
                 </StackPanel>
-            </Border>
-        </StackPanel>
-    </Grid>
+
+                <Border Style="{StaticResource CardBorderStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Supported Languages"
+                                   Style="{StaticResource Header2}" />
+                        <TextBlock Text="Add supported languages for your project."
+                                   Style="{StaticResource Subtitle}"
+                                   Margin="0" />
+
+                        <ItemsControl ItemsSource="{Binding SupportedLanguages}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="3" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource SmallCardBorderStyle}"
+                                            Background="{StaticResource Brush.LightestGrey}"
+                                            Margin="8">
+                                        <StackPanel>
+                                            <TextBlock
+                                                Text="{Binding LanguageCode, Converter={StaticResource LanguageCodeToEnglishConverter}}"
+                                                Style="{StaticResource Header3}" />
+                                            <TextBlock Style="{StaticResource Subtitle}">
+                                                <Run>Code: </Run>
+                                                <Run Text="{Binding LanguageCode, Mode=OneWay}" />
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <Border Style="{StaticResource SectionLineBorderStyle}">
+                            <Button Style="{StaticResource ClickableText}"
+                                    Command="{Binding OpenAddLanguageDialogCommand}">
+                                <TextBlock Text="Add New Language"
+                                           Style="{StaticResource Link}"
+                                           Foreground="{StaticResource Brush.Primary}" />
+                            </Button>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
 </UserControl>

@@ -9,160 +9,165 @@
              mc:Ignorable="d"
              d:DesignHeight="1080" d:DesignWidth="1920"
              d:DataContext="{d:DesignInstance Type=viewModels:CreateAssetViewModel}">
-    <Grid Margin="32"
-          MaxWidth="900"
-          HorizontalAlignment="Left">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
 
-        <StackPanel>
-            <StackPanel Style="{StaticResource SectionStyle}">
-                <TextBlock Text="Create Asset"
-                           Style="{StaticResource Header1}" />
-                <TextBlock Text="Add a new english localization asset to your project"
-                           Style="{StaticResource Subtitle}"
-                           Margin="0" />
-            </StackPanel>
+    <ScrollViewer
+        VerticalScrollBarVisibility="Auto"
+        Background="{StaticResource Brush.LightestGrey}">
+        <Grid Margin="32"
+              MaxWidth="900"
+              HorizontalAlignment="Left">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
 
-            <Border Style="{StaticResource CardBorderStyle}">
-                <StackPanel>
-                    <TextBlock Text="Basic Information"
-                               Style="{StaticResource Header2}" />
+            <StackPanel>
+                <StackPanel Style="{StaticResource SectionStyle}">
+                    <TextBlock Text="Create Asset"
+                               Style="{StaticResource Header1}" />
+                    <TextBlock Text="Add a new english localization asset to your project"
+                               Style="{StaticResource Subtitle}"
+                               Margin="0" />
+                </StackPanel>
 
-                    <TextBlock Style="{StaticResource FieldLabel}">
-                        <Run>Internal Name</Run>
-                        <Run Foreground="{StaticResource Brush.NotificationFailure}">*</Run>
-                    </TextBlock>
-                    <TextBox Style="{StaticResource StyledInputBox}"
-                             Text="{Binding InternalName,
+                <Border Style="{StaticResource CardBorderStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Basic Information"
+                                   Style="{StaticResource Header2}" />
+
+                        <TextBlock Style="{StaticResource FieldLabel}">
+                            <Run>Internal Name</Run>
+                            <Run Foreground="{StaticResource Brush.NotificationFailure}">*</Run>
+                        </TextBlock>
+                        <TextBox Style="{StaticResource StyledInputBox}"
+                                 Text="{Binding InternalName,
                                  ValidatesOnNotifyDataErrors=True,
                                  UpdateSourceTrigger=PropertyChanged}"
-                             helpers:TextBoxHelpers.Placeholder="e.g. ui_main_menu_title" />
+                                 helpers:TextBoxHelpers.Placeholder="e.g. ui_main_menu_title" />
 
-                    <TextBlock Text="Asset Type"
-                               Style="{StaticResource FieldLabel}" />
+                        <TextBlock Text="Asset Type"
+                                   Style="{StaticResource FieldLabel}" />
 
-                    <ComboBox Style="{StaticResource BlankComboBox}"
-                              ItemTemplate="{StaticResource TextComboBoxItemTemplate}"
-                              ItemsSource="{Binding AssetTypes}"
-                              SelectedItem="{Binding SelectedAssetType}" />
+                        <ComboBox Style="{StaticResource BlankComboBox}"
+                                  ItemTemplate="{StaticResource TextComboBoxItemTemplate}"
+                                  ItemsSource="{Binding AssetTypes}"
+                                  SelectedItem="{Binding SelectedAssetType}" />
 
-                    <TextBlock Text="Tags"
-                               Style="{StaticResource FieldLabel}" />
+                        <TextBlock Text="Tags"
+                                   Style="{StaticResource FieldLabel}" />
 
-                    <controls:TagsContainer
-                        Tags="{Binding Tags}"
-                        GetTags="{Binding TagSearch}" />
-                </StackPanel>
-            </Border>
+                        <controls:TagsContainer
+                            Tags="{Binding Tags}"
+                            GetTags="{Binding TagSearch}" />
+                    </StackPanel>
+                </Border>
 
-            <Border Style="{StaticResource CardBorderStyle}">
-                <StackPanel>
-                    <TextBlock Text="Linked Assets" Style="{StaticResource Header2}" />
+                <Border Style="{StaticResource CardBorderStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Linked Assets" Style="{StaticResource Header2}" />
 
-                    <ItemsControl ItemsSource="{Binding AssetsToLink}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
+                        <ItemsControl ItemsSource="{Binding AssetsToLink}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
 
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border Style="{StaticResource CardBorderStyle}"
-                                        Background="{StaticResource Brush.LightestGrey}"
-                                        Margin="0, 8">
-                                    <Grid>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource CardBorderStyle}"
+                                            Background="{StaticResource Brush.LightestGrey}"
+                                            Margin="0, 8">
+                                        <Grid>
 
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding InternalName}"
-                                                       Style="{StaticResource Link}"
-                                                       FontSize="14"
-                                                       Margin="0, 0, 0, 8" />
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding InternalName}"
+                                                           Style="{StaticResource Link}"
+                                                           FontSize="14"
+                                                           Margin="0, 0, 0, 8" />
 
-                                            <TextBlock Style="{StaticResource Subtitle}"
-                                                       TextWrapping="Wrap"
-                                                       Margin="0">
-                                                <TextBlock.Text>
-                                                    <MultiBinding StringFormat="{}{0}  •  {1}  •  {2}/{3}">
-                                                        <Binding Path="LastUpdatedAt"
-                                                                 Converter="{StaticResource DateConverter}" />
-                                                        <Binding Path="AssetType" />
-                                                        <Binding Path="NumTranslations" />
-                                                        <Binding Path="DataContext.SupportedLanguagesCount"
-                                                                 RelativeSource="{RelativeSource AncestorType=ItemsControl}" />
-                                                    </MultiBinding>
-                                                </TextBlock.Text>
-                                            </TextBlock>
-                                        </StackPanel>
+                                                <TextBlock Style="{StaticResource Subtitle}"
+                                                           TextWrapping="Wrap"
+                                                           Margin="0">
+                                                    <TextBlock.Text>
+                                                        <MultiBinding StringFormat="{}{0}  •  {1}  •  {2}/{3}">
+                                                            <Binding Path="LastUpdatedAt"
+                                                                     Converter="{StaticResource DateConverter}" />
+                                                            <Binding Path="AssetType" />
+                                                            <Binding Path="NumTranslations" />
+                                                            <Binding Path="DataContext.SupportedLanguagesCount"
+                                                                     RelativeSource="{RelativeSource AncestorType=ItemsControl}" />
+                                                        </MultiBinding>
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+                                            </StackPanel>
 
-                                        <Button Style="{StaticResource ClickableText}"
-                                                HorizontalAlignment="Right"
-                                                VerticalAlignment="Top"
-                                                Command="{Binding DataContext.RemoveAssetLinkCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                CommandParameter="{Binding}">
-                                            <TextBlock Text="Remove"
-                                                       Style="{StaticResource Link}"
-                                                       Margin="0" />
-                                        </Button>
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                                            <Button Style="{StaticResource ClickableText}"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Top"
+                                                    Command="{Binding DataContext.RemoveAssetLinkCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                    CommandParameter="{Binding}">
+                                                <TextBlock Text="Remove"
+                                                           Style="{StaticResource Link}"
+                                                           Margin="0" />
+                                            </Button>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
 
-                    <Border Style="{StaticResource SectionLineBorderStyle}">
-                        <Button Style="{StaticResource ClickableText}"
-                                Command="{Binding OpenLinkAssetDialogCommand}">
-                            <TextBlock Text="Add New Link"
-                                       Style="{StaticResource Link}"
-                                       Foreground="{StaticResource Brush.Primary}" />
-                        </Button>
-                    </Border>
-                </StackPanel>
-            </Border>
+                        <Border Style="{StaticResource SectionLineBorderStyle}">
+                            <Button Style="{StaticResource ClickableText}"
+                                    Command="{Binding OpenLinkAssetDialogCommand}">
+                                <TextBlock Text="Add New Link"
+                                           Style="{StaticResource Link}"
+                                           Foreground="{StaticResource Brush.Primary}" />
+                            </Button>
+                        </Border>
+                    </StackPanel>
+                </Border>
 
-            <Border Style="{StaticResource CardBorderStyle}">
-                <StackPanel>
-                    <TextBlock Text="English Translation"
-                               Style="{StaticResource Header2}" />
-                    <TextBlock
-                        Text="An english translation is needed to create the asset, but you can change it later if needed."
-                        Style="{StaticResource Subtitle}"
-                        Margin="0" />
+                <Border Style="{StaticResource CardBorderStyle}">
+                    <StackPanel>
+                        <TextBlock Text="English Translation"
+                                   Style="{StaticResource Header2}" />
+                        <TextBlock
+                            Text="An english translation is needed to create the asset, but you can change it later if needed."
+                            Style="{StaticResource Subtitle}"
+                            Margin="0" />
 
-                    <TextBlock Style="{StaticResource FieldLabel}">
-                        <Run>Content</Run>
-                        <Run Foreground="{StaticResource Brush.NotificationFailure}">*</Run>
-                    </TextBlock>
+                        <TextBlock Style="{StaticResource FieldLabel}">
+                            <Run>Content</Run>
+                            <Run Foreground="{StaticResource Brush.NotificationFailure}">*</Run>
+                        </TextBlock>
 
-                    <controls:TranslationContentEditor
-                        AssetType="{Binding SelectedAssetType}"
-                        TranslationContent="{Binding EnglishContent, UpdateSourceTrigger=PropertyChanged}" />
+                        <controls:TranslationContentEditor
+                            AssetType="{Binding SelectedAssetType}"
+                            TranslationContent="{Binding EnglishContent, UpdateSourceTrigger=PropertyChanged}" />
 
-                    <TextBlock Text="Notes / Context"
-                               Style="{StaticResource FieldLabel}" />
-                    <TextBox Style="{StaticResource StyledInputBox}"
-                             AcceptsReturn="True"
-                             TextWrapping="Wrap"
-                             VerticalScrollBarVisibility="Auto"
-                             HorizontalScrollBarVisibility="Disabled"
-                             MinHeight="60"
-                             helpers:TextBoxHelpers.Placeholder="Add context for translators..."
-                             Text="{Binding ContextNotes}" />
-                </StackPanel>
-            </Border>
+                        <TextBlock Text="Notes / Context"
+                                   Style="{StaticResource FieldLabel}" />
+                        <TextBox Style="{StaticResource StyledInputBox}"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 VerticalScrollBarVisibility="Auto"
+                                 HorizontalScrollBarVisibility="Disabled"
+                                 MinHeight="60"
+                                 helpers:TextBoxHelpers.Placeholder="Add context for translators..."
+                                 Text="{Binding ContextNotes}" />
+                    </StackPanel>
+                </Border>
 
-            <WrapPanel>
-                <Button Content="Create Asset"
-                        Style="{StaticResource PrimaryButton}"
-                        Command="{Binding CreateAssetCommand}"
-                        helpers:CommonHelpers.IsLoading="{Binding CreatingAsset}" />
-                <Button Content="Clear Form"
-                        Style="{StaticResource SecondaryButton}"
-                        Command="{Binding ClearFormCommand}" />
-            </WrapPanel>
-        </StackPanel>
-    </Grid>
+                <WrapPanel>
+                    <Button Content="Create Asset"
+                            Style="{StaticResource PrimaryButton}"
+                            Command="{Binding CreateAssetCommand}"
+                            helpers:CommonHelpers.IsLoading="{Binding CreatingAsset}" />
+                    <Button Content="Clear Form"
+                            Style="{StaticResource SecondaryButton}"
+                            Command="{Binding ClearFormCommand}" />
+                </WrapPanel>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
 </UserControl>

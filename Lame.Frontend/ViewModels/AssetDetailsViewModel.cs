@@ -4,11 +4,11 @@ using System.Windows.Input;
 using Lame.Backend.AssetLinks;
 using Lame.Backend.Assets;
 using Lame.Backend.FileStorage;
+using Lame.Backend.Languages;
 using Lame.Backend.Tags;
 using Lame.Backend.Translations;
 using Lame.DomainModel;
 using Lame.Frontend.Commands;
-using Lame.Frontend.Enums;
 using Lame.Frontend.Models;
 using Lame.Frontend.Services;
 using Lame.Frontend.ViewModels.Dialogs;
@@ -16,12 +16,13 @@ using Microsoft.Win32;
 
 namespace Lame.Frontend.ViewModels;
 
-public class AssetDetailsViewModel : PageViewModel
+public class AssetDetailsViewModel : BaseViewModel
 {
     private readonly IAssetLinks _assetLinksService;
     private readonly IAssets _assetsService;
     private readonly IDialogService _dialogService;
     private readonly IFileStorage _fileStorageService;
+    private readonly ILanguages _languagesService;
 
     private readonly INavigationService _navigationService;
     private readonly INotificationService _notificationService;
@@ -39,8 +40,8 @@ public class AssetDetailsViewModel : PageViewModel
         IFileStorage fileStorageService,
         ISystemIO systemIo,
         IAssetLinks assetLinksService,
-        AssetDto asset,
-        int supportedLanguagesCount)
+        ILanguages languagesService,
+        AssetDto asset)
     {
         _navigationService = navigationService;
         _translationsService = translationsService;
@@ -51,44 +52,44 @@ public class AssetDetailsViewModel : PageViewModel
         _fileStorageService = fileStorageService;
         _systemIo = systemIo;
         _assetLinksService = assetLinksService;
+        _languagesService = languagesService;
 
         Translations = [];
         LinkedAssets = [];
         Tags = [];
 
         Asset = asset;
-        SupportedLanguagesCount = supportedLanguagesCount;
-
-        ReturnToLibraryCommand = new RelayCommand(() =>
-            _navigationService.NavigateTo<AssetLibraryViewModel>());
 
         ViewLinkedAssetDetails = new RelayCommand<PopulatedAssetLink>(link =>
-            _navigationService.NavigateTo<AssetDetailsViewModel>(link.LinkedAsset, SupportedLanguagesCount));
+            _navigationService.NavigateTo<AssetLibraryDetailsViewModel>(link.LinkedAsset));
 
         OpenLinkAssetDialogCommand = new RelayCommand(() =>
             _dialogService.ShowDialog<LinkAssetsDialogViewModel>(Asset, LinkToAsset)
         );
 
         RemoveAssetLinkCommand = new AsyncRelayCommand<PopulatedAssetLink>(x => UnLinkAsset(x.LinkedAsset));
+        ReviewAssetLinkCommand = new RelayCommand<PopulatedAssetLink>(link =>
+            _navigationService.NavigateTo<AssetLinkReviewViewModel>(link));
 
         EditTranslationCommand = new RelayCommand<TranslationDto>(translation =>
             _dialogService.ShowDialog<EditTranslationDialogViewModel>(Asset, translation));
 
         _dialogService.ActiveDialogChanged += DialogServiceOnActiveDialogChanged;
 
-        ArchiveAssetCommand = new RelayCommand(() =>
-        {
-            _dialogService.ShowDialog<ArchiveAssetDialogViewModel>(Asset);
-        });
-
         DownloadTranslationCommand = new AsyncRelayCommand<TranslationDto>(DownloadTranslation);
-
-        Page = AppPage.Library;
     }
 
-    public int SupportedLanguagesCount { get; }
+    public int SupportedLanguagesCount
+    {
+        get;
+        set => SetField(ref field, value);
+    }
 
-    public AssetDto Asset { get; }
+    public AssetDto Asset
+    {
+        get;
+        set => SetField(ref field, value);
+    }
 
     public ObservableCollection<TranslationDto> Translations { get; }
     public ObservableCollection<PopulatedAssetLink> LinkedAssets { get; }
@@ -99,12 +100,11 @@ public class AssetDetailsViewModel : PageViewModel
         set => SetField(ref field, value);
     }
 
-    public ICommand ReturnToLibraryCommand { get; }
     public ICommand ViewLinkedAssetDetails { get; }
     public ICommand OpenLinkAssetDialogCommand { get; }
     public ICommand RemoveAssetLinkCommand { get; }
+    public ICommand ReviewAssetLinkCommand { get; }
     public ICommand EditTranslationCommand { get; }
-    public ICommand ArchiveAssetCommand { get; }
     public ICommand DownloadTranslationCommand { get; }
 
     public Task? UpdateAssetTask { get; private set; }
@@ -140,27 +140,23 @@ public class AssetDetailsViewModel : PageViewModel
 
     public Func<Task<List<Tag>>> GetTags => () => _tagsService.Get();
 
-    private void DialogServiceOnActiveDialogChanged()
+    ~AssetDetailsViewModel()
     {
-        if (_dialogService.ActiveDialog == null)
-            _ = OnNavigatedTo();
-    }
-
-    public override async Task OnNavigatedTo()
-    {
-        await base.OnNavigatedTo();
-        await LoadAsset();
-    }
-
-    public override async Task OnNavigatedFrom()
-    {
-        await base.OnNavigatedFrom();
         _dialogService.ActiveDialogChanged -= DialogServiceOnActiveDialogChanged;
     }
 
-    private async Task LoadAsset()
+    private void DialogServiceOnActiveDialogChanged()
     {
-        await Task.WhenAll(LoadTranslations(), LoadLinkedAssets(), LoadTags());
+        if (_dialogService.ActiveDialog == null)
+            _ = LoadAsset();
+    }
+
+    public async Task LoadAsset()
+    {
+        // Refresh the state of the asset also
+        Asset = await _assetsService.Get(Asset.Id);
+
+        await Task.WhenAll(LoadTranslations(), LoadLinkedAssets(), LoadTags(), LoadSupportedLanguages());
     }
 
     private async Task LoadTranslations()
@@ -201,6 +197,7 @@ public class AssetDetailsViewModel : PageViewModel
         var tags = await _tagsService.GetTagsForResource(Asset.Id);
         Tags.Clear();
         foreach (var tag in tags) Tags.Add(tag);
+        OnPropertyChanged(nameof(Tags));
     }
 
     public async Task LinkToAsset(AssetDto asset)
@@ -382,5 +379,11 @@ public class AssetDetailsViewModel : PageViewModel
                 Title = "Download Failed"
             });
         }
+    }
+
+    private async Task LoadSupportedLanguages()
+    {
+        var languages = await _languagesService.Get();
+        SupportedLanguagesCount = languages.Count;
     }
 }

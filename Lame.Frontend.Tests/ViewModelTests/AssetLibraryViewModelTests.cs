@@ -139,7 +139,7 @@ public class AssetLibraryViewModelTests
 
         // Assert
         navigationService.Verify(
-            x => x.NavigateTo<AssetDetailsViewModel>(
+            x => x.NavigateTo<AssetLibraryDetailsViewModel>(
                 It.Is<object[]>(args =>
                     args.OfType<AssetDto>().Any(a => a.Id == asset.Id)
                 )

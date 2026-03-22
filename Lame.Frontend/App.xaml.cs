@@ -63,6 +63,8 @@ public partial class App : Application
         services.AddSingleton<MainWindowViewModel>();
         services.AddTransient<AssetLibraryViewModel>();
         services.AddTransient<AssetDetailsViewModel>();
+        services.AddTransient<AssetLibraryDetailsViewModel>();
+        services.AddTransient<AssetLinkReviewViewModel>();
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<CreateAssetViewModel>();
         services.AddTransient<LinkAssetsDialogViewModel>();

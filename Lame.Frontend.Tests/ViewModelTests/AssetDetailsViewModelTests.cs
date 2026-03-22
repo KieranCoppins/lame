@@ -2,6 +2,7 @@
 using Lame.Backend.AssetLinks;
 using Lame.Backend.Assets;
 using Lame.Backend.FileStorage;
+using Lame.Backend.Languages;
 using Lame.Backend.Tags;
 using Lame.Backend.Translations;
 using Lame.DomainModel;
@@ -20,7 +21,7 @@ namespace Lame.Frontend.Tests.ViewModelTests;
 public class AssetDetailsViewModelTests
 {
     [Fact]
-    public async Task OnNavigatedTo_WhenCalled_LoadsLinkedAssetsAndTranslationsAndTags()
+    public async Task LoadAssets_WhenCalled_LoadsLinkedAssetsAndTranslationsAndTagsAndLanguagesAndGetsAssetAgain()
     {
         // Arrange
         var linkedAssets = new List<AssetDto>
@@ -47,6 +48,13 @@ public class AssetDetailsViewModelTests
             new TagBuilder().Build()
         };
 
+        var languages = new List<Language>
+        {
+            new LanguageBuilder().WithLanguageCode("en").Build(),
+            new LanguageBuilder().WithLanguageCode("fr").Build(),
+            new LanguageBuilder().WithLanguageCode("es").Build()
+        };
+
 
         var assetsService = new Mock<IAssets>();
         assetsService.Setup(x => x.Get(
@@ -59,46 +67,35 @@ public class AssetDetailsViewModelTests
             ))
             .ReturnsAsync(linkedAssets);
 
+        assetsService.Setup(x => x.Get(asset.Id)).ReturnsAsync(asset);
+
         var translationsService = new Mock<ITranslations>();
         translationsService.Setup(x => x.GetTargetedForAsset(asset.Id)).ReturnsAsync(translations);
 
         var tagsService = new Mock<ITags>();
         tagsService.Setup(x => x.GetTagsForResource(asset.Id)).ReturnsAsync(tags);
 
+        var languagesService = new Mock<ILanguages>();
+        languagesService.Setup(x => x.Get()).ReturnsAsync(languages);
+
         var vm = AssetDetailsViewModelFactory.Create(
             asset,
             assetsService: assetsService.Object,
             translationsService: translationsService.Object,
-            tagsService: tagsService.Object);
+            tagsService: tagsService.Object,
+            languagesService: languagesService.Object);
 
         // Act
-        await vm.OnNavigatedTo();
+        await vm.LoadAsset();
 
         // Assert
         Assert.Equal(3, vm.Translations.Count);
         Assert.Equal(2, vm.LinkedAssets.Count);
         Assert.Equal(2, vm.Tags.Count);
+        Assert.Equal(3, vm.SupportedLanguagesCount);
     }
 
-    [Fact]
-    public async Task OnNavigatedFrom_WhenCalled_UnsubscribesFromDialogServiceEvents()
-    {
-        // Arrange
-        var asset = new AssetDtoBuilder().Build();
-
-        var dialogService = new Mock<IDialogService>();
-
-        var vm = AssetDetailsViewModelFactory.Create(
-            asset,
-            dialogService: dialogService.Object);
-
-        // Act
-        await vm.OnNavigatedFrom();
-
-        // Assert
-        dialogService.VerifyAdd(d => d.ActiveDialogChanged += It.IsAny<Action>(), Times.Once);
-        dialogService.VerifyRemove(d => d.ActiveDialogChanged -= It.IsAny<Action>(), Times.Once);
-    }
+    // TODO how to unit test destructors?
 
     [Fact]
     public async Task LinkToAsset_WhenCalled_LinksAssetAndUpdatesLinkedAssets()
@@ -600,25 +597,6 @@ public class AssetDetailsViewModelTests
     }
 
     [Fact]
-    public void ReturnToLibraryCommand_Execute_NavigatesToLibraryViewModel()
-    {
-        // Arrange
-        var asset = new AssetDtoBuilder().Build();
-
-        var navigationService = new Mock<INavigationService>();
-
-        var vm = AssetDetailsViewModelFactory.Create(
-            asset,
-            navigationService.Object);
-
-        // Act
-        vm.ReturnToLibraryCommand.Execute(null);
-
-        // Assert
-        navigationService.Verify(x => x.NavigateTo<AssetLibraryViewModel>(), Times.Once);
-    }
-
-    [Fact]
     public void ViewLinkedAssetDetails_Execute_NavigatesToAssetDetailsForAsset()
     {
         // Arrange
@@ -648,7 +626,7 @@ public class AssetDetailsViewModelTests
 
         // Assert
         navigationService.Verify(
-            x => x.NavigateTo<AssetDetailsViewModel>(
+            x => x.NavigateTo<AssetLibraryDetailsViewModel>(
                 It.Is<object[]>(args =>
                     args.OfType<AssetDto>().Any(a => a.Id == linkedAsset.Id)
                 )
@@ -735,31 +713,6 @@ public class AssetDetailsViewModelTests
             x => x.ShowDialog<EditTranslationDialogViewModel>(
                 It.Is<object[]>(args =>
                     args.OfType<TranslationDto>().Any(t => t.Id == translation.Id)
-                )
-            ),
-            Times.Once);
-    }
-
-    [Fact]
-    public void ArchiveAssetCommand_Execute_OpensArchiveAssetDialog()
-    {
-        // Arrange
-        var asset = new AssetDtoBuilder().Build();
-
-        var dialogService = new Mock<IDialogService>();
-
-        var vm = AssetDetailsViewModelFactory.Create(
-            asset,
-            dialogService: dialogService.Object);
-
-        // Act
-        vm.ArchiveAssetCommand.Execute(null);
-
-        // Assert
-        dialogService.Verify(
-            x => x.ShowDialog<ArchiveAssetDialogViewModel>(
-                It.Is<object[]>(args =>
-                    args.OfType<AssetDto>().Any(a => a.Id == asset.Id)
                 )
             ),
             Times.Once);

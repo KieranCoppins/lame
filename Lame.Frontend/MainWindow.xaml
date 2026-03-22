@@ -97,13 +97,9 @@
         </Border>
 
         <Grid Grid.Column="1">
-            <ScrollViewer
-                VerticalScrollBarVisibility="Auto"
-                Background="{StaticResource Brush.LightestGrey}">
 
-                <ContentControl Content="{Binding CurrentView}" x:Name="MainWindowContent" />
+            <ContentControl Content="{Binding CurrentView}" x:Name="MainWindowContent" />
 
-            </ScrollViewer>
             <ContentControl
                 Content="{Binding ActiveDialog}">
 

@@ -37,7 +37,7 @@ public class AssetLinksLocalEF : IAssetLinks
             linkB.Synced = synced;
 
             context.AssetLinks.UpdateRange(linkA, linkB);
-            return context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         });
     }
 
