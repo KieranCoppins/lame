@@ -8,5 +8,6 @@ public enum AppPage
     CreateAsset,
     Settings,
     ExportXliff,
-    ImportXliff
+    ImportXliff,
+    AssetSync
 }

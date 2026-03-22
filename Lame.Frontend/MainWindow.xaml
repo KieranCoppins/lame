@@ -50,6 +50,11 @@
                                  Style="{StaticResource NavigationButton}"
                                  IsChecked="{Binding CurrentPage, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static enums:AppPage.Library}}"
                                  Command="{Binding NavigateToLibraryCommand}" />
+                    <RadioButton Content="Asset Sync"
+                                 GroupName="SidebarNavigation"
+                                 Style="{StaticResource NavigationButton}"
+                                 IsChecked="{Binding CurrentPage, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static enums:AppPage.AssetSync}}"
+                                 Command="{Binding NavigateToAssetSyncCommand}" />
                     <RadioButton Content="Create Asset"
                                  GroupName="SidebarNavigation"
                                  Style="{StaticResource NavigationButton}"

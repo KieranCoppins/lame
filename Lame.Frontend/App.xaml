@@ -36,6 +36,9 @@
             <DataTemplate DataType="{x:Type viewModels:DashboardViewModel}">
                 <views:DashboardView />
             </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:AssetSyncViewModel}">
+                <views:AssetSyncView />
+            </DataTemplate>
             <DataTemplate DataType="{x:Type viewModels:CreateAssetViewModel}">
                 <views:CreateAssetView />
             </DataTemplate>

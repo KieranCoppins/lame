@@ -15,6 +15,59 @@ public class AssetLinksLocalEF : IAssetLinks
         _serviceProvider = serviceProvider;
     }
 
+    public Task<List<AssetLink>> GetAssetLinks()
+    {
+        return Task.Run(async () =>
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            var results = await context.AssetLinks
+                .GroupBy(link => new
+                {
+                    AssetId1 = link.AssetEntityId < link.LinkedContentId
+                        ? link.AssetEntityId
+                        : link.LinkedContentId,
+                    AssetId2 = link.AssetEntityId < link.LinkedContentId
+                        ? link.LinkedContentId
+                        : link.AssetEntityId
+                })
+                .Select(g => g.First())
+                .ToListAsync();
+
+            return results
+                .Select(entity => new AssetLink
+                {
+                    AssetEntityId = entity.AssetEntityId,
+                    LinkedContentId = entity.LinkedContentId,
+                    Synced = entity.Synced
+                }).ToList();
+        });
+    }
+
+    public Task<int> GetOutOfSyncCount()
+    {
+        return Task.Run(async () =>
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            var results = await context.AssetLinks
+                .GroupBy(link => new
+                {
+                    AssetId1 = link.AssetEntityId < link.LinkedContentId
+                        ? link.AssetEntityId
+                        : link.LinkedContentId,
+                    AssetId2 = link.AssetEntityId < link.LinkedContentId
+                        ? link.LinkedContentId
+                        : link.AssetEntityId
+                })
+                .CountAsync(group => group.Any(link => !link.Synced));
+
+            return results;
+        });
+    }
+
     public Task SyncAssetLink(Guid assetId, Guid linkedAssetId, bool synced = true)
     {
         return Task.Run(async () =>

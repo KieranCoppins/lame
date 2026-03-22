@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using Lame.Backend.AssetLinks;
 using Lame.Frontend.Commands;
+using Lame.Frontend.Enums;
 using Lame.Frontend.Models;
 using Lame.Frontend.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +25,8 @@ public class AssetLinkReviewViewModel : PageViewModel
         _serviceProvider = serviceProvider;
         _assetLink = assetLink;
         _notificationService = notificationService;
+
+        Page = AppPage.AssetSync;
 
         AssetViewModel =
             ActivatorUtilities.CreateInstance<AssetDetailsViewModel>(_serviceProvider, assetLink.Asset);

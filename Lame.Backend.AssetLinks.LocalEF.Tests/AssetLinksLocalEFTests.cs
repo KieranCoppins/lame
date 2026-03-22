@@ -337,4 +337,224 @@ public class AssetLinksLocalEFTests
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
             assetLinksLocalEf.SyncAssetLink(assetA.Id, assetB.Id));
     }
+
+    [Fact]
+    public async Task GetAssetLinks_TwoLinkedAssets_ReturnsSingleLinkPair()
+    {
+        // Arrange
+        var dbName = Guid.NewGuid().ToString();
+        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var assetA = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
+        var assetB = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
+
+        var linkA = new AssetLinkEntityBuilder(assetA, assetB).WithSynced(false).Build();
+        var linkB = new AssetLinkEntityBuilder(assetB, assetA).WithSynced(false).Build();
+
+        context.Assets.AddRange(assetA, assetB);
+        context.AssetLinks.AddRange(linkA, linkB);
+
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var assetLinksLocalEf = new AssetLinksLocalEF(serviceProvider);
+
+        // Act
+        var links = await assetLinksLocalEf.GetAssetLinks();
+
+        // Assert
+        Assert.Single(links);
+        Assert.Contains(links, l =>
+            (l.AssetEntityId == assetA.Id && l.LinkedContentId == assetB.Id) ||
+            (l.AssetEntityId == assetB.Id && l.LinkedContentId == assetA.Id));
+    }
+
+    [Fact]
+    public async Task GetAssetLinks_NoLinks_ReturnsEmptyList()
+    {
+        // Arrange
+        var dbName = Guid.NewGuid().ToString();
+        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var assetLinksLocalEf = new AssetLinksLocalEF(serviceProvider);
+
+        // Act
+        var links = await assetLinksLocalEf.GetAssetLinks();
+
+        // Assert
+        Assert.Empty(links);
+    }
+
+    [Fact]
+    public async Task GetAssetLinks_MultipleDistinctPairs_ReturnsOnePerPair()
+    {
+        // Arrange
+        var dbName = Guid.NewGuid().ToString();
+        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var assetA = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
+        var assetB = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
+        var assetC = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
+
+        var linkAB = new AssetLinkEntityBuilder(assetA, assetB).WithSynced(true).Build();
+        var linkBA = new AssetLinkEntityBuilder(assetB, assetA).WithSynced(true).Build();
+        var linkAC = new AssetLinkEntityBuilder(assetA, assetC).WithSynced(false).Build();
+        var linkCA = new AssetLinkEntityBuilder(assetC, assetA).WithSynced(false).Build();
+
+        context.Assets.AddRange(assetA, assetB, assetC);
+        context.AssetLinks.AddRange(linkAB, linkBA, linkAC, linkCA);
+
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var assetLinksLocalEf = new AssetLinksLocalEF(serviceProvider);
+
+        // Act
+        var links = await assetLinksLocalEf.GetAssetLinks();
+
+
+        // Assert
+        Assert.Equal(2, links.Count);
+        Assert.Contains(links, l =>
+            (l.AssetEntityId == assetA.Id && l.LinkedContentId == assetB.Id) ||
+            (l.AssetEntityId == assetB.Id && l.LinkedContentId == assetA.Id));
+        Assert.Contains(links, l =>
+            (l.AssetEntityId == assetA.Id && l.LinkedContentId == assetC.Id) ||
+            (l.AssetEntityId == assetC.Id && l.LinkedContentId == assetA.Id));
+    }
+
+    [Fact]
+    public async Task GetOutOfSyncCount_NoLinks_ReturnsZero()
+    {
+        // Arrange
+        var dbName = Guid.NewGuid().ToString();
+        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var assetLinksLocalEf = new AssetLinksLocalEF(serviceProvider);
+
+        // Act
+        var count = await assetLinksLocalEf.GetOutOfSyncCount();
+
+        // Assert
+        Assert.Equal(0, count);
+    }
+
+    [Fact]
+    public async Task GetOutOfSyncCount_AllLinksSynced_ReturnsZero()
+    {
+        // Arrange
+        var dbName = Guid.NewGuid().ToString();
+        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var assetA = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
+        var assetB = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
+        var assetC = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
+
+        var linkAB = new AssetLinkEntityBuilder(assetA, assetB).WithSynced(true).Build();
+        var linkBA = new AssetLinkEntityBuilder(assetB, assetA).WithSynced(true).Build();
+        var linkAC = new AssetLinkEntityBuilder(assetA, assetC).WithSynced(true).Build();
+        var linkCA = new AssetLinkEntityBuilder(assetC, assetA).WithSynced(true).Build();
+
+        context.Assets.AddRange(assetA, assetB, assetC);
+        context.AssetLinks.AddRange(linkAB, linkBA, linkAC, linkCA);
+
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var assetLinksLocalEf = new AssetLinksLocalEF(serviceProvider);
+
+        // Act
+        var count = await assetLinksLocalEf.GetOutOfSyncCount();
+
+        // Assert
+        Assert.Equal(0, count);
+    }
+
+    [Fact]
+    public async Task GetOutOfSyncCount_SomeLinksOutOfSync_ReturnsCorrectCount()
+    {
+        // Arrange
+        var dbName = Guid.NewGuid().ToString();
+        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var assetA = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
+        var assetB = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
+        var assetC = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
+
+        var linkAB = new AssetLinkEntityBuilder(assetA, assetB).WithSynced(false).Build();
+        var linkBA = new AssetLinkEntityBuilder(assetB, assetA).WithSynced(false).Build();
+        var linkAC = new AssetLinkEntityBuilder(assetA, assetC).WithSynced(true).Build();
+        var linkCA = new AssetLinkEntityBuilder(assetC, assetA).WithSynced(true).Build();
+
+        context.Assets.AddRange(assetA, assetB, assetC);
+        context.AssetLinks.AddRange(linkAB, linkBA, linkAC, linkCA);
+
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var assetLinksLocalEf = new AssetLinksLocalEF(serviceProvider);
+
+        // Act
+        var count = await assetLinksLocalEf.GetOutOfSyncCount();
+
+        // Assert
+        Assert.Equal(1, count);
+    }
+
+    [Fact]
+    public async Task GetOutOfSyncCount_MultipleDistinctOutOfSyncPairs_ReturnsCorrectCount()
+    {
+        // Arrange
+        var dbName = Guid.NewGuid().ToString();
+        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var assetA = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
+        var assetB = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
+        var assetC = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
+        var assetD = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
+
+        var linkAB = new AssetLinkEntityBuilder(assetA, assetB).WithSynced(false).Build();
+        var linkBA = new AssetLinkEntityBuilder(assetB, assetA).WithSynced(false).Build();
+        var linkAC = new AssetLinkEntityBuilder(assetA, assetC).WithSynced(false).Build();
+        var linkCA = new AssetLinkEntityBuilder(assetC, assetA).WithSynced(false).Build();
+        var linkAD = new AssetLinkEntityBuilder(assetA, assetD).WithSynced(true).Build();
+        var linkDA = new AssetLinkEntityBuilder(assetD, assetA).WithSynced(true).Build();
+
+        context.Assets.AddRange(assetA, assetB, assetC, assetD);
+        context.AssetLinks.AddRange(linkAB, linkBA, linkAC, linkCA, linkAD, linkDA);
+
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var assetLinksLocalEf = new AssetLinksLocalEF(serviceProvider);
+
+        // Act
+        var count = await assetLinksLocalEf.GetOutOfSyncCount();
+
+        // Assert
+        Assert.Equal(2, count);
+    }
 }
