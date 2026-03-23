@@ -31,6 +31,7 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
                     <Border Grid.Column="0"
@@ -67,6 +68,17 @@
                     </Border>
 
                     <Border Grid.Column="3"
+                            Style="{StaticResource CardBorderStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Out of Sync Links"
+                                       Style="{StaticResource Subtitle}"
+                                       Margin="0" />
+                            <TextBlock Text="{Binding ProjectStatistics.TotalOutOfSyncLinks}"
+                                       Style="{StaticResource Header1}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="4"
                             Style="{StaticResource CardBorderStyle}">
                         <StackPanel>
 

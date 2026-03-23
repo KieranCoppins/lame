@@ -18,6 +18,11 @@ public class ProjectStatistics
     public int TotalLanguages { get; set; }
 
     /// <summary>
+    ///     The total amount of asset links that have synced equal to false
+    /// </summary>
+    public int TotalOutOfSyncLinks { get; set; }
+
+    /// <summary>
     ///     The total amount of translations for each language
     /// </summary>
     public Dictionary<string, int> TranslationsByLanguage { get; set; }

@@ -196,7 +196,6 @@
                                                 <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
                                             <Button Grid.Column="0"
-                                                    Style="{StaticResource PrimaryButton}"
                                                     Padding="12, 4"
                                                     Content="Review"
                                                     Background="{StaticResource Brush.NotificationWarning}"
@@ -204,7 +203,18 @@
                                                     helpers:ButtonHelpers.HoverBackground="{StaticResource Brush.NotificationWarningHover }"
                                                     VerticalAlignment="Top"
                                                     Command="{Binding DataContext.ReviewAssetLinkCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                    CommandParameter="{Binding}" />
+                                                    CommandParameter="{Binding}">
+                                                <Button.Style>
+                                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Synced}" Value="False">
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
 
                                             <Button Grid.Column="1"
                                                     Content="Remove"

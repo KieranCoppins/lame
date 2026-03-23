@@ -45,26 +45,24 @@ public class AssetLinksLocalEF : IAssetLinks
         });
     }
 
-    public Task<int> GetOutOfSyncCount()
+    public Task DesyncAssetLinks(Guid assetId)
     {
         return Task.Run(async () =>
         {
             using var scope = _serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            var results = await context.AssetLinks
-                .GroupBy(link => new
-                {
-                    AssetId1 = link.AssetEntityId < link.LinkedContentId
-                        ? link.AssetEntityId
-                        : link.LinkedContentId,
-                    AssetId2 = link.AssetEntityId < link.LinkedContentId
-                        ? link.LinkedContentId
-                        : link.AssetEntityId
-                })
-                .CountAsync(group => group.Any(link => !link.Synced));
+            var links = await context.AssetLinks
+                .Where(link => link.AssetEntityId == assetId || link.LinkedContentId == assetId)
+                .ToListAsync();
 
-            return results;
+            context.AssetLinks.UpdateRange(links.Select(link =>
+            {
+                link.Synced = false;
+                return link;
+            }));
+
+            await context.SaveChangesAsync();
         });
     }
 

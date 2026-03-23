@@ -434,27 +434,7 @@ public class AssetLinksLocalEFTests
     }
 
     [Fact]
-    public async Task GetOutOfSyncCount_NoLinks_ReturnsZero()
-    {
-        // Arrange
-        var dbName = Guid.NewGuid().ToString();
-        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
-
-        var serviceProvider = new ServiceCollection()
-            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
-            .BuildServiceProvider();
-
-        var assetLinksLocalEf = new AssetLinksLocalEF(serviceProvider);
-
-        // Act
-        var count = await assetLinksLocalEf.GetOutOfSyncCount();
-
-        // Assert
-        Assert.Equal(0, count);
-    }
-
-    [Fact]
-    public async Task GetOutOfSyncCount_AllLinksSynced_ReturnsZero()
+    public async Task DesyncAssetLinks_AssetHasMultipleLinks_AllLinksDesynced()
     {
         // Arrange
         var dbName = Guid.NewGuid().ToString();
@@ -481,80 +461,62 @@ public class AssetLinksLocalEFTests
         var assetLinksLocalEf = new AssetLinksLocalEF(serviceProvider);
 
         // Act
-        var count = await assetLinksLocalEf.GetOutOfSyncCount();
+        await assetLinksLocalEf.DesyncAssetLinks(assetA.Id);
 
         // Assert
-        Assert.Equal(0, count);
+        await using var assertContext = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var links = await assertContext.AssetLinks
+            .Where(l => l.AssetEntityId == assetA.Id || l.LinkedContentId == assetA.Id)
+            .ToListAsync(TestContext.Current.CancellationToken);
+
+        Assert.All(links, l => Assert.False(l.Synced));
     }
 
     [Fact]
-    public async Task GetOutOfSyncCount_SomeLinksOutOfSync_ReturnsCorrectCount()
+    public async Task DesyncAssetLinks_AssetHasNoLinks_NoExceptionThrown()
     {
         // Arrange
         var dbName = Guid.NewGuid().ToString();
         await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
 
         var assetA = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
-        var assetB = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
-        var assetC = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
-
-        var linkAB = new AssetLinkEntityBuilder(assetA, assetB).WithSynced(false).Build();
-        var linkBA = new AssetLinkEntityBuilder(assetB, assetA).WithSynced(false).Build();
-        var linkAC = new AssetLinkEntityBuilder(assetA, assetC).WithSynced(true).Build();
-        var linkCA = new AssetLinkEntityBuilder(assetC, assetA).WithSynced(true).Build();
-
-        context.Assets.AddRange(assetA, assetB, assetC);
-        context.AssetLinks.AddRange(linkAB, linkBA, linkAC, linkCA);
-
+        context.Assets.Add(assetA);
         await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var serviceProvider = new ServiceCollection()
             .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
             .BuildServiceProvider();
 
+        // Act
         var assetLinksLocalEf = new AssetLinksLocalEF(serviceProvider);
 
-        // Act
-        var count = await assetLinksLocalEf.GetOutOfSyncCount();
-
         // Assert
-        Assert.Equal(1, count);
+        var exception = await Record.ExceptionAsync(() => assetLinksLocalEf.DesyncAssetLinks(assetA.Id));
+        Assert.Null(exception);
     }
 
     [Fact]
-    public async Task GetOutOfSyncCount_MultipleDistinctOutOfSyncPairs_ReturnsCorrectCount()
+    public async Task DesyncAssetLinks_AssetIdDoesNotExist_NoExceptionThrown()
     {
         // Arrange
         var dbName = Guid.NewGuid().ToString();
         await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
 
         var assetA = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
-        var assetB = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
-        var assetC = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
-        var assetD = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
-
-        var linkAB = new AssetLinkEntityBuilder(assetA, assetB).WithSynced(false).Build();
-        var linkBA = new AssetLinkEntityBuilder(assetB, assetA).WithSynced(false).Build();
-        var linkAC = new AssetLinkEntityBuilder(assetA, assetC).WithSynced(false).Build();
-        var linkCA = new AssetLinkEntityBuilder(assetC, assetA).WithSynced(false).Build();
-        var linkAD = new AssetLinkEntityBuilder(assetA, assetD).WithSynced(true).Build();
-        var linkDA = new AssetLinkEntityBuilder(assetD, assetA).WithSynced(true).Build();
-
-        context.Assets.AddRange(assetA, assetB, assetC, assetD);
-        context.AssetLinks.AddRange(linkAB, linkBA, linkAC, linkCA, linkAD, linkDA);
-
+        context.Assets.Add(assetA);
         await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var serviceProvider = new ServiceCollection()
             .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
             .BuildServiceProvider();
 
+        // Act
         var assetLinksLocalEf = new AssetLinksLocalEF(serviceProvider);
 
-        // Act
-        var count = await assetLinksLocalEf.GetOutOfSyncCount();
-
         // Assert
-        Assert.Equal(2, count);
+        var nonExistentId = Guid.NewGuid();
+        var exception = await Record.ExceptionAsync(() => assetLinksLocalEf.DesyncAssetLinks(nonExistentId));
+        Assert.Null(exception);
     }
 }
