@@ -7,8 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Lame.Backend.FileStorage\Lame.Backend.FileStorage.csproj"/>
-        <ProjectReference Include="..\Lame.Configuration\Lame.Configuration.csproj"/>
+        <ProjectReference Include="..\Lame.DomainModel\Lame.DomainModel.csproj"/>
     </ItemGroup>
 
 </Project>
