@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Windows.Input;
+using Lame.Backend.AssetLinks;
 using Lame.Backend.Assets;
 using Lame.Backend.FileStorage;
 using Lame.Backend.Languages;
@@ -17,6 +18,7 @@ namespace Lame.Frontend.ViewModels;
 
 public class CreateAssetViewModel : PageViewModel
 {
+    private readonly IAssetLinks _assetLinks;
     private readonly IAssets _assets;
     private readonly IDialogService _dialogService;
     private readonly IFileStorage _fileStorageService;
@@ -31,6 +33,7 @@ public class CreateAssetViewModel : PageViewModel
         IAssets assets,
         ITranslations translations,
         ITags tags,
+        IAssetLinks assetLinks,
         INotificationService notificationService,
         IDialogService dialogService,
         ILanguages languagesService,
@@ -40,6 +43,7 @@ public class CreateAssetViewModel : PageViewModel
         _assets = assets;
         _translations = translations;
         _tags = tags;
+        _assetLinks = assetLinks;
         _notificationService = notificationService;
         _dialogService = dialogService;
         _languagesService = languagesService;
@@ -194,7 +198,7 @@ public class CreateAssetViewModel : PageViewModel
             foreach (var tag in Tags) await _tags.AddTagToResource(tag, asset.Id, ResourceType.Asset);
 
             // Create asset links
-            foreach (var linkedAsset in AssetsToLink) await _assets.LinkAssets(linkedAsset.Id, asset.Id);
+            foreach (var linkedAsset in AssetsToLink) await _assetLinks.Create(linkedAsset.Id, asset.Id);
 
             _notificationService.EmitNotification(
                 new Notification

@@ -3,18 +3,23 @@
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <TargetFramework>net10.0-windows</TargetFramework>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UseWPF>true</UseWPF>
+        <InformationalVersion>1.0.0</InformationalVersion>
+        <ApplicationIcon>Assets/LameIcon.ico</ApplicationIcon>
+        <AssemblyName>LAME</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>
         <Folder Include="Factories\"/>
-        <Folder Include="Models\"/>
         <Folder Include="Services\Importers\"/>
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Lame.Backend.AssetLinks.LocalEF\Lame.Backend.AssetLinks.LocalEF.csproj"/>
+        <ProjectReference Include="..\Lame.Backend.AssetLinks\Lame.Backend.AssetLinks.csproj"/>
         <ProjectReference Include="..\Lame.Backend.Assets.LocalEF\Lame.Backend.Assets.LocalEF.csproj"/>
         <ProjectReference Include="..\Lame.Backend.Exports.LocalEF\Lame.Backend.Exports.LocalEF.csproj"/>
         <ProjectReference Include="..\Lame.Backend.Exports\Lame.Backend.Exports.csproj"/>
@@ -30,6 +35,7 @@
         <ProjectReference Include="..\Lame.Backend.Translations.LocalEF\Lame.Backend.Translations.LocalEF.csproj"/>
         <ProjectReference Include="..\Lame.Backend.Translations\Lame.Backend.Translations.csproj"/>
         <ProjectReference Include="..\Lame.DomainModel\Lame.DomainModel.csproj"/>
+        <ProjectReference Include="..\Lame.TestingHelpers\Lame.TestingHelpers.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

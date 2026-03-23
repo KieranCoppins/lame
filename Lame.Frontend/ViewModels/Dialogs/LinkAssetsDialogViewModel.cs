@@ -28,7 +28,7 @@ public class LinkAssetsDialogViewModel : BaseViewModel
 
         Asset = asset;
 
-        SearchAssets = async searchText => await _assetService.Get(searchText, 5);
+        SearchAssets = InternalSearchAssets;
 
         LinkAssetCommand = new AsyncRelayCommand(LinkAsset);
         CancelCommand = new RelayCommand(() => _dialogService.CloseDialog());
@@ -55,6 +55,14 @@ public class LinkAssetsDialogViewModel : BaseViewModel
 
 
     public event Action OnAssetLinked;
+
+    private async Task<IEnumerable> InternalSearchAssets(string searchQuery)
+    {
+        var assets = await _assetService.Get(searchQuery, 5);
+
+        // Filter out own asset
+        return assets.Where(a => Asset == null || a.Id != Asset.Id);
+    }
 
 
     private async Task LinkAsset()

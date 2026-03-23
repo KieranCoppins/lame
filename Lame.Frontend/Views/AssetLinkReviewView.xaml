@@ -1,0 +1,49 @@
+﻿<UserControl x:Class="Lame.Frontend.Views.AssetLinkReviewView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewModels="clr-namespace:Lame.Frontend.ViewModels"
+             mc:Ignorable="d"
+             d:DesignHeight="1920" d:DesignWidth="1080"
+             d:DataContext="{d:DesignInstance viewModels:AssetLinkReviewViewModel }">
+    <Grid>
+        <ScrollViewer
+            VerticalScrollBarVisibility="Auto"
+            Background="{StaticResource Brush.LightestGrey}">
+            <Grid Margin="32">
+                <StackPanel>
+                    <TextBlock Text="Asset Syncing"
+                               Style="{StaticResource Header1}" />
+                    <TextBlock
+                        Text="Compare the two assets in the link and confirm that their current versions are in sync with each other."
+                        Style="{StaticResource Subtitle}" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+
+                        <ContentControl Grid.Column="0" Content="{Binding AssetViewModel}" />
+
+                        <Border Grid.Column="1"
+                                Style="{StaticResource SectionVerticalLineBorderStyle}" />
+
+                        <ContentControl Grid.Column="2" Content="{Binding LinkedAssetViewModel}" />
+                    </Grid>
+
+                </StackPanel>
+
+
+            </Grid>
+        </ScrollViewer>
+        <Button Content="Sync Assets"
+                Command="{Binding SyncLinkCommand}"
+                Style="{StaticResource PrimaryButton}"
+                VerticalAlignment="Top"
+                HorizontalAlignment="Center"
+                Margin="0, 16, 8 ,0" />
+    </Grid>
+</UserControl>

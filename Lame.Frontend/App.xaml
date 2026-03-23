@@ -27,11 +27,17 @@
             <DataTemplate DataType="{x:Type viewModels:AssetLibraryViewModel}">
                 <views:AssetLibraryView />
             </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:AssetLibraryDetailsViewModel}">
+                <views:AssetLibraryDetailsView />
+            </DataTemplate>
             <DataTemplate DataType="{x:Type viewModels:AssetDetailsViewModel}">
                 <views:AssetDetailsView />
             </DataTemplate>
             <DataTemplate DataType="{x:Type viewModels:DashboardViewModel}">
                 <views:DashboardView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:AssetSyncViewModel}">
+                <views:AssetSyncView />
             </DataTemplate>
             <DataTemplate DataType="{x:Type viewModels:CreateAssetViewModel}">
                 <views:CreateAssetView />
@@ -44,6 +50,9 @@
             </DataTemplate>
             <DataTemplate DataType="{x:Type viewModels:ExportViewModel}">
                 <views:ExportView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:AssetLinkReviewViewModel}">
+                <views:AssetLinkReviewView />
             </DataTemplate>
             <DataTemplate DataType="{x:Type exportViewModels:ExportXliffViewModel}">
                 <exportViews:ExportXliffView />
@@ -69,6 +78,7 @@
 
             <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
             <converters:NotificationTypeToBrushConverter x:Key="NotificationTypeToBrushConverter" />
+            <converters:BoolToBrushConverter x:Key="BoolToBrushConverter" />
             <converters:LanguageCodeToEnglishConverter x:Key="LanguageCodeToEnglishConverter" />
             <converters:PercentageConverter x:Key="PercentageConverter" />
             <converters:GuidToColourConverter x:Key="GuidToColourConverter" />

@@ -17,21 +17,6 @@ namespace Lame.Backend.EntityFramework.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.3");
 
-            modelBuilder.Entity("AssetEntityAssetEntity", b =>
-                {
-                    b.Property<Guid>("AssetEntityId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("LinkedContentId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("AssetEntityId", "LinkedContentId");
-
-                    b.HasIndex("LinkedContentId");
-
-                    b.ToTable("AssetLinks", (string)null);
-                });
-
             modelBuilder.Entity("AssetEntityTagEntity", b =>
                 {
                     b.Property<Guid>("AssetsId")
@@ -77,6 +62,24 @@ namespace Lame.Backend.EntityFramework.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Assets");
+                });
+
+            modelBuilder.Entity("Lame.Backend.EntityFramework.Models.AssetLinkEntity", b =>
+                {
+                    b.Property<Guid>("AssetEntityId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("LinkedContentId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Synced")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("AssetEntityId", "LinkedContentId");
+
+                    b.HasIndex("LinkedContentId");
+
+                    b.ToTable("AssetLinks", (string)null);
                 });
 
             modelBuilder.Entity("Lame.Backend.EntityFramework.Models.LanguageEntity", b =>
@@ -169,21 +172,6 @@ namespace Lame.Backend.EntityFramework.Migrations
                     b.ToTable("TranslationTags", (string)null);
                 });
 
-            modelBuilder.Entity("AssetEntityAssetEntity", b =>
-                {
-                    b.HasOne("Lame.Backend.EntityFramework.Models.AssetEntity", null)
-                        .WithMany()
-                        .HasForeignKey("AssetEntityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Lame.Backend.EntityFramework.Models.AssetEntity", null)
-                        .WithMany()
-                        .HasForeignKey("LinkedContentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("AssetEntityTagEntity", b =>
                 {
                     b.HasOne("Lame.Backend.EntityFramework.Models.AssetEntity", null)
@@ -197,6 +185,25 @@ namespace Lame.Backend.EntityFramework.Migrations
                         .HasForeignKey("TagsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Lame.Backend.EntityFramework.Models.AssetLinkEntity", b =>
+                {
+                    b.HasOne("Lame.Backend.EntityFramework.Models.AssetEntity", "AssetEntity")
+                        .WithMany("LinkedTo")
+                        .HasForeignKey("AssetEntityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Lame.Backend.EntityFramework.Models.AssetEntity", "LinkedAssetEntity")
+                        .WithMany("LinkedFrom")
+                        .HasForeignKey("LinkedContentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AssetEntity");
+
+                    b.Navigation("LinkedAssetEntity");
                 });
 
             modelBuilder.Entity("Lame.Backend.EntityFramework.Models.TargetAssetTranslationEntity", b =>
@@ -246,6 +253,10 @@ namespace Lame.Backend.EntityFramework.Migrations
 
             modelBuilder.Entity("Lame.Backend.EntityFramework.Models.AssetEntity", b =>
                 {
+                    b.Navigation("LinkedFrom");
+
+                    b.Navigation("LinkedTo");
+
                     b.Navigation("TargetedTranslations");
 
                     b.Navigation("Translations");

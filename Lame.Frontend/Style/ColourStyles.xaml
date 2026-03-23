@@ -18,6 +18,8 @@
     <SolidColorBrush x:Key="Brush.NotificationFailure" Color="#F9564F" />
     <SolidColorBrush x:Key="Brush.NotificationFailureHover" Color="#fa6964" />
     <SolidColorBrush x:Key="Brush.NotificationWarning" Color="#E08700" />
+    <SolidColorBrush x:Key="Brush.NotificationWarningHover" Color="#e0992d" />
+    <SolidColorBrush x:Key="Brush.NotificationWarningSubdued" Color="#ffedd4" />
 
     <SolidColorBrush x:Key="Brush.Tag.A" Color="#2BA84A" />
     <SolidColorBrush x:Key="Brush.Tag.B" Color="#E08700" />

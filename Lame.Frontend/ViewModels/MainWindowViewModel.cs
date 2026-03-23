@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Reflection;
 using System.Windows.Input;
 using Lame.Frontend.Commands;
 using Lame.Frontend.Enums;
@@ -36,6 +37,9 @@ public class MainWindowViewModel : BaseViewModel
             OnPropertyChanged(nameof(IsDialogOpen));
         };
 
+        NavigateToAssetSyncCommand = new RelayCommand(() =>
+            _navigationService.NavigateTo<AssetSyncViewModel>());
+
         NavigateToLibraryCommand = new RelayCommand(() =>
             _navigationService.NavigateTo<AssetLibraryViewModel>());
 
@@ -64,10 +68,16 @@ public class MainWindowViewModel : BaseViewModel
     public PageViewModel CurrentView => _navigationService.CurrentViewModel;
     public AppPage CurrentPage => _navigationService.CurrentViewModel?.Page ?? AppPage.None;
 
+    public string AppVersion => Assembly
+        .GetExecutingAssembly()
+        .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+        ?.InformationalVersion.Split('+')[0] ?? "Unknown";
+
     public ObservableCollection<Notification> Notifications => _notificationService.Notifications;
 
     public ICommand NavigateToDashboardCommand { get; }
     public ICommand NavigateToLibraryCommand { get; }
+    public ICommand NavigateToAssetSyncCommand { get; }
     public ICommand NavigateToCreateAssetCommand { get; }
     public ICommand NavigateToSettingsCommand { get; }
     public ICommand NavigateToImportXliffCommand { get; }

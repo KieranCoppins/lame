@@ -81,6 +81,20 @@ public class StatisticsLocalEF : IStatistics
                 .Take(10)
                 .ToDictionaryAsync(x => x.Tag, x => x.Count);
 
+            // Asset link out of sync count
+            statistics.TotalOutOfSyncLinks = await context.AssetLinks
+                .AsNoTracking()
+                .GroupBy(link => new
+                {
+                    AssetId1 = link.AssetEntityId < link.LinkedContentId
+                        ? link.AssetEntityId
+                        : link.LinkedContentId,
+                    AssetId2 = link.AssetEntityId < link.LinkedContentId
+                        ? link.LinkedContentId
+                        : link.AssetEntityId
+                })
+                .CountAsync(group => group.Any(link => !link.Synced));
+
             return statistics;
         });
     }

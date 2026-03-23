@@ -113,6 +113,34 @@
         </Setter>
     </Style>
 
+    <Style x:Key="SectionVerticalLineBorderStyle" TargetType="Border">
+        <Setter Property="BorderBrush" Value="{StaticResource Brush.LightGrey}" />
+        <Setter Property="BorderThickness">
+            <Setter.Value>
+                <Thickness Left="0"
+                           Top="0"
+                           Right="{StaticResource BorderThickness.Standard}"
+                           Bottom="0" />
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Margin">
+            <Setter.Value>
+                <Thickness Left="0"
+                           Top="0"
+                           Right="{StaticResource Margin.Standard}"
+                           Bottom="0" />
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Padding">
+            <Setter.Value>
+                <Thickness Left="0"
+                           Top="0"
+                           Right="{StaticResource Margin.Standard}"
+                           Bottom="0" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="DataTable" TargetType="DataGrid">
         <Setter Property="HeadersVisibility" Value="Column" />
         <Setter Property="GridLinesVisibility" Value="None" />

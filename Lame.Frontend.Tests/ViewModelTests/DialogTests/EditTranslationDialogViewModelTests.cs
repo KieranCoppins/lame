@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using Lame.Backend.AssetLinks;
 using Lame.Backend.Translations;
 using Lame.DomainModel;
 using Lame.Frontend.Commands;
@@ -373,5 +374,98 @@ public class EditTranslationDialogViewModelTests
 
         // Assert
         Assert.Equal(3, vm.Translations.Count);
+    }
+
+    [Fact]
+    public async Task SaveChangesCommand_WhenHasMajorChanges_DesyncAssetLinksIsCalled()
+    {
+        // Arrange
+        var translation = new TranslationDtoBuilder().WithContent("Old").Build();
+        var translationsService = new Mock<ITranslations>();
+        var assetLinksService = new Mock<IAssetLinks>();
+
+        translationsService.Setup(x => x.GetTargetedForAsset(It.IsAny<Guid>()))
+            .ReturnsAsync(new List<TranslationDto>
+                { new TranslationDtoBuilder().WithLanguageCode("en").WithVersion(1, 0).Build() });
+
+        var vm = EditTranslationDialogViewModelFactory.Create(
+            translation,
+            translationsService: translationsService.Object,
+            assetLinksService: assetLinksService.Object
+        );
+
+        vm.Content = "New";
+        vm.HasMajorChanges = true;
+
+        // Act
+        vm.SaveChangesCommand.Execute(null);
+
+        // Assert
+        await ((AsyncRelayCommand)vm.SaveChangesCommand).CommandTask!;
+
+        assetLinksService.Verify(x => x.DesyncAssetLinks(vm.OwningAsset.Id), Times.Once);
+    }
+
+    [Fact]
+    public async Task SaveChangesCommand_WhenHasNoMajorChanges_DesyncAssetLinksIsNotCalled()
+    {
+        // Arrange
+        var translation = new TranslationDtoBuilder().WithContent("Old").Build();
+        var assetLinksService = new Mock<IAssetLinks>();
+
+        var vm = EditTranslationDialogViewModelFactory.Create(
+            translation,
+            assetLinksService: assetLinksService.Object
+        );
+        vm.Content = "New";
+        vm.HasMajorChanges = false;
+
+        // Act
+        vm.SaveChangesCommand.Execute(null);
+
+        // Assert
+        await ((AsyncRelayCommand)vm.SaveChangesCommand).CommandTask!;
+
+        assetLinksService.Verify(x => x.DesyncAssetLinks(It.IsAny<Guid>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task SaveChangesCommand_WhenDesyncAssetLinksThrows_EmitsFailureNotificationAndDoesNotCloseDialog()
+    {
+        // Arrange
+        var translation = new TranslationDtoBuilder().WithContent("Old").Build();
+        var dialogService = new Mock<IDialogService>();
+        var translationsService = new Mock<ITranslations>();
+        var notificationService = new Mock<INotificationService>();
+        var assetLinksService = new Mock<IAssetLinks>();
+
+        var englishTranslation = new TranslationDtoBuilder().WithLanguageCode("en").WithVersion(1, 0).Build();
+        translationsService.Setup(x => x.GetTargetedForAsset(It.IsAny<Guid>()))
+            .ReturnsAsync(new List<TranslationDto> { englishTranslation });
+
+        assetLinksService.Setup(x => x.DesyncAssetLinks(It.IsAny<Guid>()))
+            .ThrowsAsync(new Exception("Desync failed"));
+
+        var vm = EditTranslationDialogViewModelFactory.Create(
+            translation,
+            dialogService.Object,
+            translationsService.Object,
+            notificationService.Object,
+            assetLinksService: assetLinksService.Object
+        );
+        vm.Content = "New";
+        vm.HasMajorChanges = true;
+
+        // Act
+        vm.SaveChangesCommand.Execute(null);
+
+        // Assert
+        await ((AsyncRelayCommand)vm.SaveChangesCommand).CommandTask!;
+
+        notificationService.Verify(x => x.EmitNotification(
+            It.Is<Notification>(n => n.Type == NotificationType.Failure && n.Message.Contains("Desync failed"))
+        ), Times.Once);
+
+        dialogService.Verify(x => x.CloseDialog(), Times.Never);
     }
 }

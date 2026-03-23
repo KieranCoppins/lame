@@ -15,6 +15,9 @@ public class LinkAssetsDialogViewModelTests
     {
         // Arrange
         var assetsServiceMock = new Mock<IAssets>();
+
+        assetsServiceMock.Setup(s => s.Get(It.IsAny<string>(), It.IsAny<int>())).ReturnsAsync([]);
+
         var vm = LinkAssetsDialogViewModelFactory.Create(assetsServiceMock.Object);
 
         var testQuery = "test query";
@@ -23,6 +26,31 @@ public class LinkAssetsDialogViewModelTests
         await vm.SearchAssets.Invoke(testQuery);
 
         // Assert
+        assetsServiceMock.Verify(s => s.Get(testQuery, It.IsAny<int>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task SearchAssets_WhenCalled_FiltersOutOwningAsset()
+    {
+        // Arrange
+        var assetsServiceMock = new Mock<IAssets>();
+
+        var owningAsset = new AssetDtoBuilder().Build();
+        var assetA = new AssetDtoBuilder().Build();
+        var assetB = new AssetDtoBuilder().Build();
+
+        assetsServiceMock.Setup(s => s.Get(It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync([owningAsset, assetA, assetB]);
+
+        var vm = LinkAssetsDialogViewModelFactory.Create(assetsServiceMock.Object, asset: owningAsset);
+
+        var testQuery = "test query";
+
+        // Act
+        var res = await vm.SearchAssets.Invoke(testQuery);
+
+        // Assert
+        Assert.DoesNotContain(res.Cast<AssetDto>(), asset => asset.Id == owningAsset.Id);
         assetsServiceMock.Verify(s => s.Get(testQuery, It.IsAny<int>()), Times.Once);
     }
 

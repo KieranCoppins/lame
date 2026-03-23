@@ -1,24 +1,28 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows.Input;
+using Lame.Backend.AssetLinks;
 using Lame.Backend.Assets;
 using Lame.Backend.FileStorage;
+using Lame.Backend.Languages;
 using Lame.Backend.Tags;
 using Lame.Backend.Translations;
 using Lame.DomainModel;
 using Lame.Frontend.Commands;
-using Lame.Frontend.Enums;
+using Lame.Frontend.Models;
 using Lame.Frontend.Services;
 using Lame.Frontend.ViewModels.Dialogs;
 using Microsoft.Win32;
 
 namespace Lame.Frontend.ViewModels;
 
-public class AssetDetailsViewModel : PageViewModel
+public class AssetDetailsViewModel : BaseViewModel
 {
+    private readonly IAssetLinks _assetLinksService;
     private readonly IAssets _assetsService;
     private readonly IDialogService _dialogService;
     private readonly IFileStorage _fileStorageService;
+    private readonly ILanguages _languagesService;
 
     private readonly INavigationService _navigationService;
     private readonly INotificationService _notificationService;
@@ -35,8 +39,9 @@ public class AssetDetailsViewModel : PageViewModel
         INotificationService notificationService,
         IFileStorage fileStorageService,
         ISystemIO systemIo,
-        AssetDto asset,
-        int supportedLanguagesCount)
+        IAssetLinks assetLinksService,
+        ILanguages languagesService,
+        AssetDto asset)
     {
         _navigationService = navigationService;
         _translationsService = translationsService;
@@ -46,47 +51,48 @@ public class AssetDetailsViewModel : PageViewModel
         _notificationService = notificationService;
         _fileStorageService = fileStorageService;
         _systemIo = systemIo;
+        _assetLinksService = assetLinksService;
+        _languagesService = languagesService;
 
         Translations = [];
         LinkedAssets = [];
         Tags = [];
 
         Asset = asset;
-        SupportedLanguagesCount = supportedLanguagesCount;
 
-        ReturnToLibraryCommand = new RelayCommand(() =>
-            _navigationService.NavigateTo<AssetLibraryViewModel>());
-
-        ViewLinkedAssetDetails = new RelayCommand<AssetDto>(linkedAsset =>
-            _navigationService.NavigateTo<AssetDetailsViewModel>(linkedAsset, SupportedLanguagesCount));
+        ViewLinkedAssetDetails = new RelayCommand<PopulatedAssetLink>(link =>
+            _navigationService.NavigateTo<AssetLibraryDetailsViewModel>(link.LinkedAsset));
 
         OpenLinkAssetDialogCommand = new RelayCommand(() =>
             _dialogService.ShowDialog<LinkAssetsDialogViewModel>(Asset, LinkToAsset)
         );
 
-        RemoveAssetLinkCommand = new AsyncRelayCommand<AssetDto>(UnLinkAsset);
+        RemoveAssetLinkCommand = new AsyncRelayCommand<PopulatedAssetLink>(x => UnLinkAsset(x.LinkedAsset));
+        ReviewAssetLinkCommand = new RelayCommand<PopulatedAssetLink>(link =>
+            _navigationService.NavigateTo<AssetLinkReviewViewModel>(link));
 
         EditTranslationCommand = new RelayCommand<TranslationDto>(translation =>
             _dialogService.ShowDialog<EditTranslationDialogViewModel>(Asset, translation));
 
         _dialogService.ActiveDialogChanged += DialogServiceOnActiveDialogChanged;
 
-        ArchiveAssetCommand = new RelayCommand(() =>
-        {
-            _dialogService.ShowDialog<ArchiveAssetDialogViewModel>(Asset);
-        });
-
         DownloadTranslationCommand = new AsyncRelayCommand<TranslationDto>(DownloadTranslation);
-
-        Page = AppPage.Library;
     }
 
-    public int SupportedLanguagesCount { get; }
+    public int SupportedLanguagesCount
+    {
+        get;
+        set => SetField(ref field, value);
+    }
 
-    public AssetDto Asset { get; }
+    public AssetDto Asset
+    {
+        get;
+        set => SetField(ref field, value);
+    }
 
     public ObservableCollection<TranslationDto> Translations { get; }
-    public ObservableCollection<AssetDto> LinkedAssets { get; }
+    public ObservableCollection<PopulatedAssetLink> LinkedAssets { get; }
 
     public ObservableCollection<Tag> Tags
     {
@@ -94,12 +100,11 @@ public class AssetDetailsViewModel : PageViewModel
         set => SetField(ref field, value);
     }
 
-    public ICommand ReturnToLibraryCommand { get; }
     public ICommand ViewLinkedAssetDetails { get; }
     public ICommand OpenLinkAssetDialogCommand { get; }
     public ICommand RemoveAssetLinkCommand { get; }
+    public ICommand ReviewAssetLinkCommand { get; }
     public ICommand EditTranslationCommand { get; }
-    public ICommand ArchiveAssetCommand { get; }
     public ICommand DownloadTranslationCommand { get; }
 
     public Task? UpdateAssetTask { get; private set; }
@@ -135,27 +140,23 @@ public class AssetDetailsViewModel : PageViewModel
 
     public Func<Task<List<Tag>>> GetTags => () => _tagsService.Get();
 
-    private void DialogServiceOnActiveDialogChanged()
+    ~AssetDetailsViewModel()
     {
-        if (_dialogService.ActiveDialog == null)
-            _ = OnNavigatedTo();
-    }
-
-    public override async Task OnNavigatedTo()
-    {
-        await base.OnNavigatedTo();
-        await LoadAsset();
-    }
-
-    public override async Task OnNavigatedFrom()
-    {
-        await base.OnNavigatedFrom();
         _dialogService.ActiveDialogChanged -= DialogServiceOnActiveDialogChanged;
     }
 
-    private async Task LoadAsset()
+    private void DialogServiceOnActiveDialogChanged()
     {
-        await Task.WhenAll(LoadTranslations(), LoadLinkedAssets(), LoadTags());
+        if (_dialogService.ActiveDialog == null)
+            _ = LoadAsset();
+    }
+
+    public async Task LoadAsset()
+    {
+        // Refresh the state of the asset also
+        Asset = await _assetsService.Get(Asset.Id);
+
+        await Task.WhenAll(LoadTranslations(), LoadLinkedAssets(), LoadTags(), LoadSupportedLanguages());
     }
 
     private async Task LoadTranslations()
@@ -168,10 +169,27 @@ public class AssetDetailsViewModel : PageViewModel
 
     private async Task LoadLinkedAssets()
     {
-        var linkedAssets = await _assetsService.GetLinkedAssets(Asset.Id);
+        var linkedAssetIds = Asset.AssetLinks
+            .Select(x => x.LinkedContentId)
+            .ToList();
+
+        var linkedAssets = await _assetsService.Get(linkedAssetIds);
+
         LinkedAssets.Clear();
         foreach (var linkedAsset in linkedAssets)
-            LinkedAssets.Add(linkedAsset);
+        {
+            // This should always be here as it's how we got the asset in the first place.
+            var linkedAssetLink = Asset.AssetLinks.First(x => x.LinkedContentId == linkedAsset.Id);
+
+            LinkedAssets.Add(new PopulatedAssetLink
+            {
+                Asset = Asset,
+                LinkedAsset = linkedAsset,
+                AssetEntityId = Asset.Id,
+                LinkedContentId = linkedAsset.Id,
+                Synced = linkedAssetLink.Synced
+            });
+        }
     }
 
     private async Task LoadTags()
@@ -179,14 +197,24 @@ public class AssetDetailsViewModel : PageViewModel
         var tags = await _tagsService.GetTagsForResource(Asset.Id);
         Tags.Clear();
         foreach (var tag in tags) Tags.Add(tag);
+        OnPropertyChanged(nameof(Tags));
     }
 
     public async Task LinkToAsset(AssetDto asset)
     {
         try
         {
-            await _assetsService.LinkAssets(Asset.Id, asset.Id);
-            LinkedAssets.Add(asset);
+            var link = await _assetLinksService.Create(Asset.Id, asset.Id);
+
+            Asset.AssetLinks.Add(link);
+            LinkedAssets.Add(new PopulatedAssetLink
+            {
+                Asset = Asset,
+                LinkedAsset = asset,
+                AssetEntityId = Asset.Id,
+                LinkedContentId = asset.Id,
+                Synced = link.Synced
+            });
 
             _notificationService.EmitNotification(new Notification
             {
@@ -211,8 +239,13 @@ public class AssetDetailsViewModel : PageViewModel
     {
         try
         {
-            await _assetsService.UnLinkAssets(Asset.Id, asset.Id);
-            LinkedAssets.Remove(asset);
+            await _assetLinksService.Delete(Asset.Id, asset.Id);
+
+            var populatedLink = LinkedAssets.First(x => x.LinkedContentId == asset.Id);
+            LinkedAssets.Remove(populatedLink);
+
+            var assetLink = Asset.AssetLinks.First(x => x.LinkedContentId == asset.Id);
+            Asset.AssetLinks.Remove(assetLink);
 
             _notificationService.EmitNotification(new Notification
             {
@@ -346,5 +379,11 @@ public class AssetDetailsViewModel : PageViewModel
                 Title = "Download Failed"
             });
         }
+    }
+
+    private async Task LoadSupportedLanguages()
+    {
+        var languages = await _languagesService.Get();
+        SupportedLanguagesCount = languages.Count;
     }
 }

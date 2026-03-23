@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
+using Lame.Backend.AssetLinks;
 using Lame.Backend.FileStorage;
 using Lame.Backend.Translations;
 using Lame.DomainModel;
@@ -11,6 +12,7 @@ namespace Lame.Frontend.ViewModels.Dialogs;
 
 public class EditTranslationDialogViewModel : BaseViewModel
 {
+    private readonly IAssetLinks _assetLinksService;
     private readonly IDialogService _dialogService;
     private readonly IFileStorage _fileStorageService;
     private readonly INotificationService _notificationService;
@@ -24,7 +26,8 @@ public class EditTranslationDialogViewModel : BaseViewModel
         ITranslations translationsService,
         INotificationService notificationService,
         IFileStorage fileStorageService,
-        ISystemIO systemIo)
+        ISystemIO systemIo,
+        IAssetLinks assetLinksService)
     {
         OwningAsset = owningAsset;
         _dialogService = dialogService;
@@ -32,6 +35,7 @@ public class EditTranslationDialogViewModel : BaseViewModel
         _notificationService = notificationService;
         _fileStorageService = fileStorageService;
         _systemIo = systemIo;
+        _assetLinksService = assetLinksService;
         Translation = translation;
         SelectedTranslation = translation;
         Content = translation.Content;
@@ -180,6 +184,9 @@ public class EditTranslationDialogViewModel : BaseViewModel
                 OwningAsset.AssetType,
                 Translation
             );
+
+            // Desync links if major change occured
+            if (HasMajorChanges) await _assetLinksService.DesyncAssetLinks(OwningAsset.Id);
 
             _notificationService.EmitNotification(
                 new Notification
