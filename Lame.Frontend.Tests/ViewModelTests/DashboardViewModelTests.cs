@@ -1,5 +1,7 @@
 ﻿using Lame.Backend.Statistics;
+using Lame.Frontend.Services;
 using Lame.Frontend.Tests.ViewModelFactories;
+using Lame.Frontend.ViewModels;
 using Lame.TestingHelpers;
 using Moq;
 
@@ -78,5 +80,22 @@ public class DashboardViewModelTests
 
         // Assert
         Assert.Equal(50, vm.TotalTranslations);
+    }
+
+    [Fact]
+    public void SearchTagCommand_WhenExecuted_NavigatesToAssetLibraryViewModelWithTagName()
+    {
+        // Arrange
+        var navigationServiceMock = new Mock<INavigationService>();
+        var statisticsServiceMock = new Mock<IStatistics>();
+        var vm = DashboardViewModelFactory.Create(statisticsServiceMock.Object, navigationServiceMock.Object);
+
+        var tag = new TagBuilder().WithName("TestTag").Build();
+
+        // Act
+        vm.SearchTagCommand.Execute(tag);
+
+        // Assert
+        navigationServiceMock.Verify(ns => ns.NavigateTo<AssetLibraryViewModel>("TestTag"), Times.Once);
     }
 }
