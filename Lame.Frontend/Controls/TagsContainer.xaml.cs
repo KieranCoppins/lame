@@ -110,17 +110,26 @@ public partial class TagsContainer : UserControl, INotifyPropertyChanged
     {
         if (e.Action == NotifyCollectionChangedAction.Add)
             // Items added to Tags => remove them from AvailableTags
+        {
             foreach (Tag addedTag in e.NewItems)
             {
                 var toRemove = AvailableTags.FirstOrDefault(t => t.Id == addedTag.Id);
                 if (toRemove != null)
                     AvailableTags.Remove(toRemove);
             }
+        }
         else if (e.Action == NotifyCollectionChangedAction.Remove)
+        {
             // Items removed from Tags => add them back to AvailableTags
             foreach (Tag removedTag in e.OldItems)
                 if (AvailableTags.All(t => t.Id != removedTag.Id))
                     AvailableTags.Add(removedTag);
+        }
+        else if (e.Action == NotifyCollectionChangedAction.Reset)
+        {
+            // Reload the tags
+            _ = LoadTags();
+        }
 
         // Flash the popup so that it moves in case we have overflowed to a new line
         AvailableTagsPopup.IsOpen = false;
