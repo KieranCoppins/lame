@@ -62,7 +62,11 @@ public static class QueryHelpers
             NumTranslations = entity.TargetedTranslations
                 .Count(target => entity.TargetedTranslations.Any(english =>
                     english.Language == "en" &&
-                    english.Translation.MajorVersion == target.Translation.MajorVersion))
+                    english.Translation.MajorVersion == target.Translation.MajorVersion)),
+            AssetLinks = entity.LinkedTo
+                .Where(x => x.LinkedAssetEntity.Status != AssetStatus.Deleted)
+                .Select(x => (AssetLink)x)
+                .ToList()
         });
     }
 

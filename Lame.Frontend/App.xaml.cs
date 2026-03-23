@@ -1,4 +1,6 @@
 ﻿using System.Windows;
+using Lame.Backend.AssetLinks;
+using Lame.Backend.AssetLinks.LocalEF;
 using Lame.Backend.Assets;
 using Lame.Backend.Assets.LocalEF;
 using Lame.Backend.EntityFramework;
@@ -46,6 +48,7 @@ public partial class App : Application
         // Backend Services
         services.AddSingleton<IFileStorage, LocalFileStorage>();
         services.AddScoped<IAssets, AssetsLocalEf>();
+        services.AddScoped<IAssetLinks, AssetLinksLocalEF>();
         services.AddScoped<ITranslations, TranslationsLocalEF>();
         services.AddScoped<ITags, TagsLocalEF>();
         services.AddScoped<ILanguages, LanguagesLocalEF>();
@@ -60,6 +63,8 @@ public partial class App : Application
         services.AddSingleton<MainWindowViewModel>();
         services.AddTransient<AssetLibraryViewModel>();
         services.AddTransient<AssetDetailsViewModel>();
+        services.AddTransient<AssetLibraryDetailsViewModel>();
+        services.AddTransient<AssetLinkReviewViewModel>();
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<CreateAssetViewModel>();
         services.AddTransient<LinkAssetsDialogViewModel>();

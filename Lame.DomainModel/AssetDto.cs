@@ -11,6 +11,8 @@ public class AssetDto
     public DateTime LastUpdatedAt { get; set; }
     public int NumTranslations { get; set; }
 
+    public List<AssetLink> AssetLinks { get; set; }
+
     // A hack to make the asset show up in the ui as the internal name instead of the class name when binding to a list of assets
     public override string ToString()
     {

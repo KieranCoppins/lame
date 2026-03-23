@@ -15,18 +15,15 @@ public class AssetLibraryViewModel : PageViewModel
     private readonly ILanguages _languagesService;
     private readonly INavigationService _navigationService;
     private readonly INotificationService _notificationService;
-    private readonly IServiceProvider _serviceProvider;
 
     public AssetLibraryViewModel(
         IAssets assets,
         INavigationService navigationService,
-        IServiceProvider serviceProvider,
         ILanguages languagesService,
         INotificationService notificationService)
     {
         _assets = assets;
         _navigationService = navigationService;
-        _serviceProvider = serviceProvider;
         _languagesService = languagesService;
         _notificationService = notificationService;
 
@@ -126,6 +123,6 @@ public class AssetLibraryViewModel : PageViewModel
 
     private void OnViewAssetDetails(AssetDto asset)
     {
-        _navigationService.NavigateTo<AssetDetailsViewModel>(asset, SupportedLanguagesCount);
+        _navigationService.NavigateTo<AssetLibraryDetailsViewModel>(asset);
     }
 }

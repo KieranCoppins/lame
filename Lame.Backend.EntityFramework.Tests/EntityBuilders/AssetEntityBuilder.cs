@@ -17,8 +17,10 @@ public class AssetEntityBuilder
             AssetType = AssetType.Text,
             CreatedAt = DateTime.UtcNow - TimeSpan.FromDays(1),
             LastUpdatedAt = DateTime.UtcNow,
+            Status = AssetStatus.Active,
             Translations = new List<TranslationEntity>(),
-            LinkedContent = new List<AssetEntity>(),
+            LinkedTo = new List<AssetLinkEntity>(),
+            LinkedFrom = new List<AssetLinkEntity>(),
             TargetedTranslations = new List<TargetAssetTranslationEntity>(),
             Tags = new List<TagEntity>()
         };
@@ -53,6 +55,12 @@ public class AssetEntityBuilder
         return this;
     }
 
+    public AssetEntityBuilder WithStatus(AssetStatus status)
+    {
+        _asset.Status = status;
+        return this;
+    }
+
     public AssetEntityBuilder WithCreatedAt(DateTime createdAt)
     {
         _asset.CreatedAt = createdAt;
@@ -71,9 +79,28 @@ public class AssetEntityBuilder
         return this;
     }
 
-    public AssetEntityBuilder AddLinkedContent(AssetEntity linkedAsset)
+    public AssetEntityBuilder AddLinkedContent(AssetEntity linkedAsset, bool synced = true)
     {
-        _asset.LinkedContent.Add(linkedAsset);
+        var linkTo = new AssetLinkEntity
+        {
+            AssetEntityId = _asset.Id,
+            AssetEntity = _asset,
+            LinkedContentId = linkedAsset.Id,
+            LinkedAssetEntity = linkedAsset,
+            Synced = synced
+        };
+
+        var linkFrom = new AssetLinkEntity
+        {
+            AssetEntityId = linkedAsset.Id,
+            AssetEntity = linkedAsset,
+            LinkedContentId = _asset.Id,
+            LinkedAssetEntity = _asset,
+            Synced = synced
+        };
+
+        _asset.LinkedTo.Add(linkTo);
+        linkedAsset.LinkedFrom.Add(linkFrom);
         return this;
     }
 

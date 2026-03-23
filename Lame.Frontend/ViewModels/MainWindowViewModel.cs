@@ -37,6 +37,9 @@ public class MainWindowViewModel : BaseViewModel
             OnPropertyChanged(nameof(IsDialogOpen));
         };
 
+        NavigateToAssetSyncCommand = new RelayCommand(() =>
+            _navigationService.NavigateTo<AssetSyncViewModel>());
+
         NavigateToLibraryCommand = new RelayCommand(() =>
             _navigationService.NavigateTo<AssetLibraryViewModel>());
 
@@ -74,6 +77,7 @@ public class MainWindowViewModel : BaseViewModel
 
     public ICommand NavigateToDashboardCommand { get; }
     public ICommand NavigateToLibraryCommand { get; }
+    public ICommand NavigateToAssetSyncCommand { get; }
     public ICommand NavigateToCreateAssetCommand { get; }
     public ICommand NavigateToSettingsCommand { get; }
     public ICommand NavigateToImportXliffCommand { get; }

@@ -1,6 +1,7 @@
 ﻿using Lame.Backend.EntityFramework;
 using Lame.Backend.EntityFramework.Models;
 using Lame.Backend.EntityFramework.Tests;
+using Lame.Backend.EntityFramework.Tests.EntityBuilders;
 using Lame.DomainModel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -196,5 +197,80 @@ public class StatisticsLocalEFTests
         Assert.Equal(2, result.TranslationsByLanguage.Count);
         Assert.Equal(1, result.TranslationsByLanguage["en"]);
         Assert.Equal(0, result.TranslationsByLanguage["fr"]);
+    }
+
+    [Fact]
+    public async Task GetProjectStatistics_WithNoAssetLinks_ReturnsZeroOutOfSyncLinks()
+    {
+        var dbName = Guid.NewGuid().ToString();
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var statisticsLocalEf = new StatisticsLocalEF(serviceProvider);
+
+        var result = await statisticsLocalEf.GetProjectStatistics();
+
+        Assert.Equal(0, result.TotalOutOfSyncLinks);
+    }
+
+    [Fact]
+    public async Task GetProjectStatistics_WithAllAssetLinksSynced_ReturnsZeroOutOfSyncLinks()
+    {
+        var dbName = Guid.NewGuid().ToString();
+        var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var assetA = new AssetEntityBuilder().Build();
+        var assetB = new AssetEntityBuilder().Build();
+        var assetC = new AssetEntityBuilder().Build();
+
+        var linkAB = new AssetLinkEntityBuilder(assetA, assetB).WithSynced(true).Build();
+        var linkBA = new AssetLinkEntityBuilder(assetB, assetA).WithSynced(true).Build();
+        var linkCA = new AssetLinkEntityBuilder(assetC, assetA).WithSynced(true).Build();
+        var linkAC = new AssetLinkEntityBuilder(assetA, assetC).WithSynced(true).Build();
+
+        context.Assets.AddRange(assetA, assetB, assetC);
+        context.AssetLinks.AddRange(linkAB, linkBA, linkCA, linkAC);
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var statisticsLocalEf = new StatisticsLocalEF(serviceProvider);
+
+        var result = await statisticsLocalEf.GetProjectStatistics();
+
+        Assert.Equal(0, result.TotalOutOfSyncLinks);
+    }
+
+    [Fact]
+    public async Task GetProjectStatistics_WithSomeAssetLinksOutOfSync_ReturnsCorrectOutOfSyncCount()
+    {
+        var dbName = Guid.NewGuid().ToString();
+        var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var assetA = new AssetEntityBuilder().Build();
+        var assetB = new AssetEntityBuilder().Build();
+        var assetC = new AssetEntityBuilder().Build();
+
+        var linkAB = new AssetLinkEntityBuilder(assetA, assetB).WithSynced(false).Build();
+        var linkBA = new AssetLinkEntityBuilder(assetB, assetA).WithSynced(false).Build();
+        var linkCA = new AssetLinkEntityBuilder(assetC, assetA).WithSynced(true).Build();
+        var linkAC = new AssetLinkEntityBuilder(assetA, assetC).WithSynced(true).Build();
+
+        context.Assets.AddRange(assetA, assetB, assetC);
+        context.AssetLinks.AddRange(linkAB, linkBA, linkCA, linkAC);
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var statisticsLocalEf = new StatisticsLocalEF(serviceProvider);
+
+        var result = await statisticsLocalEf.GetProjectStatistics();
+
+        Assert.Equal(1, result.TotalOutOfSyncLinks);
     }
 }

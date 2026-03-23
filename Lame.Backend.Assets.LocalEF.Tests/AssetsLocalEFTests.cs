@@ -1,6 +1,7 @@
 ﻿using Lame.Backend.EntityFramework;
 using Lame.Backend.EntityFramework.Models;
 using Lame.Backend.EntityFramework.Tests;
+using Lame.Backend.EntityFramework.Tests.EntityBuilders;
 using Lame.DomainModel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -290,12 +291,13 @@ public class AssetsLocalEFTests
             new() { Id = Guid.NewGuid(), InternalName = "asset_c", Status = AssetStatus.Active }
         };
 
-        assets[0].LinkedContent = new List<AssetEntity> { assets[1], assets[2] };
-        assets[1].LinkedContent = new List<AssetEntity> { assets[0] };
-        assets[2].LinkedContent = new List<AssetEntity> { assets[0] };
+        var link01 = new AssetLinkEntityBuilder(assets[0], assets[1]).Build();
+        var link02 = new AssetLinkEntityBuilder(assets[0], assets[2]).Build();
+        var link10 = new AssetLinkEntityBuilder(assets[1], assets[0]).Build();
+        var link20 = new AssetLinkEntityBuilder(assets[2], assets[0]).Build();
 
         context.Assets.AddRange(assets);
-
+        context.AssetLinks.AddRange(link01, link02, link10, link20);
         await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var serviceProvider = new ServiceCollection()
@@ -327,11 +329,13 @@ public class AssetsLocalEFTests
             new() { Id = Guid.NewGuid(), InternalName = "asset_c", Status = AssetStatus.Deleted }
         };
 
-        assets[0].LinkedContent = new List<AssetEntity> { assets[1], assets[2] };
-        assets[1].LinkedContent = new List<AssetEntity> { assets[0] };
-        assets[2].LinkedContent = new List<AssetEntity> { assets[0] };
+        var link01 = new AssetLinkEntityBuilder(assets[0], assets[1]).Build();
+        var link02 = new AssetLinkEntityBuilder(assets[0], assets[2]).Build();
+        var link10 = new AssetLinkEntityBuilder(assets[1], assets[0]).Build();
+        var link20 = new AssetLinkEntityBuilder(assets[2], assets[0]).Build();
 
         context.Assets.AddRange(assets);
+        context.AssetLinks.AddRange(link01, link02, link10, link20);
 
         await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -347,261 +351,6 @@ public class AssetsLocalEFTests
         // Assert
         Assert.Single(result);
         Assert.Equal(assets[1].Id, result[0].Id);
-    }
-
-    [Fact]
-    public async Task LinkAssets_BothAssetsExist_LinksAssets()
-    {
-        // Arrange
-        var dbName = Guid.NewGuid().ToString();
-        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
-
-        var assets = new List<AssetEntity>
-        {
-            new() { Id = Guid.NewGuid(), InternalName = "asset_a", Status = AssetStatus.Active },
-            new() { Id = Guid.NewGuid(), InternalName = "asset_b", Status = AssetStatus.Active }
-        };
-
-        context.Assets.AddRange(assets);
-
-        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        var serviceProvider = new ServiceCollection()
-            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
-            .BuildServiceProvider();
-
-        var assetsLocalEf = new AssetsLocalEf(serviceProvider);
-
-        // Act
-        await assetsLocalEf.LinkAssets(assets[0].Id, assets[1].Id);
-
-        // Assert
-        await using var assertContext = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
-
-        var resultA = await assertContext.Assets
-            .Include(a => a.LinkedContent)
-            .FirstAsync(a => a.Id == assets[0].Id, TestContext.Current.CancellationToken);
-
-        var resultB = await assertContext.Assets
-            .Include(a => a.LinkedContent)
-            .FirstAsync(a => a.Id == assets[1].Id, TestContext.Current.CancellationToken);
-
-        Assert.Contains(resultA.LinkedContent, x => x.Id == assets[1].Id);
-        Assert.Contains(resultB.LinkedContent, x => x.Id == assets[0].Id);
-    }
-
-    [Fact]
-    public async Task LinkAssets_AssetAExistsOnly_NoLinksCreated()
-    {
-        // Arrange
-        var dbName = Guid.NewGuid().ToString();
-        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
-
-        var assets = new List<AssetEntity>
-        {
-            new() { Id = Guid.NewGuid(), InternalName = "asset_a", Status = AssetStatus.Active },
-            new() { Id = Guid.NewGuid(), InternalName = "asset_b", Status = AssetStatus.Active }
-        };
-
-        context.Assets.AddRange(assets);
-
-        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        var serviceProvider = new ServiceCollection()
-            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
-            .BuildServiceProvider();
-
-        var assetsLocalEf = new AssetsLocalEf(serviceProvider);
-
-        // Act
-        await assetsLocalEf.LinkAssets(assets[0].Id, Guid.NewGuid());
-
-        // Assert
-        await using var assertContext = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
-
-        var resultA = await assertContext.Assets
-            .Include(a => a.LinkedContent)
-            .FirstAsync(a => a.Id == assets[0].Id, TestContext.Current.CancellationToken);
-
-        var resultB = await assertContext.Assets
-            .Include(a => a.LinkedContent)
-            .FirstAsync(a => a.Id == assets[1].Id, TestContext.Current.CancellationToken);
-
-        Assert.Empty(resultA.LinkedContent);
-        Assert.Empty(resultB.LinkedContent);
-    }
-
-    [Fact]
-    public async Task LinkAssets_AssetBExistsOnly_NoLinksCreated()
-    {
-        // Arrange
-        var dbName = Guid.NewGuid().ToString();
-        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
-
-        var assets = new List<AssetEntity>
-        {
-            new() { Id = Guid.NewGuid(), InternalName = "asset_a", Status = AssetStatus.Active },
-            new() { Id = Guid.NewGuid(), InternalName = "asset_b", Status = AssetStatus.Active }
-        };
-
-        context.Assets.AddRange(assets);
-
-        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        var serviceProvider = new ServiceCollection()
-            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
-            .BuildServiceProvider();
-
-        var assetsLocalEf = new AssetsLocalEf(serviceProvider);
-
-        // Act
-        await assetsLocalEf.LinkAssets(Guid.NewGuid(), assets[1].Id);
-
-        // Assert
-        await using var assertContext = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
-
-        var resultA = await assertContext.Assets
-            .Include(a => a.LinkedContent)
-            .FirstAsync(a => a.Id == assets[0].Id, TestContext.Current.CancellationToken);
-
-        var resultB = await assertContext.Assets
-            .Include(a => a.LinkedContent)
-            .FirstAsync(a => a.Id == assets[1].Id, TestContext.Current.CancellationToken);
-
-        Assert.Empty(resultA.LinkedContent);
-        Assert.Empty(resultB.LinkedContent);
-    }
-
-    [Fact]
-    public async Task UnLinkAssets_BothAssetsExist_UnLinksAssets()
-    {
-        // Arrange
-        var dbName = Guid.NewGuid().ToString();
-        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
-
-        var assets = new List<AssetEntity>
-        {
-            new() { Id = Guid.NewGuid(), InternalName = "asset_a", Status = AssetStatus.Active },
-            new() { Id = Guid.NewGuid(), InternalName = "asset_b", Status = AssetStatus.Active }
-        };
-
-        assets[0].LinkedContent = new List<AssetEntity> { assets[1] };
-        assets[1].LinkedContent = new List<AssetEntity> { assets[0] };
-
-        context.Assets.AddRange(assets);
-
-        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        var serviceProvider = new ServiceCollection()
-            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
-            .BuildServiceProvider();
-
-        var assetsLocalEf = new AssetsLocalEf(serviceProvider);
-
-        // Act
-        await assetsLocalEf.UnLinkAssets(assets[0].Id, assets[1].Id);
-
-        // Assert
-        await using var assertContext = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
-
-        var resultA = await assertContext.Assets
-            .Include(a => a.LinkedContent)
-            .FirstAsync(a => a.Id == assets[0].Id, TestContext.Current.CancellationToken);
-
-        var resultB = await assertContext.Assets
-            .Include(a => a.LinkedContent)
-            .FirstAsync(a => a.Id == assets[1].Id, TestContext.Current.CancellationToken);
-
-        Assert.Empty(resultA.LinkedContent);
-        Assert.Empty(resultB.LinkedContent);
-    }
-
-    [Fact]
-    public async Task UnLinkAssets_AssetAExistsOnly_LinksUnchanged()
-    {
-        // Arrange
-        var dbName = Guid.NewGuid().ToString();
-        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
-
-        var assets = new List<AssetEntity>
-        {
-            new() { Id = Guid.NewGuid(), InternalName = "asset_a", Status = AssetStatus.Active },
-            new() { Id = Guid.NewGuid(), InternalName = "asset_b", Status = AssetStatus.Active }
-        };
-
-        assets[0].LinkedContent = new List<AssetEntity> { assets[1] };
-        assets[1].LinkedContent = new List<AssetEntity> { assets[0] };
-
-        context.Assets.AddRange(assets);
-
-        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        var serviceProvider = new ServiceCollection()
-            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
-            .BuildServiceProvider();
-
-        var assetsLocalEf = new AssetsLocalEf(serviceProvider);
-
-        // Act
-        await assetsLocalEf.UnLinkAssets(assets[0].Id, Guid.NewGuid());
-
-        // Assert
-        await using var assertContext = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
-
-        var resultA = await assertContext.Assets
-            .Include(a => a.LinkedContent)
-            .FirstAsync(a => a.Id == assets[0].Id, TestContext.Current.CancellationToken);
-
-        var resultB = await assertContext.Assets
-            .Include(a => a.LinkedContent)
-            .FirstAsync(a => a.Id == assets[1].Id, TestContext.Current.CancellationToken);
-
-        Assert.Contains(resultA.LinkedContent, x => x.Id == assets[1].Id);
-        Assert.Contains(resultB.LinkedContent, x => x.Id == assets[0].Id);
-    }
-
-    [Fact]
-    public async Task UnLinkAssets_AssetBExistsOnly_LinksUnchanged()
-    {
-        // Arrange
-        var dbName = Guid.NewGuid().ToString();
-        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
-
-        var assets = new List<AssetEntity>
-        {
-            new() { Id = Guid.NewGuid(), InternalName = "asset_a", Status = AssetStatus.Active },
-            new() { Id = Guid.NewGuid(), InternalName = "asset_b", Status = AssetStatus.Active }
-        };
-
-        assets[0].LinkedContent = new List<AssetEntity> { assets[1] };
-        assets[1].LinkedContent = new List<AssetEntity> { assets[0] };
-
-        context.Assets.AddRange(assets);
-
-        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        var serviceProvider = new ServiceCollection()
-            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
-            .BuildServiceProvider();
-
-        var assetsLocalEf = new AssetsLocalEf(serviceProvider);
-
-        // Act
-        await assetsLocalEf.UnLinkAssets(Guid.NewGuid(), assets[1].Id);
-
-        // Assert
-        await using var assertContext = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
-
-        var resultA = await assertContext.Assets
-            .Include(a => a.LinkedContent)
-            .FirstAsync(a => a.Id == assets[0].Id, TestContext.Current.CancellationToken);
-
-        var resultB = await assertContext.Assets
-            .Include(a => a.LinkedContent)
-            .FirstAsync(a => a.Id == assets[1].Id, TestContext.Current.CancellationToken);
-
-        Assert.Contains(resultA.LinkedContent, x => x.Id == assets[1].Id);
-        Assert.Contains(resultB.LinkedContent, x => x.Id == assets[0].Id);
     }
 
     [Fact]
@@ -745,5 +494,87 @@ public class AssetsLocalEFTests
             .FirstAsync(a => a.Id == assets[0].Id, TestContext.Current.CancellationToken);
 
         Assert.Equal(AssetStatus.Active, resultA.Status);
+    }
+
+    [Fact]
+    public async Task Get_WithMultipleIds_ReturnsMatchingAssets()
+    {
+        // Arrange
+        var dbName = Guid.NewGuid().ToString();
+        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var assets = new List<AssetEntity>
+        {
+            new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build(),
+            new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build(),
+            new AssetEntityBuilder().WithStatus(AssetStatus.Deleted).Build()
+        };
+
+        context.Assets.AddRange(assets);
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var assetsLocalEf = new AssetsLocalEf(serviceProvider);
+
+        var ids = new List<Guid> { assets[0].Id, assets[2].Id };
+
+        var result = await assetsLocalEf.Get(ids);
+
+        Assert.Equal(2, result.Count);
+        Assert.Contains(result, a => a.Id == assets[0].Id);
+        Assert.Contains(result, a => a.Id == assets[2].Id);
+    }
+
+    [Fact]
+    public async Task Get_WithEmptyIdList_ReturnsEmptyList()
+    {
+        var dbName = Guid.NewGuid().ToString();
+        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var assets = new List<AssetEntity>
+        {
+            new() { Id = Guid.NewGuid(), InternalName = "asset_a", Status = AssetStatus.Active }
+        };
+
+        context.Assets.AddRange(assets);
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var assetsLocalEf = new AssetsLocalEf(serviceProvider);
+
+        var result = await assetsLocalEf.Get(new List<Guid>());
+
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task Get_WithNonExistentIds_ReturnsEmptyList()
+    {
+        var dbName = Guid.NewGuid().ToString();
+        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var assets = new List<AssetEntity>
+        {
+            new() { Id = Guid.NewGuid(), InternalName = "asset_a", Status = AssetStatus.Active }
+        };
+
+        context.Assets.AddRange(assets);
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var assetsLocalEf = new AssetsLocalEf(serviceProvider);
+
+        var result = await assetsLocalEf.Get(new List<Guid> { Guid.NewGuid(), Guid.NewGuid() });
+
+        Assert.Empty(result);
     }
 }

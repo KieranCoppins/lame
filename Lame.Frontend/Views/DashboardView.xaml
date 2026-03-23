@@ -7,251 +7,268 @@
              mc:Ignorable="d"
              d:DesignHeight="1080" d:DesignWidth="720"
              d:DataContext="{d:DesignInstance Type=viewModels:DashboardViewModel}">
-    <Grid Margin="32">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
 
-        <StackPanel>
-            <StackPanel Style="{StaticResource SectionStyle}">
-                <TextBlock Text="Dashboard"
-                           Style="{StaticResource Header1}" />
-                <TextBlock Text="Overview of your localization project"
-                           Style="{StaticResource Subtitle}"
-                           Margin="0" />
-            </StackPanel>
+    <ScrollViewer
+        VerticalScrollBarVisibility="Auto"
+        Background="{StaticResource Brush.LightestGrey}">
+        <Grid Margin="32">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
 
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
+            <StackPanel>
+                <StackPanel Style="{StaticResource SectionStyle}">
+                    <TextBlock Text="Dashboard"
+                               Style="{StaticResource Header1}" />
+                    <TextBlock Text="Overview of your localization project"
+                               Style="{StaticResource Subtitle}"
+                               Margin="0" />
+                </StackPanel>
 
-                <Border Grid.Column="0"
-                        Style="{StaticResource CardBorderStyle}">
-                    <StackPanel>
-                        <TextBlock Text="Total Assets"
-                                   Style="{StaticResource Subtitle}"
-                                   Margin="0" />
-                        <TextBlock Text="{Binding ProjectStatistics.TotalAssets}"
-                                   Style="{StaticResource Header1}" />
-                    </StackPanel>
-                </Border>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="1"
-                        Style="{StaticResource CardBorderStyle}">
-                    <StackPanel>
-                        <TextBlock Text="Languages Supported"
-                                   Style="{StaticResource Subtitle}"
-                                   Margin="0" />
-                        <TextBlock Text="{Binding ProjectStatistics.TotalLanguages}"
-                                   Style="{StaticResource Header1}" />
-                    </StackPanel>
-                </Border>
+                    <Border Grid.Column="0"
+                            Style="{StaticResource CardBorderStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Total Assets"
+                                       Style="{StaticResource Subtitle}"
+                                       Margin="0" />
+                            <TextBlock Text="{Binding ProjectStatistics.TotalAssets}"
+                                       Style="{StaticResource Header1}" />
+                        </StackPanel>
+                    </Border>
 
-                <Border Grid.Column="2"
-                        Style="{StaticResource CardBorderStyle}">
-                    <StackPanel>
-                        <TextBlock Text="Missing Localizations"
-                                   Style="{StaticResource Subtitle}"
-                                   Margin="0" />
-                        <TextBlock Text="{Binding ProjectStatistics.MissingTranslations}"
-                                   Style="{StaticResource Header1}" />
-                    </StackPanel>
-                </Border>
+                    <Border Grid.Column="1"
+                            Style="{StaticResource CardBorderStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Languages Supported"
+                                       Style="{StaticResource Subtitle}"
+                                       Margin="0" />
+                            <TextBlock Text="{Binding ProjectStatistics.TotalLanguages}"
+                                       Style="{StaticResource Header1}" />
+                        </StackPanel>
+                    </Border>
 
-                <Border Grid.Column="3"
-                        Style="{StaticResource CardBorderStyle}">
-                    <StackPanel>
+                    <Border Grid.Column="2"
+                            Style="{StaticResource CardBorderStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Missing Localizations"
+                                       Style="{StaticResource Subtitle}"
+                                       Margin="0" />
+                            <TextBlock Text="{Binding ProjectStatistics.MissingTranslations}"
+                                       Style="{StaticResource Header1}" />
+                        </StackPanel>
+                    </Border>
 
-                        <FrameworkElement x:Name="CompletedPercentageReference">
-                            <FrameworkElement.Tag>
-                                <MultiBinding Converter="{StaticResource PercentageConverter}">
-                                    <Binding Path="CompletedTranslations" Mode="OneWay" />
-                                    <Binding Path="TotalTranslations" />
-                                </MultiBinding>
-                            </FrameworkElement.Tag>
-                        </FrameworkElement>
+                    <Border Grid.Column="3"
+                            Style="{StaticResource CardBorderStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Out of Sync Links"
+                                       Style="{StaticResource Subtitle}"
+                                       Margin="0" />
+                            <TextBlock Text="{Binding ProjectStatistics.TotalOutOfSyncLinks}"
+                                       Style="{StaticResource Header1}" />
+                        </StackPanel>
+                    </Border>
 
-                        <TextBlock Text="Completed"
-                                   Style="{StaticResource Subtitle}"
-                                   Margin="0" />
-                        <TextBlock Style="{StaticResource Header1}">
-                            <TextBlock.Text>
-                                <MultiBinding StringFormat="{}{0:F1}%">
-                                    <Binding Path="Tag"
-                                             ElementName="CompletedPercentageReference" />
-                                </MultiBinding>
-                            </TextBlock.Text>
-                        </TextBlock>
-                    </StackPanel>
-                </Border>
-            </Grid>
+                    <Border Grid.Column="4"
+                            Style="{StaticResource CardBorderStyle}">
+                        <StackPanel>
 
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
+                            <FrameworkElement x:Name="CompletedPercentageReference">
+                                <FrameworkElement.Tag>
+                                    <MultiBinding Converter="{StaticResource PercentageConverter}">
+                                        <Binding Path="CompletedTranslations" Mode="OneWay" />
+                                        <Binding Path="TotalTranslations" />
+                                    </MultiBinding>
+                                </FrameworkElement.Tag>
+                            </FrameworkElement>
 
-                <Border Grid.Column="0"
-                        Style="{StaticResource CardBorderStyle}">
-                    <StackPanel>
-                        <TextBlock Text="Progress by Language"
-                                   Style="{StaticResource Header2}" />
-                        <ItemsControl ItemsSource="{Binding ProjectStatistics.TranslationsByLanguage}"
-                                      Grid.IsSharedSizeScope="True">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Margin="0, 0, 0, 8">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"
-                                                                  SharedSizeGroup="Lang" />
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="Auto"
-                                                                  SharedSizeGroup="Percent" />
-                                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Completed"
+                                       Style="{StaticResource Subtitle}"
+                                       Margin="0" />
+                            <TextBlock Style="{StaticResource Header1}">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="{}{0:F1}%">
+                                        <Binding Path="Tag"
+                                                 ElementName="CompletedPercentageReference" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+                </Grid>
 
-                                            <TextBlock Grid.Column="0"
-                                                       Text="{Binding Key, Converter={StaticResource LanguageCodeToEnglishConverter}}"
-                                                       VerticalAlignment="Center"
-                                                       Style="{StaticResource Body}"
-                                                       FontSize="13"
-                                                       Margin="0" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
 
-                                            <TextBlock Grid.Column="1"
-                                                       VerticalAlignment="Center"
-                                                       HorizontalAlignment="Right"
-                                                       Style="{StaticResource Body}"
-                                                       FontSize="13"
-                                                       Foreground="{StaticResource Brush.DarkGrey}">
-                                                <TextBlock.Text>
-                                                    <MultiBinding StringFormat="{}{0}/{1}">
-                                                        <Binding Path="Value" />
-                                                        <Binding Path="DataContext.ProjectStatistics.TotalAssets"
-                                                                 RelativeSource="{ RelativeSource AncestorType=ItemsControl}" />
-                                                    </MultiBinding>
-                                                </TextBlock.Text>
-                                            </TextBlock>
+                    <Border Grid.Column="0"
+                            Style="{StaticResource CardBorderStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Progress by Language"
+                                       Style="{StaticResource Header2}" />
+                            <ItemsControl ItemsSource="{Binding ProjectStatistics.TranslationsByLanguage}"
+                                          Grid.IsSharedSizeScope="True">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="0, 0, 0, 8">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"
+                                                                      SharedSizeGroup="Lang" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto"
+                                                                      SharedSizeGroup="Percent" />
+                                                </Grid.ColumnDefinitions>
 
-                                            <FrameworkElement x:Name="LanguagePercentageReference">
-                                                <FrameworkElement.Tag>
-                                                    <MultiBinding Converter="{StaticResource PercentageConverter}">
-                                                        <Binding Path="Value" />
-                                                        <Binding Path="DataContext.ProjectStatistics.TotalAssets"
-                                                                 RelativeSource="{RelativeSource AncestorType=ItemsControl}" />
-                                                    </MultiBinding>
-                                                </FrameworkElement.Tag>
-                                            </FrameworkElement>
+                                                <TextBlock Grid.Column="0"
+                                                           Text="{Binding Key, Converter={StaticResource LanguageCodeToEnglishConverter}}"
+                                                           VerticalAlignment="Center"
+                                                           Style="{StaticResource Body}"
+                                                           FontSize="13"
+                                                           Margin="0" />
 
-                                            <TextBlock Grid.Column="2"
-                                                       VerticalAlignment="Center"
-                                                       HorizontalAlignment="Right"
-                                                       FontWeight="Bold"
-                                                       FontSize="13"
-                                                       Style="{StaticResource Body}">
-                                                <TextBlock.Text>
-                                                    <MultiBinding StringFormat="{}{0:F0}%">
-                                                        <Binding Path="Tag"
-                                                                 ElementName="LanguagePercentageReference" />
-                                                    </MultiBinding>
-                                                </TextBlock.Text>
-                                            </TextBlock>
-                                        </Grid>
-
-                                        <ProgressBar
-                                            Style="{StaticResource ProgressBarStyle}"
-                                            Value="{Binding Value, Mode=OneWay}"
-                                            Maximum="{Binding DataContext.ProjectStatistics.TotalAssets, 
-                                            RelativeSource={RelativeSource AncestorType=ItemsControl}}" />
-
-                                    </StackPanel>
-
-
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </Border>
-
-                <Border Grid.Column="1"
-                        Style="{StaticResource CardBorderStyle}">
-                    <StackPanel>
-                        <TextBlock Text="Assets by Tag"
-                                   Style="{StaticResource Header2}" />
-
-                        <ItemsControl ItemsSource="{Binding ProjectStatistics.AssetsByTag}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid Style="{StaticResource SmallSectionStyle}">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-
-                                        <Border Grid.Column="0"
-                                                Width="5"
-                                                CornerRadius="2.5"
-                                                Background="{Binding Key.Id, 
-                                                Converter={StaticResource GuidToColourConverter}}"
-                                                Margin="8, 0" />
-
-                                        <StackPanel Grid.Column="1">
-                                            <Button Style="{StaticResource ClickableText}">
-                                                <TextBlock Style="{StaticResource Link}"
-                                                           Margin="0"
-                                                           FontSize="13">
+                                                <TextBlock Grid.Column="1"
+                                                           VerticalAlignment="Center"
+                                                           HorizontalAlignment="Right"
+                                                           Style="{StaticResource Body}"
+                                                           FontSize="13"
+                                                           Foreground="{StaticResource Brush.DarkGrey}">
                                                     <TextBlock.Text>
-                                                        <MultiBinding StringFormat="{}#{0}">
-                                                            <Binding Path="Key.Name" />
+                                                        <MultiBinding StringFormat="{}{0}/{1}">
+                                                            <Binding Path="Value" />
+                                                            <Binding Path="DataContext.ProjectStatistics.TotalAssets"
+                                                                     RelativeSource="{ RelativeSource AncestorType=ItemsControl}" />
                                                         </MultiBinding>
                                                     </TextBlock.Text>
                                                 </TextBlock>
-                                            </Button>
 
-                                            <FrameworkElement x:Name="TagPercentageReference">
-                                                <FrameworkElement.Tag>
-                                                    <MultiBinding Converter="{StaticResource PercentageConverter}">
-                                                        <Binding Path="Value" Mode="OneWay" />
-                                                        <Binding
-                                                            Path="DataContext.ProjectStatistics.TotalAssets"
-                                                            RelativeSource="{RelativeSource AncestorType=ItemsControl}"
-                                                            Mode="OneWay" />
-                                                        <Binding Source="1" Mode="OneWay" />
-                                                    </MultiBinding>
-                                                </FrameworkElement.Tag>
-                                            </FrameworkElement>
+                                                <FrameworkElement x:Name="LanguagePercentageReference">
+                                                    <FrameworkElement.Tag>
+                                                        <MultiBinding Converter="{StaticResource PercentageConverter}">
+                                                            <Binding Path="Value" />
+                                                            <Binding Path="DataContext.ProjectStatistics.TotalAssets"
+                                                                     RelativeSource="{RelativeSource AncestorType=ItemsControl}" />
+                                                        </MultiBinding>
+                                                    </FrameworkElement.Tag>
+                                                </FrameworkElement>
 
-                                            <TextBlock Style="{StaticResource Subtitle}"
-                                                       Margin="0"
-                                                       FontSize="11">
-                                                <TextBlock.Text>
-                                                    <MultiBinding StringFormat="{}{0:F1}% of assets">
-                                                        <Binding Path="Tag"
-                                                                 ElementName="TagPercentageReference" />
-                                                    </MultiBinding>
-                                                </TextBlock.Text>
-                                            </TextBlock>
+                                                <TextBlock Grid.Column="2"
+                                                           VerticalAlignment="Center"
+                                                           HorizontalAlignment="Right"
+                                                           FontWeight="Bold"
+                                                           FontSize="13"
+                                                           Style="{StaticResource Body}">
+                                                    <TextBlock.Text>
+                                                        <MultiBinding StringFormat="{}{0:F0}%">
+                                                            <Binding Path="Tag"
+                                                                     ElementName="LanguagePercentageReference" />
+                                                        </MultiBinding>
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+                                            </Grid>
+
+                                            <ProgressBar
+                                                Style="{StaticResource ProgressBarStyle}"
+                                                Value="{Binding Value, Mode=OneWay}"
+                                                Maximum="{Binding DataContext.ProjectStatistics.TotalAssets, 
+                                            RelativeSource={RelativeSource AncestorType=ItemsControl}}" />
+
                                         </StackPanel>
 
-                                        <TextBlock Grid.Column="2"
-                                                   Text="{Binding Value}"
-                                                   HorizontalAlignment="Right"
-                                                   VerticalAlignment="Center"
-                                                   Style="{StaticResource Header2}"
-                                                   Margin="0" />
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
 
-                    </StackPanel>
-                </Border>
-            </Grid>
-        </StackPanel>
-    </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="1"
+                            Style="{StaticResource CardBorderStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Assets by Tag"
+                                       Style="{StaticResource Header2}" />
+
+                            <ItemsControl ItemsSource="{Binding ProjectStatistics.AssetsByTag}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Style="{StaticResource SmallSectionStyle}">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <Border Grid.Column="0"
+                                                    Width="5"
+                                                    CornerRadius="2.5"
+                                                    Background="{Binding Key.Id, 
+                                                Converter={StaticResource GuidToColourConverter}}"
+                                                    Margin="8, 0" />
+
+                                            <StackPanel Grid.Column="1">
+                                                <Button Style="{StaticResource ClickableText}">
+                                                    <TextBlock Style="{StaticResource Link}"
+                                                               Margin="0"
+                                                               FontSize="13">
+                                                        <TextBlock.Text>
+                                                            <MultiBinding StringFormat="{}#{0}">
+                                                                <Binding Path="Key.Name" />
+                                                            </MultiBinding>
+                                                        </TextBlock.Text>
+                                                    </TextBlock>
+                                                </Button>
+
+                                                <FrameworkElement x:Name="TagPercentageReference">
+                                                    <FrameworkElement.Tag>
+                                                        <MultiBinding Converter="{StaticResource PercentageConverter}">
+                                                            <Binding Path="Value" Mode="OneWay" />
+                                                            <Binding
+                                                                Path="DataContext.ProjectStatistics.TotalAssets"
+                                                                RelativeSource="{RelativeSource AncestorType=ItemsControl}"
+                                                                Mode="OneWay" />
+                                                            <Binding Source="1" Mode="OneWay" />
+                                                        </MultiBinding>
+                                                    </FrameworkElement.Tag>
+                                                </FrameworkElement>
+
+                                                <TextBlock Style="{StaticResource Subtitle}"
+                                                           Margin="0"
+                                                           FontSize="11">
+                                                    <TextBlock.Text>
+                                                        <MultiBinding StringFormat="{}{0:F1}% of assets">
+                                                            <Binding Path="Tag"
+                                                                     ElementName="TagPercentageReference" />
+                                                        </MultiBinding>
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+                                            </StackPanel>
+
+                                            <TextBlock Grid.Column="2"
+                                                       Text="{Binding Value}"
+                                                       HorizontalAlignment="Right"
+                                                       VerticalAlignment="Center"
+                                                       Style="{StaticResource Header2}"
+                                                       Margin="0" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
 </UserControl>

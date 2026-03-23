@@ -9,99 +9,104 @@
              mc:Ignorable="d"
              d:DesignHeight="1080" d:DesignWidth="950"
              d:DataContext="{d:DesignInstance viewModels:ExportViewModel}">
-    <Grid Margin="32"
-          MaxWidth="750"
-          HorizontalAlignment="Left">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
 
-        <StackPanel>
-            <StackPanel Style="{StaticResource SectionStyle}">
-                <TextBlock Text="Export"
-                           Style="{StaticResource Header1}" />
-                <TextBlock
-                    Text="Configure your export settings and download localization data in XLIFF or JSON format."
-                    Style="{StaticResource Subtitle}" />
+    <ScrollViewer
+        VerticalScrollBarVisibility="Auto"
+        Background="{StaticResource Brush.LightestGrey}">
+        <Grid Margin="32"
+              MaxWidth="750"
+              HorizontalAlignment="Left">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
 
-            </StackPanel>
-
-            <Border Style="{StaticResource CardBorderStyle}">
-                <StackPanel>
+            <StackPanel>
+                <StackPanel Style="{StaticResource SectionStyle}">
+                    <TextBlock Text="Export"
+                               Style="{StaticResource Header1}" />
                     <TextBlock
-                        Text="Export Tag Filters"
-                        Style="{StaticResource Header2}" />
+                        Text="Configure your export settings and download localization data in XLIFF or JSON format."
+                        Style="{StaticResource Subtitle}" />
 
-                    <controls:TagsContainer
-                        Tags="{Binding Tags}"
-                        GetTags="{Binding GetTags}"
-                        Margin="0, 8" />
+                </StackPanel>
+
+                <Border Style="{StaticResource CardBorderStyle}">
+                    <StackPanel>
+                        <TextBlock
+                            Text="Export Tag Filters"
+                            Style="{StaticResource Header2}" />
+
+                        <controls:TagsContainer
+                            Tags="{Binding Tags}"
+                            GetTags="{Binding GetTags}"
+                            Margin="0, 8" />
 
 
-                    <controls:DescriptiveRadioButton
-                        IsChecked="{Binding SelectedExportTagFilter, 
+                        <controls:DescriptiveRadioButton
+                            IsChecked="{Binding SelectedExportTagFilter, 
                                                          Converter={StaticResource EnumToBooleanConverter}, 
                                                          ConverterParameter={x:Static domainModel:ExportTagFilterType.Any}}"
 
-                        Command="{Binding SetSelectedExportTagFilterTypeCommand}"
-                        CommandParameter="{x:Static domainModel:ExportTagFilterType.Any}"
+                            Command="{Binding SetSelectedExportTagFilterTypeCommand}"
+                            CommandParameter="{x:Static domainModel:ExportTagFilterType.Any}"
 
-                        TitleText="Any Tags"
-                        BodyText="Exports assets with all of the tags provided" />
+                            TitleText="Any Tags"
+                            BodyText="Exports assets with all of the tags provided" />
 
-                    <controls:DescriptiveRadioButton
-                        IsChecked="{Binding SelectedExportTagFilter, 
+                        <controls:DescriptiveRadioButton
+                            IsChecked="{Binding SelectedExportTagFilter, 
                                                          Converter={StaticResource EnumToBooleanConverter}, 
                                                          ConverterParameter={x:Static domainModel:ExportTagFilterType.All}}"
 
-                        Command="{Binding SetSelectedExportTagFilterTypeCommand}"
-                        CommandParameter="{x:Static domainModel:ExportTagFilterType.All}"
+                            Command="{Binding SetSelectedExportTagFilterTypeCommand}"
+                            CommandParameter="{x:Static domainModel:ExportTagFilterType.All}"
 
-                        TitleText="All Tags"
-                        BodyText="Exports assets with any of the tags provided" />
+                            TitleText="All Tags"
+                            BodyText="Exports assets with any of the tags provided" />
 
-                    <controls:DescriptiveRadioButton
-                        IsChecked="{Binding SelectedExportTagFilter, 
+                        <controls:DescriptiveRadioButton
+                            IsChecked="{Binding SelectedExportTagFilter, 
                                                          Converter={StaticResource EnumToBooleanConverter}, 
                                                          ConverterParameter={x:Static domainModel:ExportTagFilterType.Only}}"
 
-                        Command="{Binding SetSelectedExportTagFilterTypeCommand}"
-                        CommandParameter="{x:Static domainModel:ExportTagFilterType.Only}"
+                            Command="{Binding SetSelectedExportTagFilterTypeCommand}"
+                            CommandParameter="{x:Static domainModel:ExportTagFilterType.Only}"
 
-                        TitleText="Only Tags"
-                        BodyText="Exports assets with only the tags provided, and no other tags" />
-                </StackPanel>
-            </Border>
+                            TitleText="Only Tags"
+                            BodyText="Exports assets with only the tags provided, and no other tags" />
+                    </StackPanel>
+                </Border>
 
-            <Border Style="{StaticResource CardBorderStyle}">
-                <StackPanel>
-                    <TextBlock Text="Export File Type"
-                               Style="{StaticResource Header2}" />
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource CardBorderStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Export File Type"
+                                   Style="{StaticResource Header2}" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
 
 
-                        <controls:DescriptiveRadioButton Grid.Column="0"
-                                                         IsChecked="{Binding SelectedExportFormat, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static domainModel:ExportFormatType.XLIFF}}"
-                                                         Command="{Binding SetSelectedExportFormatCommand}"
-                                                         CommandParameter="{x:Static domainModel:ExportFormatType.XLIFF}"
-                                                         TitleText="XLIFF"
-                                                         BodyText="XML Localization Interchange File Format" />
+                            <controls:DescriptiveRadioButton Grid.Column="0"
+                                                             IsChecked="{Binding SelectedExportFormat, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static domainModel:ExportFormatType.XLIFF}}"
+                                                             Command="{Binding SetSelectedExportFormatCommand}"
+                                                             CommandParameter="{x:Static domainModel:ExportFormatType.XLIFF}"
+                                                             TitleText="XLIFF"
+                                                             BodyText="XML Localization Interchange File Format" />
 
-                        <controls:DescriptiveRadioButton Grid.Column="1"
-                                                         IsChecked="{Binding SelectedExportFormat, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static domainModel:ExportFormatType.JSON}}"
-                                                         Command="{Binding SetSelectedExportFormatCommand}"
-                                                         CommandParameter="{x:Static domainModel:ExportFormatType.JSON}"
-                                                         TitleText="JSON"
-                                                         BodyText="JavaScript Object Notation" />
-                    </Grid>
+                            <controls:DescriptiveRadioButton Grid.Column="1"
+                                                             IsChecked="{Binding SelectedExportFormat, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static domainModel:ExportFormatType.JSON}}"
+                                                             Command="{Binding SetSelectedExportFormatCommand}"
+                                                             CommandParameter="{x:Static domainModel:ExportFormatType.JSON}"
+                                                             TitleText="JSON"
+                                                             BodyText="JavaScript Object Notation" />
+                        </Grid>
 
-                    <ContentControl Content="{Binding ExportFormatView}" />
-                </StackPanel>
-            </Border>
-        </StackPanel>
-    </Grid>
+                        <ContentControl Content="{Binding ExportFormatView}" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
 </UserControl>

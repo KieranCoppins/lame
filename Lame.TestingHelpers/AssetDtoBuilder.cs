@@ -17,7 +17,8 @@ public class AssetDtoBuilder
             CreatedAt = DateTime.UtcNow - TimeSpan.FromDays(1),
             LastUpdatedAt = DateTime.UtcNow,
             NumTranslations = 1,
-            Status = AssetStatus.Active
+            Status = AssetStatus.Active,
+            AssetLinks = []
         };
     }
 
@@ -71,6 +72,18 @@ public class AssetDtoBuilder
     public AssetDtoBuilder WithStatus(AssetStatus status)
     {
         _assetDto.Status = status;
+        return this;
+    }
+
+    public AssetDtoBuilder AddLinkedAsset(AssetDto linkedAsset)
+    {
+        var link = new AssetLink
+        {
+            AssetEntityId = _assetDto.Id,
+            LinkedContentId = linkedAsset.Id
+        };
+
+        _assetDto.AssetLinks.Add(link);
         return this;
     }
 }
