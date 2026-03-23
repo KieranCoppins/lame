@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Windows.Input;
 using Lame.Backend.AssetLinks;
 using Lame.Backend.Assets;
@@ -110,10 +111,16 @@ public class CreateAssetViewModel : PageViewModel
         set
         {
             SetField(ref field, value);
+
             if (string.IsNullOrWhiteSpace(value))
                 AddError("Content is required.");
             else
                 ClearError();
+
+            if (SelectedAssetType == AssetType.Audio &&
+                !string.IsNullOrWhiteSpace(value) &&
+                string.IsNullOrWhiteSpace(InternalName))
+                InternalName = Path.GetFileNameWithoutExtension(value);
         }
     } = string.Empty;
 
