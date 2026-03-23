@@ -217,7 +217,9 @@
                                                     Margin="8, 0" />
 
                                             <StackPanel Grid.Column="1">
-                                                <Button Style="{StaticResource ClickableText}">
+                                                <Button Style="{StaticResource ClickableText}"
+                                                        Command="{Binding DataContext.SearchTagCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding Key}">
                                                     <TextBlock Style="{StaticResource Link}"
                                                                Margin="0"
                                                                FontSize="13">

@@ -20,7 +20,8 @@ public class AssetLibraryViewModel : PageViewModel
         IAssets assets,
         INavigationService navigationService,
         ILanguages languagesService,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        string? searchQuery = null)
     {
         _assets = assets;
         _navigationService = navigationService;
@@ -31,6 +32,9 @@ public class AssetLibraryViewModel : PageViewModel
 
         ViewAssetDetailsCommand = new RelayCommand<AssetDto>(OnViewAssetDetails);
         Page = AppPage.Library;
+
+        if (searchQuery != null)
+            SearchQuery = searchQuery;
     }
 
     public Task? SearchQueryTask { get; private set; }

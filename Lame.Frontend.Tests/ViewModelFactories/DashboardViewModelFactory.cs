@@ -1,4 +1,5 @@
 ﻿using Lame.Backend.Statistics;
+using Lame.Frontend.Services;
 using Lame.Frontend.ViewModels;
 using Moq;
 
@@ -7,10 +8,12 @@ namespace Lame.Frontend.Tests.ViewModelFactories;
 public class DashboardViewModelFactory
 {
     public static DashboardViewModel Create(
-        IStatistics? statisticsService = null)
+        IStatistics? statisticsService = null,
+        INavigationService? navigationService = null)
     {
         return new DashboardViewModel(
-            statisticsService ?? new Mock<IStatistics>().Object
+            statisticsService ?? new Mock<IStatistics>().Object,
+            navigationService ?? new Mock<INavigationService>().Object
         );
     }
 }
