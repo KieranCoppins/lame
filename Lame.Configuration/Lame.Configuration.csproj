@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Lame.Backend.EntityFramework\Lame.Backend.EntityFramework.csproj"/>
         <ProjectReference Include="..\Lame.DomainModel\Lame.DomainModel.csproj"/>
     </ItemGroup>
 

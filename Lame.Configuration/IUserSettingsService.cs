@@ -6,4 +6,6 @@ public interface IUserSettingsService
 {
     UserSettings UserSettings { get; }
     void Save();
+
+    string SetBaseDirectory(string newDirectory);
 }

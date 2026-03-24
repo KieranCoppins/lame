@@ -13,21 +13,33 @@ public class SettingsViewModel : PageViewModel
 {
     private readonly IDialogService _dialogService;
     private readonly ILanguages _languagesService;
+    private readonly IUserSettingsService _userSettingsService;
 
-    public SettingsViewModel(IDialogService dialogService,
-        ILanguages languagesService)
+    public SettingsViewModel(
+        IDialogService dialogService,
+        ILanguages languagesService,
+        IUserSettingsService userSettingsService)
     {
         _dialogService = dialogService;
         _languagesService = languagesService;
+        _userSettingsService = userSettingsService;
 
         Page = AppPage.Settings;
         SupportedLanguages = [];
 
         OpenAddLanguageDialogCommand =
             new RelayCommand(() => _dialogService.ShowDialog<AddSupportedLanguageDialogViewModel>());
+
+        AppBaseDirectory = _userSettingsService.UserSettings.BaseDirectory;
     }
 
     public ICommand OpenAddLanguageDialogCommand { get; }
+
+    public string AppBaseDirectory
+    {
+        get;
+        set => SetField(ref field, _userSettingsService.SetBaseDirectory(value));
+    }
 
     public ObservableCollection<Language> SupportedLanguages { get; }
 

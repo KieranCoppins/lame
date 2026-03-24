@@ -9,12 +9,14 @@ public class SettingsViewModelFactory
 {
     public static SettingsViewModel Create(
         IDialogService? dialogService = null,
-        ILanguages? languagesService = null
+        ILanguages? languagesService = null,
+        IUserSettingsService? userSettingsService = null
     )
     {
         return new SettingsViewModel(
             dialogService ?? new Mock<IDialogService>().Object,
-            languagesService ?? new Mock<ILanguages>().Object
+            languagesService ?? new Mock<ILanguages>().Object,
+            userSettingsService ?? new Mock<IUserSettingsService>().Object
         );
     }
 }
