@@ -1,5 +1,6 @@
 ﻿using Lame.Backend.Languages;
 using Lame.DomainModel;
+using Lame.Frontend.Models;
 using Lame.Frontend.Services;
 using Lame.Frontend.Tests.ViewModelFactories;
 using Lame.Frontend.ViewModels.Dialogs;
@@ -45,5 +46,22 @@ public class SettingsViewModelTests
 
         // Assert
         dialogService.Verify(x => x.ShowDialog<AddSupportedLanguageDialogViewModel>(), Times.Once);
+    }
+
+    [Fact]
+    public void AppBaseDirectory_WhenSet_ShouldCallUserSettingsService()
+    {
+        // Arrange
+        var userSettingsService = new Mock<IUserSettingsService>();
+        userSettingsService.Setup(x => x.UserSettings)
+            .Returns(new UserSettings { BaseDirectory = "Initial Directory" });
+
+        var vm = SettingsViewModelFactory.Create(userSettingsService: userSettingsService.Object);
+
+        // Act
+        vm.AppBaseDirectory = "Some Directory";
+
+        // Assert
+        userSettingsService.Verify(x => x.SetBaseDirectory("Some Directory"), Times.Once);
     }
 }

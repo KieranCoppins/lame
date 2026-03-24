@@ -34,6 +34,7 @@
         <ProjectReference Include="..\Lame.Backend.Tags\Lame.Backend.Tags.csproj"/>
         <ProjectReference Include="..\Lame.Backend.Translations.LocalEF\Lame.Backend.Translations.LocalEF.csproj"/>
         <ProjectReference Include="..\Lame.Backend.Translations\Lame.Backend.Translations.csproj"/>
+        <ProjectReference Include="..\Lame.Configuration\Lame.Configuration.csproj"/>
         <ProjectReference Include="..\Lame.DomainModel\Lame.DomainModel.csproj"/>
         <ProjectReference Include="..\Lame.TestingHelpers\Lame.TestingHelpers.csproj"/>
     </ItemGroup>
@@ -54,6 +55,7 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.3"/>
         <PackageReference Include="Panlingo.LanguageCode" Version="0.7.2"/>
+        <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1"/>
     </ItemGroup>
 
 </Project>

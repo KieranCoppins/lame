@@ -92,12 +92,4 @@ public class AppDbContext : DbContext
             .HasForeignKey(t => t.TranslationId)
             .OnDelete(DeleteBehavior.Cascade);
     }
-
-    public static string GetConnectionString()
-    {
-        var documentsFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-        var lameFolder = Path.Combine(documentsFolder, "LAME");
-        Directory.CreateDirectory(lameFolder);
-        return Path.Combine(lameFolder, "local.db");
-    }
 }
