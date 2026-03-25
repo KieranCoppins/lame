@@ -89,6 +89,7 @@
             <converters:DateConverter x:Key="DateConverter" />
             <converters:RelativeTimeConverter x:Key="RelativeTimeConverter" />
             <converters:TabToSpaceConverter x:Key="TabToSpaceConverter" />
+            <converters:EqualityConverter x:Key="EqualityConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

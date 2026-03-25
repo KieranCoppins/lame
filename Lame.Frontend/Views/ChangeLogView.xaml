@@ -4,8 +4,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:controls="clr-namespace:Lame.Frontend.Controls"
+             xmlns:viewModels="clr-namespace:Lame.Frontend.ViewModels"
              mc:Ignorable="d"
-             d:DesignHeight="1920" d:DesignWidth="1080">
+             d:DesignHeight="1920" d:DesignWidth="1080"
+             d:DataContext="{d:DesignInstance viewModels:ChangeLogViewModel}">
     <ScrollViewer
         VerticalScrollBarVisibility="Auto"
         Background="{StaticResource Brush.LightestGrey}">
@@ -25,7 +27,50 @@
                 </StackPanel>
 
                 <Border Style="{StaticResource CardBorderStyle}">
-                    <controls:ChangeLogControl />
+                    <StackPanel>
+                        <controls:ChangeLogControl Entries="{Binding Entries}" />
+
+                        <ItemsControl ItemsSource="{Binding PageNumbers}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Style="{StaticResource ClickableText}"
+                                            Margin="4"
+                                            Command="{Binding DataContext.SetPageCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding Number}">
+                                        <TextBlock Text="{Binding Number}"
+                                                   Margin="0">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource Link}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Value="True">
+                                                            <DataTrigger.Binding>
+                                                                <MultiBinding
+                                                                    Converter="{StaticResource EqualityConverter}">
+                                                                    <Binding Path="Number" />
+                                                                    <Binding Path="DataContext.CurrentPage"
+                                                                             RelativeSource="{RelativeSource AncestorType=ItemsControl}" />
+                                                                </MultiBinding>
+                                                            </DataTrigger.Binding>
+
+                                                            <Setter Property="Foreground"
+                                                                    Value="{StaticResource Brush.Primary}" />
+                                                            <Setter Property="TextDecorations" Value="Underline" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
                 </Border>
             </StackPanel>
         </Grid>
