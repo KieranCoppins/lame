@@ -1,4 +1,5 @@
-﻿using Lame.Backend.Languages;
+﻿using Lame.Backend.ChangeLog;
+using Lame.Backend.Languages;
 using Lame.DomainModel;
 using Lame.Frontend.Commands;
 using Lame.Frontend.Services;
@@ -48,15 +49,18 @@ public class AddSupportedLanguageDialogViewModelTests
     }
 
     [Fact]
-    public async Task AddLanguagesCommand_WithSelectedLanguage_RegistersLanguage()
+    public async Task AddLanguagesCommand_WithSelectedLanguage_RegistersLanguageAndCreatesChangeLog()
     {
         // Arrange
         var languagesService = new Mock<ILanguages>();
 
+        var changeLogService = new Mock<IChangeLog>();
+
         var language = new LanguageBuilder().WithLanguageCode("es").Build();
 
         var vm = AddSupportedLanguageDialogViewModelFactory.Create(
-            languageService: languagesService.Object
+            languageService: languagesService.Object,
+            changeLogService: changeLogService.Object
         );
 
         vm.SelectedLanguage = new LanguageViewModel(language);
@@ -71,6 +75,12 @@ public class AddSupportedLanguageDialogViewModelTests
                 It.Is<Language>(l => l.LanguageCode == language.LanguageCode)
             ),
             Times.Once);
+
+        changeLogService.Verify(c => c.Create(It.Is<ChangeLogEntry>(entry =>
+            entry.ResourceAction == ResourceAction.Created &&
+            entry.ResourceType == ResourceType.Language &&
+            entry.Message.Contains("Spanish")
+        )));
     }
 
     [Fact]

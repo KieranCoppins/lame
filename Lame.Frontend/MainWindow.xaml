@@ -70,6 +70,11 @@
                                  Style="{StaticResource NavigationButton}"
                                  IsChecked="{Binding CurrentPage, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static enums:AppPage.ExportXliff}}"
                                  Command="{Binding NavigateToExportXliffCommand}" />
+                    <RadioButton Content="Change Log"
+                                 GroupName="SidebarNavigation"
+                                 Style="{StaticResource NavigationButton}"
+                                 IsChecked="{Binding CurrentPage, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static enums:AppPage.ChangeLog}}"
+                                 Command="{Binding NavigateToChangeLogCommand}" />
                 </StackPanel>
 
                 <StackPanel Grid.Row="2">

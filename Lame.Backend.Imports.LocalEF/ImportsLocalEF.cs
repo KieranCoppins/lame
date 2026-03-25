@@ -1,4 +1,5 @@
-﻿using Lame.Backend.EntityFramework;
+﻿using Lame.Backend.ChangeLog;
+using Lame.Backend.EntityFramework;
 using Lame.Backend.EntityFramework.Models;
 using Lame.DomainModel;
 using Microsoft.EntityFrameworkCore;
@@ -8,11 +9,13 @@ namespace Lame.Backend.Imports.LocalEF;
 
 public class ImportsLocalEF : IImports
 {
+    private readonly IChangeLog _changeLog;
     private readonly IServiceProvider _serviceProvider;
 
-    public ImportsLocalEF(IServiceProvider serviceProvider)
+    public ImportsLocalEF(IServiceProvider serviceProvider, IChangeLog changeLog)
     {
         _serviceProvider = serviceProvider;
+        _changeLog = changeLog;
     }
 
     public Task<int> Import(ImportOptions importOptions)
@@ -56,6 +59,10 @@ public class ImportsLocalEF : IImports
                     .Translation)
                 .ToDictionaryAsync(a => a.AssetId);
 
+            var updatedAssetsCount = 0;
+            var createdAssetsCount = 0;
+            var createdTranslationsCount = 0;
+
             var newAssets = new List<AssetEntity>();
             var newTranslations = new List<TranslationEntity>();
 
@@ -66,9 +73,14 @@ public class ImportsLocalEF : IImports
                 if (existingAssets.TryGetValue(importData.Asset.Id, out var existingAsset) &&
                     importOptions.OverwriteExistingAssetProperties)
                 {
-                    existingAsset.InternalName = importData.Asset.InternalName;
-                    existingAsset.ContextNotes = importData.Asset.ContextNotes;
-                    existingAsset.LastUpdatedAt = DateTime.UtcNow;
+                    if (existingAsset.InternalName != importData.Asset.InternalName ||
+                        existingAsset.ContextNotes != importData.Asset.ContextNotes)
+                    {
+                        existingAsset.InternalName = importData.Asset.InternalName;
+                        existingAsset.ContextNotes = importData.Asset.ContextNotes;
+                        existingAsset.LastUpdatedAt = DateTime.UtcNow;
+                        updatedAssetsCount++;
+                    }
                 }
                 // Create new assets if the option is selected and the asset doesn't exist
                 else if (existingAsset == null && importOptions.CreateMissingAssets)
@@ -83,8 +95,9 @@ public class ImportsLocalEF : IImports
                         LastUpdatedAt = DateTime.UtcNow,
                         Status = AssetStatus.Active
                     });
+                    createdAssetsCount++;
                 }
-                // Otherwise if the asset doesn't exist and we're not to make them, skip to the next import data
+                // Otherwise if the asset doesn't exist, and we're not to make them, skip to the next import data
                 else if (existingAsset == null)
                 {
                     continue;
@@ -203,6 +216,15 @@ public class ImportsLocalEF : IImports
             }
 
             await context.SaveChangesAsync();
+
+            await _changeLog.Create(new ChangeLogEntry
+            {
+                ResourceAction = ResourceAction.Imported,
+                ResourceType = ResourceType.Translation,
+                Message =
+                    $"Imported {createdAssetsCount} assets, updated {updatedAssetsCount} assets with {newTranslations.Count} new translations"
+            });
+
             return newTranslations.Count;
         });
     }

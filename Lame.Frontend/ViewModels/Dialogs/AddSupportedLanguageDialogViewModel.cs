@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Windows.Input;
+using Lame.Backend.ChangeLog;
 using Lame.Backend.Languages;
 using Lame.DomainModel;
 using Lame.Frontend.Commands;
@@ -10,6 +11,7 @@ namespace Lame.Frontend.ViewModels.Dialogs;
 
 public class AddSupportedLanguageDialogViewModel : BaseViewModel
 {
+    private readonly IChangeLog _changeLogService;
     private readonly IDialogService _dialogService;
     private readonly ILanguages _languagesService;
     private readonly INotificationService _notificationService;
@@ -17,10 +19,12 @@ public class AddSupportedLanguageDialogViewModel : BaseViewModel
     public AddSupportedLanguageDialogViewModel(
         IDialogService dialogService,
         ILanguages languagesService,
+        IChangeLog changeLogService,
         INotificationService notificationService)
     {
         _dialogService = dialogService;
         _languagesService = languagesService;
+        _changeLogService = changeLogService;
         _notificationService = notificationService;
 
         SearchLanguages = searchTerm => Task.FromResult<IEnumerable>(ISOGeneratorResourceProvider.ISOGeneratorResources
@@ -65,6 +69,13 @@ public class AddSupportedLanguageDialogViewModel : BaseViewModel
             if (SelectedLanguage == null) throw new NullReferenceException("No language selected.");
 
             await _languagesService.RegisterLanguage(new Language { LanguageCode = SelectedLanguage.LanguageCode });
+
+            await _changeLogService.Create(new ChangeLogEntry
+            {
+                ResourceAction = ResourceAction.Created,
+                ResourceType = ResourceType.Language,
+                Message = $"Added {SelectedLanguage.Name} as a supported language."
+            });
 
             _notificationService.EmitNotification(new Notification
             {

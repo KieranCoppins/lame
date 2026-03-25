@@ -1,0 +1,33 @@
+﻿<UserControl x:Class="Lame.Frontend.Views.ChangeLogView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:controls="clr-namespace:Lame.Frontend.Controls"
+             mc:Ignorable="d"
+             d:DesignHeight="1920" d:DesignWidth="1080">
+    <ScrollViewer
+        VerticalScrollBarVisibility="Auto"
+        Background="{StaticResource Brush.LightestGrey}">
+        <Grid Margin="32">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <StackPanel>
+                <StackPanel Style="{StaticResource SectionStyle}">
+                    <TextBlock Text="Change Log"
+                               Style="{StaticResource Header1}" />
+                    <TextBlock
+                        Text="View all the changes that have happened in the project."
+                        Style="{StaticResource Subtitle}"
+                        Margin="0" />
+                </StackPanel>
+
+                <Border Style="{StaticResource CardBorderStyle}">
+                    <controls:ChangeLogControl />
+                </Border>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

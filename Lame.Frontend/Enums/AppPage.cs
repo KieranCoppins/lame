@@ -9,5 +9,6 @@ public enum AppPage
     Settings,
     ExportXliff,
     ImportXliff,
-    AssetSync
+    AssetSync,
+    ChangeLog
 }

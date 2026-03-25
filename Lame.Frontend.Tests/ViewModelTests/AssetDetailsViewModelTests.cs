@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using Lame.Backend.AssetLinks;
 using Lame.Backend.Assets;
+using Lame.Backend.ChangeLog;
 using Lame.Backend.FileStorage;
 using Lame.Backend.Languages;
 using Lame.Backend.Tags;
@@ -98,7 +99,7 @@ public class AssetDetailsViewModelTests
     // TODO how to unit test destructors?
 
     [Fact]
-    public async Task LinkToAsset_WhenCalled_LinksAssetAndUpdatesLinkedAssets()
+    public async Task LinkToAsset_WhenCalled_LinksAssetAndUpdatesLinkedAssetsAndCreatesChangeLog()
     {
         // Arrange
         var asset = new AssetDtoBuilder().Build();
@@ -108,14 +109,26 @@ public class AssetDetailsViewModelTests
         assetLinksService.Setup(x => x.Create(asset.Id, assetToLink.Id))
             .ReturnsAsync(new AssetLink { AssetEntityId = asset.Id, LinkedContentId = assetToLink.Id, Synced = false });
 
+        var changeLogService = new Mock<IChangeLog>();
+        changeLogService.Setup(c => c.Create(It.IsAny<ChangeLogEntry>())).Returns(Task.CompletedTask);
+
         var vm = AssetDetailsViewModelFactory.Create(
             asset,
-            assetLinksService: assetLinksService.Object);
+            assetLinksService: assetLinksService.Object,
+            changeLogService: changeLogService.Object);
 
         // Act
         await vm.LinkToAsset(assetToLink);
 
         // Assert
+        assetLinksService.Verify(x => x.Create(asset.Id, assetToLink.Id), Times.Once);
+        changeLogService.Verify(x => x.Create(It.Is<ChangeLogEntry>(entry =>
+            entry.ResourceAction == ResourceAction.Created &&
+            entry.ResourceType == ResourceType.AssetLink &&
+            entry.ResourceId == asset.Id &&
+            entry.Message.Contains(asset.InternalName) &&
+            entry.Message.Contains(assetToLink.InternalName)
+        )), Times.Once);
         Assert.Contains(vm.LinkedAssets, x => x.LinkedContentId == assetToLink.Id);
     }
 
@@ -177,18 +190,22 @@ public class AssetDetailsViewModelTests
     }
 
     [Fact]
-    public async Task UnLinkToAsset_WhenCalled_UnLinksAssetAndUpdatesLinkedAssets()
+    public async Task UnLinkToAsset_WhenCalled_UnLinksAssetAndUpdatesLinkedAssetsAndCreatesChangeLog()
     {
         // Arrange
-        var asset = new AssetDtoBuilder().Build();
         var assetToUnLink = new AssetDtoBuilder().Build();
+        var asset = new AssetDtoBuilder().AddLinkedAsset(assetToUnLink).Build();
 
         var assetLinksService = new Mock<IAssetLinks>();
         assetLinksService.Setup(x => x.Delete(asset.Id, assetToUnLink.Id)).Returns(Task.CompletedTask);
 
+        var changeLogService = new Mock<IChangeLog>();
+        changeLogService.Setup(c => c.Create(It.IsAny<ChangeLogEntry>())).Returns(Task.CompletedTask);
+
         var vm = AssetDetailsViewModelFactory.Create(
             asset,
-            assetLinksService: assetLinksService.Object);
+            assetLinksService: assetLinksService.Object,
+            changeLogService: changeLogService.Object);
 
         var link = new PopulatedAssetLink
         {
@@ -203,6 +220,14 @@ public class AssetDetailsViewModelTests
         await vm.UnLinkAsset(assetToUnLink);
 
         // Assert
+        assetLinksService.Verify(x => x.Delete(asset.Id, assetToUnLink.Id), Times.Once);
+        changeLogService.Verify(x => x.Create(It.Is<ChangeLogEntry>(entry =>
+            entry.ResourceAction == ResourceAction.Deleted &&
+            entry.ResourceType == ResourceType.AssetLink &&
+            entry.ResourceId == asset.Id &&
+            entry.Message.Contains(asset.InternalName) &&
+            entry.Message.Contains(assetToUnLink.InternalName)
+        )), Times.Once);
         Assert.DoesNotContain(vm.LinkedAssets, x => x.LinkedContentId == assetToUnLink.Id);
     }
 
@@ -360,13 +385,38 @@ public class AssetDetailsViewModelTests
     }
 
     [Fact]
-    public async Task UpdateAssetTags_WhenTagsToAddAndRemove_UpdatesTagsAndEmitsSuccessNotification()
+    public async Task UpdateAsset_WhenCalled_CreatesChangeLog()
     {
         // Arrange
         var asset = new AssetDtoBuilder().Build();
-        var tag1 = new TagBuilder().Build();
-        var tag2 = new TagBuilder().Build();
-        var tag3 = new TagBuilder().Build();
+
+        var changeLogService = new Mock<IChangeLog>();
+        changeLogService.Setup(x => x.Create(It.IsAny<ChangeLogEntry>())).Returns(Task.CompletedTask);
+
+        var vm = AssetDetailsViewModelFactory.Create(
+            asset,
+            changeLogService: changeLogService.Object);
+
+        // Act
+        await vm.UpdateAsset();
+
+        // Assert
+        changeLogService.Verify(x => x.Create(It.Is<ChangeLogEntry>(entry =>
+            entry.ResourceId == asset.Id &&
+            entry.ResourceType == ResourceType.Asset &&
+            entry.ResourceAction == ResourceAction.Updated &&
+            entry.Message.Contains(asset.InternalName)
+        )), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateAssetTags_WhenTagsToAddAndRemove_UpdatesTagsAndCreatesChangeLogAndEmitsSuccessNotification()
+    {
+        // Arrange
+        var asset = new AssetDtoBuilder().Build();
+        var tag1 = new TagBuilder().WithName("tagA").Build();
+        var tag2 = new TagBuilder().WithName("tagB").Build();
+        var tag3 = new TagBuilder().WithName("tagC").Build();
 
         var existingTags = new List<Tag> { tag1, tag2 };
         var newTags = new List<Tag> { tag2, tag3 };
@@ -378,10 +428,14 @@ public class AssetDetailsViewModelTests
 
         var notificationService = new Mock<INotificationService>();
 
+        var changeLogService = new Mock<IChangeLog>();
+        changeLogService.Setup(x => x.Create(It.IsAny<ChangeLogEntry>())).Returns(Task.CompletedTask);
+
         var vm = AssetDetailsViewModelFactory.Create(
             asset,
             tagsService: tagsService.Object,
-            notificationService: notificationService.Object);
+            notificationService: notificationService.Object,
+            changeLogService: changeLogService.Object);
 
         vm.Tags = new ObservableCollection<Tag>(newTags);
 
@@ -389,6 +443,7 @@ public class AssetDetailsViewModelTests
         await vm.UpdateAssetTags();
 
         // Assert
+        var changedTags = new List<Tag> { tag1, tag3 };
         tagsService.Verify(x => x.AddTagToResource(tag3, asset.Id, ResourceType.Asset), Times.Once);
         tagsService.Verify(x => x.RemoveTagFromResource(tag1.Id, asset.Id), Times.Once);
         notificationService.Verify(
@@ -396,6 +451,13 @@ public class AssetDetailsViewModelTests
                 It.Is<Notification>(x => x.Type == NotificationType.Success)
             ),
             Times.Once);
+        changeLogService.Verify(x => x.Create(It.Is<ChangeLogEntry>(entry =>
+            entry.ResourceId == asset.Id &&
+            entry.ResourceType == ResourceType.Asset &&
+            entry.ResourceAction == ResourceAction.Updated &&
+            entry.Message.Contains(asset.InternalName) &&
+            changedTags.All(tag => entry.Message.Contains(tag.Name))
+        )), Times.Once);
     }
 
     [Fact]

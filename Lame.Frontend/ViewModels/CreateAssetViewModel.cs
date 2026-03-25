@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Windows.Input;
 using Lame.Backend.AssetLinks;
 using Lame.Backend.Assets;
+using Lame.Backend.ChangeLog;
 using Lame.Backend.FileStorage;
 using Lame.Backend.Languages;
 using Lame.Backend.Tags;
@@ -20,6 +21,7 @@ public class CreateAssetViewModel : PageViewModel
 {
     private readonly IAssetLinks _assetLinks;
     private readonly IAssets _assets;
+    private readonly IChangeLog _changeLogService;
     private readonly IDialogService _dialogService;
     private readonly IFileStorage _fileStorageService;
     private readonly ILanguages _languagesService;
@@ -38,7 +40,8 @@ public class CreateAssetViewModel : PageViewModel
         IDialogService dialogService,
         ILanguages languagesService,
         IFileStorage fileStorageService,
-        ISystemIO systemIo)
+        ISystemIO systemIo,
+        IChangeLog changeLogService)
     {
         _assets = assets;
         _translations = translations;
@@ -49,6 +52,7 @@ public class CreateAssetViewModel : PageViewModel
         _languagesService = languagesService;
         _fileStorageService = fileStorageService;
         _systemIo = systemIo;
+        _changeLogService = changeLogService;
 
         Page = AppPage.CreateAsset;
         AssetsToLink = [];
@@ -199,6 +203,15 @@ public class CreateAssetViewModel : PageViewModel
 
             // Create asset links
             foreach (var linkedAsset in AssetsToLink) await _assetLinks.Create(linkedAsset.Id, asset.Id);
+
+            // Create a log entry for asset creation
+            await _changeLogService.Create(new ChangeLogEntry
+            {
+                ResourceId = asset.Id,
+                ResourceAction = ResourceAction.Created,
+                ResourceType = ResourceType.Asset,
+                Message = $"New {asset.AssetType} asset '{asset.InternalName}' created."
+            });
 
             _notificationService.EmitNotification(
                 new Notification

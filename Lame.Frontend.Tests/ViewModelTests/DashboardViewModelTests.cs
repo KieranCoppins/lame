@@ -1,4 +1,6 @@
-﻿using Lame.Backend.Statistics;
+﻿using Lame.Backend.ChangeLog;
+using Lame.Backend.Statistics;
+using Lame.DomainModel;
 using Lame.Frontend.Services;
 using Lame.Frontend.Tests.ViewModelFactories;
 using Lame.Frontend.ViewModels;
@@ -10,17 +12,25 @@ namespace Lame.Frontend.Tests.ViewModelTests;
 public class DashboardViewModelTests
 {
     [Fact]
-    public async Task OnNavigatedTo_WhenCalled_ShouldLoadStatistics()
+    public async Task OnNavigatedTo_WhenCalled_ShouldLoadStatisticsAndChangeLog()
     {
         // Arrange
-        var statisticsServiceMock = new Mock<IStatistics>();
-        var vm = DashboardViewModelFactory.Create(statisticsServiceMock.Object);
+        var statisticsService = new Mock<IStatistics>();
+        var changeLogService = new Mock<IChangeLog>();
+
+        changeLogService.Setup(c => c.Get(0, It.IsAny<int>()))
+            .ReturnsAsync(new PaginatedResponse<ChangeLogEntry> { Items = [] });
+
+        var vm = DashboardViewModelFactory.Create(
+            statisticsService.Object,
+            changeLogService: changeLogService.Object);
 
         // Act
         await vm.OnNavigatedTo();
 
         // Assert
-        statisticsServiceMock.Verify(s => s.GetProjectStatistics(), Times.Once);
+        statisticsService.Verify(s => s.GetProjectStatistics(), Times.Once);
+        changeLogService.Verify(c => c.Get(0, It.IsAny<int>()), Times.Once);
     }
 
     [Fact]
