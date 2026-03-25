@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.IO;
+using System.Windows;
 using Lame.Backend.AssetLinks;
 using Lame.Backend.AssetLinks.LocalEF;
 using Lame.Backend.Assets;
@@ -38,8 +39,13 @@ public partial class App : Application
     {
         var services = new ServiceCollection();
 
-        services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlite($"Data Source={AppDbContext.GetConnectionString()}"));
+        services.AddSingleton<IUserSettingsService, UserSettingsService>();
+
+        services.AddDbContext<AppDbContext>((provider, options) =>
+        {
+            var connectionPath = provider.GetRequiredService<IUserSettingsService>().UserSettings.BaseDirectory;
+            options.UseSqlite($"Data Source={Path.Combine(connectionPath, "local.db")}");
+        });
 
         // Frontend Services
         services.AddSingleton<INavigationService, NavigationService>();

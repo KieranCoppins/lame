@@ -98,12 +98,4 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<ChangeLogEntity>()
             .HasKey(c => c.Id);
     }
-
-    public static string GetConnectionString()
-    {
-        var documentsFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-        var lameFolder = Path.Combine(documentsFolder, "LAME");
-        Directory.CreateDirectory(lameFolder);
-        return Path.Combine(lameFolder, "local.db");
-    }
 }
