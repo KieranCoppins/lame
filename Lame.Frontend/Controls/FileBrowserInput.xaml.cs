@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using Microsoft.WindowsAPICodePack.Dialogs;
+using WinForms = System.Windows.Forms;
 
 namespace Lame.Frontend.Controls;
 
@@ -27,11 +27,10 @@ public partial class FileBrowserInput : UserControl
 
     private void BrowseButton_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new CommonOpenFileDialog
+        using (var dialog = new WinForms.FolderBrowserDialog())
         {
-            IsFolderPicker = true,
-            InitialDirectory = FilePath
-        };
-        if (dialog.ShowDialog() == CommonFileDialogResult.Ok) FilePath = dialog.FileName;
+            dialog.SelectedPath = FilePath;
+            if (dialog.ShowDialog() == WinForms.DialogResult.OK) FilePath = dialog.SelectedPath;
+        }
     }
 }

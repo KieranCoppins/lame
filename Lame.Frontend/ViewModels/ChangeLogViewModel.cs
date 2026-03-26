@@ -1,4 +1,6 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Lame.Backend.ChangeLog;
 using Lame.DomainModel;

@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Threading.Tasks;
 using Microsoft.Win32;
 
 namespace Lame.Frontend.Services;

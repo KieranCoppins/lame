@@ -1,4 +1,6 @@
-﻿using System.Windows.Input;
+﻿using System;
+using System.Threading.Tasks;
+using System.Windows.Input;
 using Lame.Backend.Assets;
 using Lame.Backend.ChangeLog;
 using Lame.DomainModel;

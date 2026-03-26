@@ -1,4 +1,6 @@
-﻿namespace Lame.Frontend.Commands;
+﻿using System;
+
+namespace Lame.Frontend.Commands;
 
 public class RelayCommand<T> : BaseRelayCommand<T>
 {

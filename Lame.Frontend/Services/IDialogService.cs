@@ -1,4 +1,6 @@
-﻿namespace Lame.Frontend.Services;
+﻿using System;
+
+namespace Lame.Frontend.Services;
 
 public interface IDialogService
 {

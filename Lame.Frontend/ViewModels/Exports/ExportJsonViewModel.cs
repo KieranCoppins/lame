@@ -1,4 +1,5 @@
-﻿using Lame.DomainModel;
+﻿using System;
+using Lame.DomainModel;
 
 namespace Lame.Frontend.ViewModels.Exports;
 
