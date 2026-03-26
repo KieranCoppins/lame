@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModels="clr-namespace:Lame.Frontend.ViewModels"
              xmlns:helpers="clr-namespace:Lame.Frontend.Helpers"
+             xmlns:controls="clr-namespace:Lame.Frontend.Controls"
              mc:Ignorable="d"
              d:DesignHeight="1080" d:DesignWidth="720"
              d:DataContext="{d:DesignInstance Type=viewModels:AssetLibraryViewModel}">
@@ -122,6 +123,11 @@
 
                         </DataGrid.Columns>
                     </DataGrid>
+
+                    <controls:PageNavigationControl CurrentPage="{Binding CurrentPage}"
+                                                    PageCommand="{Binding SetPageCommand}"
+                                                    PageNumbers="{Binding PageNumbers}" />
+
                     <Control HorizontalAlignment="Center"
                              VerticalAlignment="Center"
                              Margin="16">
