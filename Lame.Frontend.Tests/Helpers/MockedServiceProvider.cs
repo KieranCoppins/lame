@@ -1,5 +1,6 @@
 ﻿using Lame.Backend.AssetLinks;
 using Lame.Backend.Assets;
+using Lame.Backend.ChangeLog;
 using Lame.Backend.FileStorage;
 using Lame.Backend.Languages;
 using Lame.Backend.Tags;
@@ -27,6 +28,7 @@ public class MockedServiceProvider
         services.AddScoped<ISystemIO>(p => new Mock<ISystemIO>().Object);
         services.AddScoped<IAssetLinks>(p => new Mock<IAssetLinks>().Object);
         services.AddScoped<ILanguages>(p => new Mock<ILanguages>().Object);
+        services.AddScoped<IChangeLog>(p => new Mock<IChangeLog>().Object);
         return services.BuildServiceProvider();
     }
 }

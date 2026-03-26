@@ -1,4 +1,5 @@
 ﻿using Lame.Backend.AssetLinks;
+using Lame.Backend.ChangeLog;
 using Lame.Frontend.Models;
 using Lame.Frontend.Services;
 using Lame.Frontend.Tests.Helpers;
@@ -12,7 +13,8 @@ public class AssetLinkReviewViewModelFactory
     public static AssetLinkReviewViewModel Create(
         PopulatedAssetLink assetLink,
         IAssetLinks? assetLinksService = null,
-        INotificationService? notificationService = null
+        INotificationService? notificationService = null,
+        IChangeLog? changeLogService = null
     )
     {
         var serviceProvider = MockedServiceProvider.Get();
@@ -20,6 +22,7 @@ public class AssetLinkReviewViewModelFactory
             assetLinksService ?? new Mock<IAssetLinks>().Object,
             serviceProvider,
             assetLink,
-            notificationService ?? new Mock<INotificationService>().Object);
+            notificationService ?? new Mock<INotificationService>().Object,
+            changeLogService ?? new Mock<IChangeLog>().Object);
     }
 }

@@ -1,4 +1,6 @@
-﻿using System.Windows.Input;
+﻿using System.Collections.ObjectModel;
+using System.Windows.Input;
+using Lame.Backend.ChangeLog;
 using Lame.Backend.Statistics;
 using Lame.DomainModel;
 using Lame.Frontend.Commands;
@@ -9,18 +11,25 @@ namespace Lame.Frontend.ViewModels;
 
 public class DashboardViewModel : PageViewModel
 {
+    private readonly IChangeLog _changeLogService;
     private readonly IStatistics _statistics;
 
     public DashboardViewModel(IStatistics statistics,
-        INavigationService navigationService)
+        INavigationService navigationService,
+        IChangeLog changeLogService)
     {
         _statistics = statistics;
+        _changeLogService = changeLogService;
 
         Page = AppPage.Dashboard;
         ProjectStatistics = new ProjectStatistics();
 
         SearchTagCommand = new RelayCommand<Tag>(tag => navigationService.NavigateTo<AssetLibraryViewModel>(tag.Name));
+
+        Entries = [];
     }
+
+    public ObservableCollection<ChangeLogEntry> Entries { get; }
 
     public ProjectStatistics ProjectStatistics
     {
@@ -48,5 +57,9 @@ public class DashboardViewModel : PageViewModel
     private async Task LoadStatistics()
     {
         ProjectStatistics = await _statistics.GetProjectStatistics();
+
+        var entries = await _changeLogService.Get(0, 10);
+        Entries.Clear();
+        foreach (var entry in entries.Items) Entries.Add(entry);
     }
 }

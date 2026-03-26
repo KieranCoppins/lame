@@ -1,18 +1,22 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Lame.Backend.AssetLinks;
+using Lame.Backend.ChangeLog;
 using Lame.Backend.FileStorage;
 using Lame.Backend.Translations;
 using Lame.DomainModel;
 using Lame.Frontend.Commands;
 using Lame.Frontend.Helpers;
 using Lame.Frontend.Services;
+using Panlingo.LanguageCode;
+using Panlingo.LanguageCode.Models;
 
 namespace Lame.Frontend.ViewModels.Dialogs;
 
 public class EditTranslationDialogViewModel : BaseViewModel
 {
     private readonly IAssetLinks _assetLinksService;
+    private readonly IChangeLog _changeLogService;
     private readonly IDialogService _dialogService;
     private readonly IFileStorage _fileStorageService;
     private readonly INotificationService _notificationService;
@@ -27,7 +31,8 @@ public class EditTranslationDialogViewModel : BaseViewModel
         INotificationService notificationService,
         IFileStorage fileStorageService,
         ISystemIO systemIo,
-        IAssetLinks assetLinksService)
+        IAssetLinks assetLinksService,
+        IChangeLog changeLogService)
     {
         OwningAsset = owningAsset;
         _dialogService = dialogService;
@@ -36,6 +41,7 @@ public class EditTranslationDialogViewModel : BaseViewModel
         _fileStorageService = fileStorageService;
         _systemIo = systemIo;
         _assetLinksService = assetLinksService;
+        _changeLogService = changeLogService;
         Translation = translation;
         SelectedTranslation = translation;
         Content = translation.Content;
@@ -117,10 +123,22 @@ public class EditTranslationDialogViewModel : BaseViewModel
                 return;
             }
 
+            var resolver = new LanguageCodeResolver().Select(LanguageCodeEntity.EnglishName);
+            var readableLanguage = LanguageCodeHelper.Resolve(Translation.Language, resolver);
+
             if (SelectedTranslation.Content == Content)
             {
                 // We have changed our version but no content change, just change our target version
                 await _translationsService.SetTargetTranslation(SelectedTranslation.Id);
+
+                await _changeLogService.Create(new ChangeLogEntry
+                {
+                    ResourceId = SelectedTranslation.Id,
+                    ResourceAction = ResourceAction.Updated,
+                    ResourceType = ResourceType.TargetedTranslation,
+                    Message =
+                        $"Changed {readableLanguage} translation version to {SelectedTranslation.MajorVersion}.{SelectedTranslation.MinorVersion} for asset '{OwningAsset.InternalName}'"
+                });
 
                 _notificationService.EmitNotification(
                     new Notification
@@ -187,6 +205,15 @@ public class EditTranslationDialogViewModel : BaseViewModel
 
             // Desync links if major change occured
             if (HasMajorChanges) await _assetLinksService.DesyncAssetLinks(OwningAsset.Id);
+
+            await _changeLogService.Create(new ChangeLogEntry
+            {
+                ResourceId = Translation.Id,
+                ResourceAction = ResourceAction.Created,
+                ResourceType = ResourceType.Translation,
+                Message =
+                    $"Created new {readableLanguage} translation version {Translation.MajorVersion}.{Translation.MinorVersion} for asset '{OwningAsset.InternalName}'"
+            });
 
             _notificationService.EmitNotification(
                 new Notification

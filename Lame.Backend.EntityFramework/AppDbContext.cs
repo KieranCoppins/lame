@@ -15,7 +15,9 @@ public class AppDbContext : DbContext
     public DbSet<TagEntity> Tags { get; set; }
     public DbSet<LanguageEntity> Languages { get; set; }
     public DbSet<TargetAssetTranslationEntity> TargetAssetTranslations { get; set; }
+
     public DbSet<AssetLinkEntity> AssetLinks { get; set; }
+    public DbSet<ChangeLogEntity> ChangeLogEntries { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -91,5 +93,9 @@ public class AppDbContext : DbContext
             .WithMany()
             .HasForeignKey(t => t.TranslationId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Changelogs Table
+        modelBuilder.Entity<ChangeLogEntity>()
+            .HasKey(c => c.Id);
     }
 }

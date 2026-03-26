@@ -1,10 +1,12 @@
-﻿using Lame.Backend.EntityFramework;
+﻿using Lame.Backend.ChangeLog;
+using Lame.Backend.EntityFramework;
 using Lame.Backend.EntityFramework.Tests;
 using Lame.Backend.EntityFramework.Tests.EntityBuilders;
 using Lame.DomainModel;
 using Lame.TestingHelpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 
 namespace Lame.Backend.Imports.LocalEF.Tests;
 
@@ -21,7 +23,9 @@ public class ImportsLocalEFTests
             .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
             .BuildServiceProvider();
 
-        var imports = new ImportsLocalEF(serviceProvider);
+        var changeLogService = new Mock<IChangeLog>();
+
+        var imports = new ImportsLocalEF(serviceProvider, changeLogService.Object);
 
         var importOptions = new ImportOptions
         {
@@ -49,7 +53,9 @@ public class ImportsLocalEFTests
             .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
             .BuildServiceProvider();
 
-        var imports = new ImportsLocalEF(serviceProvider);
+        var changeLogService = new Mock<IChangeLog>();
+
+        var imports = new ImportsLocalEF(serviceProvider, changeLogService.Object);
 
         var assetToImport = new AssetBuilder().Build();
         var sourceTransToImport = new TranslationBuilder()
@@ -100,7 +106,9 @@ public class ImportsLocalEFTests
             .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
             .BuildServiceProvider();
 
-        var imports = new ImportsLocalEF(serviceProvider);
+        var changeLogService = new Mock<IChangeLog>();
+
+        var imports = new ImportsLocalEF(serviceProvider, changeLogService.Object);
 
         var assetToImport = new AssetBuilder().Build();
         var sourceTransToImport = new TranslationBuilder()
@@ -162,7 +170,9 @@ public class ImportsLocalEFTests
             .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
             .BuildServiceProvider();
 
-        var imports = new ImportsLocalEF(serviceProvider);
+        var changeLogService = new Mock<IChangeLog>();
+
+        var imports = new ImportsLocalEF(serviceProvider, changeLogService.Object);
 
         var assetToImport = new AssetBuilder()
             .WithId(existingAsset.Id)
@@ -230,7 +240,9 @@ public class ImportsLocalEFTests
             .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
             .BuildServiceProvider();
 
-        var imports = new ImportsLocalEF(serviceProvider);
+        var changeLogService = new Mock<IChangeLog>();
+
+        var imports = new ImportsLocalEF(serviceProvider, changeLogService.Object);
 
         var assetToImport = new AssetBuilder()
             .WithId(existingAsset.Id)
@@ -317,7 +329,9 @@ public class ImportsLocalEFTests
             .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
             .BuildServiceProvider();
 
-        var imports = new ImportsLocalEF(serviceProvider);
+        var changeLogService = new Mock<IChangeLog>();
+
+        var imports = new ImportsLocalEF(serviceProvider, changeLogService.Object);
 
         var assetToImport = new AssetBuilder().WithId(existingAsset.Id).Build();
         var sourceTransToImport = new TranslationBuilder()
@@ -411,7 +425,9 @@ public class ImportsLocalEFTests
             .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
             .BuildServiceProvider();
 
-        var imports = new ImportsLocalEF(serviceProvider);
+        var changeLogService = new Mock<IChangeLog>();
+
+        var imports = new ImportsLocalEF(serviceProvider, changeLogService.Object);
 
         var assetToImport = new AssetBuilder().WithId(existingAsset.Id).Build();
         var sourceTransToImport = new TranslationBuilder()
@@ -504,7 +520,9 @@ public class ImportsLocalEFTests
             .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
             .BuildServiceProvider();
 
-        var imports = new ImportsLocalEF(serviceProvider);
+        var changeLogService = new Mock<IChangeLog>();
+
+        var imports = new ImportsLocalEF(serviceProvider, changeLogService.Object);
 
         var assetToImport = new AssetBuilder().WithId(existingAsset.Id).Build();
         var sourceTransToImport = new TranslationBuilder()
@@ -598,7 +616,9 @@ public class ImportsLocalEFTests
             .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
             .BuildServiceProvider();
 
-        var imports = new ImportsLocalEF(serviceProvider);
+        var changeLogService = new Mock<IChangeLog>();
+
+        var imports = new ImportsLocalEF(serviceProvider, changeLogService.Object);
 
         var assetToImport = new AssetBuilder().WithId(existingAsset.Id).Build();
         var sourceTransToImport = new TranslationBuilder()
@@ -658,7 +678,9 @@ public class ImportsLocalEFTests
             .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
             .BuildServiceProvider();
 
-        var imports = new ImportsLocalEF(serviceProvider);
+        var changeLogService = new Mock<IChangeLog>();
+
+        var imports = new ImportsLocalEF(serviceProvider, changeLogService.Object);
 
         var assetToImport = new AssetBuilder().Build();
         var sourceTransToImport = new TranslationBuilder()
@@ -692,5 +714,117 @@ public class ImportsLocalEFTests
         await using var assertContext = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
 
         Assert.Equal(2, assertContext.TargetAssetTranslations.Count());
+    }
+
+    [Fact]
+    public async Task Import_AssetsModifiedAndCreatedAndTranslationsCreated_CreatesChangeLogWithCorrectValues()
+    {
+        // Arrange
+        var dbName = Guid.NewGuid().ToString();
+        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var existingAssetA = new AssetEntityBuilder().Build();
+        var existingAssetB = new AssetEntityBuilder().Build();
+        var existingAssetC = new AssetEntityBuilder().Build();
+
+        var existingEnTransA = new TranslationEntityBuilder(existingAssetA).WithLanguage("en").Build();
+        var existingEnTransB = new TranslationEntityBuilder(existingAssetB).WithLanguage("en").Build();
+        var existingEnTransC = new TranslationEntityBuilder(existingAssetC).WithLanguage("en").Build();
+
+        var assetATarget = TargetAssetTranslationEntityBuilder.Build(existingAssetA, existingEnTransA);
+        var assetBTarget = TargetAssetTranslationEntityBuilder.Build(existingAssetB, existingEnTransB);
+        var assetCTarget = TargetAssetTranslationEntityBuilder.Build(existingAssetC, existingEnTransC);
+
+        var existingEsTransA = new TranslationEntityBuilder(existingAssetA).WithLanguage("es").Build();
+        var assetAEsTarget = TargetAssetTranslationEntityBuilder.Build(existingAssetA, existingEsTransA);
+
+        await context.Assets.AddRangeAsync(existingAssetA, existingAssetB, existingAssetC);
+        await context.Translations.AddRangeAsync(existingEnTransA, existingEnTransB, existingEnTransC,
+            existingEsTransA);
+        await context.TargetAssetTranslations.AddRangeAsync(assetATarget, assetBTarget, assetCTarget, assetAEsTarget);
+
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var changeLogService = new Mock<IChangeLog>();
+
+        var imports = new ImportsLocalEF(serviceProvider, changeLogService.Object);
+
+        var brandNewAsset = new AssetEntityBuilder().Build();
+
+        var importData = new ImportOptions
+        {
+            CreateMissingAssets = true,
+            OverwriteExistingAssetProperties = true,
+            ImportData =
+            [
+                new ImportData
+                {
+                    Asset = new AssetEntityBuilder()
+                        .WithId(existingAssetA.Id)
+                        .WithInternalName("New Internal Name")
+                        .Build(),
+                    SourceTranslation = new TranslationEntityBuilder(existingAssetA)
+                        .WithLanguage("en")
+                        .Build(),
+                    TargetTranslation = new TranslationEntityBuilder(existingAssetA)
+                        .WithLanguage("es")
+                        .Build()
+                },
+
+                new ImportData
+                {
+                    Asset = new AssetEntityBuilder()
+                        .WithId(existingAssetB.Id)
+                        .Build(),
+                    SourceTranslation = new TranslationEntityBuilder(existingAssetB)
+                        .WithLanguage("en")
+                        .Build(),
+                    TargetTranslation = new TranslationEntityBuilder(existingAssetB)
+                        .WithLanguage("es")
+                        .Build()
+                },
+
+                new ImportData
+                {
+                    Asset = new AssetEntityBuilder()
+                        .WithId(existingAssetC.Id)
+                        .Build(),
+                    SourceTranslation = new TranslationEntityBuilder(existingAssetC)
+                        .WithLanguage("en")
+                        .WithContent("Changed english content")
+                        .Build(),
+                    TargetTranslation = new TranslationEntityBuilder(existingAssetC)
+                        .WithLanguage("es")
+                        .Build()
+                },
+
+                new ImportData
+                {
+                    Asset = brandNewAsset,
+                    SourceTranslation = new TranslationEntityBuilder(brandNewAsset)
+                        .WithLanguage("en")
+                        .Build(),
+                    TargetTranslation = new TranslationEntityBuilder(brandNewAsset)
+                        .WithLanguage("es")
+                        .Build()
+                }
+            ]
+        };
+
+        // Act
+        await imports.Import(importData);
+
+        // Assert
+        changeLogService.Verify(x => x.Create(It.Is<ChangeLogEntry>(entry =>
+            entry.ResourceType == ResourceType.Translation &&
+            entry.ResourceAction == ResourceAction.Imported &&
+            entry.Message.Contains("Imported 1 asset") &&
+            entry.Message.Contains("updated 1 asset") &&
+            entry.Message.Contains("6 new translations")
+        )), Times.Once);
     }
 }

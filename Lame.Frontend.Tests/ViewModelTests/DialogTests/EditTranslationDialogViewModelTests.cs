@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using Lame.Backend.AssetLinks;
+using Lame.Backend.ChangeLog;
 using Lame.Backend.Translations;
 using Lame.DomainModel;
 using Lame.Frontend.Commands;
@@ -467,5 +468,83 @@ public class EditTranslationDialogViewModelTests
         ), Times.Once);
 
         dialogService.Verify(x => x.CloseDialog(), Times.Never);
+    }
+
+    [Fact]
+    public async Task SaveChangesCommand_WhenCreatingTranslation_CreatesChangeLog()
+    {
+        // Arrange
+        var asset = new AssetDtoBuilder().Build();
+        var translation = new TranslationDtoBuilder().WithContent("Old").Build();
+        var translationsService = new Mock<ITranslations>();
+
+        translationsService.Setup(x => x.GetTargetedForAsset(It.IsAny<Guid>()))
+            .ReturnsAsync(new List<TranslationDto>
+                { new TranslationDtoBuilder().WithLanguageCode("en").WithVersion(1, 0).Build() });
+
+        var changeLogService = new Mock<IChangeLog>();
+
+        var vm = EditTranslationDialogViewModelFactory.Create(
+            translation,
+            owningAsset: asset,
+            translationsService: translationsService.Object,
+            changeLogService: changeLogService.Object
+        );
+
+        vm.Content = "New";
+        vm.HasMajorChanges = true;
+
+        // Act
+        vm.SaveChangesCommand.Execute(null);
+
+        // Assert
+        await ((AsyncRelayCommand)vm.SaveChangesCommand).CommandTask!;
+
+        changeLogService.Verify(x => x.Create(It.Is<ChangeLogEntry>(entry =>
+            entry.ResourceType == ResourceType.Translation &&
+            entry.ResourceAction == ResourceAction.Created &&
+            entry.Message.Contains(asset.InternalName) &&
+            entry.Message.Contains(translation.MajorVersion.ToString()) &&
+            entry.Message.Contains(translation.MinorVersion.ToString())
+        )), Times.Once);
+
+        changeLogService.Verify(x => x.Create(It.IsAny<ChangeLogEntry>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task SaveChangesCommand_WhenTargetingNewTranslation_CreatesChangeLog()
+    {
+        // Arrange
+        var asset = new AssetDtoBuilder().Build();
+        var translation = new TranslationDtoBuilder().WithContent("A").Build();
+        var selectedTranslation = new TranslationDtoBuilder().WithContent("B").Build();
+
+        var translationsService = new Mock<ITranslations>();
+        var changeLogService = new Mock<IChangeLog>();
+
+        var vm = EditTranslationDialogViewModelFactory.Create(
+            translation,
+            owningAsset: asset,
+            translationsService: translationsService.Object,
+            changeLogService: changeLogService.Object
+        );
+        vm.SelectedTranslation = selectedTranslation;
+        vm.Content = "B";
+
+        // Act
+        vm.SaveChangesCommand.Execute(null);
+
+        // Assert
+        await ((AsyncRelayCommand)vm.SaveChangesCommand).CommandTask!;
+
+        changeLogService.Verify(x => x.Create(It.Is<ChangeLogEntry>(entry =>
+            entry.ResourceType == ResourceType.TargetedTranslation &&
+            entry.ResourceAction == ResourceAction.Updated &&
+            entry.Message.Contains(asset.InternalName) &&
+            entry.Message.Contains(selectedTranslation.MajorVersion.ToString()) &&
+            entry.Message.Contains(selectedTranslation.MinorVersion.ToString())
+        )), Times.Once);
+
+        changeLogService.Verify(x => x.Create(It.IsAny<ChangeLogEntry>()), Times.Once);
     }
 }

@@ -1,4 +1,6 @@
 ﻿using Lame.Backend.AssetLinks;
+using Lame.Backend.ChangeLog;
+using Lame.DomainModel;
 using Lame.Frontend.Commands;
 using Lame.Frontend.Services;
 using Lame.Frontend.Tests.Builders;
@@ -11,7 +13,7 @@ namespace Lame.Frontend.Tests.ViewModelTests;
 public class AssetLinkReviewViewModelTests
 {
     [Fact]
-    public async Task SyncLinkCommand_WhenSyncSucceeds_EmitsSuccessNotification()
+    public async Task SyncLinkCommand_WhenSyncSucceeds_EmitsSuccessNotificationAndCreatesChangeLog()
     {
         // Arrange
         var assetA = new AssetDtoBuilder().Build();
@@ -25,10 +27,14 @@ public class AssetLinkReviewViewModelTests
 
         var notificationService = new Mock<INotificationService>();
 
+        var changeLogService = new Mock<IChangeLog>();
+        changeLogService.Setup(c => c.Create(It.IsAny<ChangeLogEntry>())).Returns(Task.CompletedTask);
+
         var vm = AssetLinkReviewViewModelFactory.Create(
             assetLink,
             assetLinksService.Object,
-            notificationService.Object);
+            notificationService.Object,
+            changeLogService.Object);
 
         // Act
         vm.SyncLinkCommand.Execute(null);
@@ -37,6 +43,14 @@ public class AssetLinkReviewViewModelTests
         await ((AsyncRelayCommand)vm.SyncLinkCommand).CommandTask!;
 
         assetLinksService.Verify(n => n.SyncAssetLink(assetA.Id, assetB.Id), Times.Once);
+
+        changeLogService.Verify(c => c.Create(It.Is<ChangeLogEntry>(entry =>
+            entry.ResourceId == assetA.Id &&
+            entry.ResourceAction == ResourceAction.Updated &&
+            entry.ResourceType == ResourceType.AssetLink &&
+            entry.Message.Contains(assetB.InternalName) &&
+            entry.Message.Contains(assetA.InternalName)
+        )), Times.Once);
 
         notificationService.Verify(n => n.EmitNotification(
             It.Is<Notification>(notif =>

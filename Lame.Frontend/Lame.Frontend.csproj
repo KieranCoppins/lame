@@ -21,6 +21,8 @@
         <ProjectReference Include="..\Lame.Backend.AssetLinks.LocalEF\Lame.Backend.AssetLinks.LocalEF.csproj"/>
         <ProjectReference Include="..\Lame.Backend.AssetLinks\Lame.Backend.AssetLinks.csproj"/>
         <ProjectReference Include="..\Lame.Backend.Assets.LocalEF\Lame.Backend.Assets.LocalEF.csproj"/>
+        <ProjectReference Include="..\Lame.Backend.ChangeLog.LocalEF\Lame.Backend.ChangeLog.LocalEF.csproj"/>
+        <ProjectReference Include="..\Lame.Backend.ChangeLog\Lame.Backend.ChangeLog.csproj"/>
         <ProjectReference Include="..\Lame.Backend.Exports.LocalEF\Lame.Backend.Exports.LocalEF.csproj"/>
         <ProjectReference Include="..\Lame.Backend.Exports\Lame.Backend.Exports.csproj"/>
         <ProjectReference Include="..\Lame.Backend.FileStorage.Local\Lame.Backend.FileStorage.Local.csproj"/>

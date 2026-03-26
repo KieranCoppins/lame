@@ -68,6 +68,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.Backend.AssetLinks.Loc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.Configuration", "Lame.Configuration\Lame.Configuration.csproj", "{1F829AEE-4CA3-4DD6-8D8D-3127FE855C75}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.Backend.ChangeLog", "Lame.Backend.ChangeLog\Lame.Backend.ChangeLog.csproj", "{472A3010-30DE-42D3-94AA-FEA2FE87BB9A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.Backend.ChangeLog.LocalEF", "Lame.Backend.ChangeLog.LocalEF\Lame.Backend.ChangeLog.LocalEF.csproj", "{6807D55C-3619-4019-A9A9-C92B9A9A8B0D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lame.Backend.ChangeLog.LocalEF.Tests", "Lame.Backend.ChangeLog.LocalEF.Tests\Lame.Backend.ChangeLog.LocalEF.Tests.csproj", "{D0F7A1C1-B736-40F5-839D-A61AC0C60C57}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -210,5 +216,17 @@ Global
 		{1F829AEE-4CA3-4DD6-8D8D-3127FE855C75}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F829AEE-4CA3-4DD6-8D8D-3127FE855C75}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F829AEE-4CA3-4DD6-8D8D-3127FE855C75}.Release|Any CPU.Build.0 = Release|Any CPU
+		{472A3010-30DE-42D3-94AA-FEA2FE87BB9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{472A3010-30DE-42D3-94AA-FEA2FE87BB9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{472A3010-30DE-42D3-94AA-FEA2FE87BB9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{472A3010-30DE-42D3-94AA-FEA2FE87BB9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6807D55C-3619-4019-A9A9-C92B9A9A8B0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6807D55C-3619-4019-A9A9-C92B9A9A8B0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6807D55C-3619-4019-A9A9-C92B9A9A8B0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6807D55C-3619-4019-A9A9-C92B9A9A8B0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0F7A1C1-B736-40F5-839D-A61AC0C60C57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0F7A1C1-B736-40F5-839D-A61AC0C60C57}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0F7A1C1-B736-40F5-839D-A61AC0C60C57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0F7A1C1-B736-40F5-839D-A61AC0C60C57}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

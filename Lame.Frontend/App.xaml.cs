@@ -4,6 +4,8 @@ using Lame.Backend.AssetLinks;
 using Lame.Backend.AssetLinks.LocalEF;
 using Lame.Backend.Assets;
 using Lame.Backend.Assets.LocalEF;
+using Lame.Backend.ChangeLog;
+using Lame.Backend.ChangeLog.LocalEF;
 using Lame.Backend.EntityFramework;
 using Lame.Backend.Exports;
 using Lame.Backend.Exports.Exporters;
@@ -64,6 +66,8 @@ public partial class App : Application
         services.AddTransient<IExporterFactory, ExporterFactory>();
         services.AddTransient<JsonExporter>();
         services.AddTransient<Xliff12Exporter>();
+        services.AddScoped<IChangeLog, ChangeLogLocalEF>();
+
 
         // View Models
         services.AddSingleton<MainWindowViewModel>();
@@ -77,6 +81,7 @@ public partial class App : Application
         services.AddTransient<SettingsViewModel>();
         services.AddTransient<ExportViewModel>();
         services.AddTransient<EditTranslationDialogViewModel>();
+        services.AddTransient<ChangeLogViewModel>();
 
         // Build the service provider
         ServiceProvider = services.BuildServiceProvider();
