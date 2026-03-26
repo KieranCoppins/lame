@@ -16,6 +16,9 @@ public class LocalFileStorage : IFileStorage
 
     public async Task<string> Save(byte[] data, string fileName)
     {
+        // Ensure that the base directory exists whenever we go to write in case settings have changed
+        Directory.CreateDirectory(_baseDirectory);
+
         var filePath = Path.Combine(_baseDirectory, fileName);
 
         await File.WriteAllBytesAsync(filePath, data);
