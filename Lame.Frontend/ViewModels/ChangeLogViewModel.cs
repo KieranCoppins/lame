@@ -25,17 +25,21 @@ public class ChangeLogViewModel : PageViewModel
         PageNumbers = [];
         CurrentPage = 0;
 
-        SetPageCommand = new RelayCommand<int>(page =>
+        SetPageCommand = new AsyncRelayCommand<int>(async page =>
         {
             CurrentPage = page;
-            _ = LoadEntries();
+            await LoadEntries();
         });
     }
 
     public ObservableCollection<ChangeLogEntry> Entries { get; }
     public ObservableCollection<PageNumber> PageNumbers { get; }
 
-    public int CurrentPage { get; set; }
+    public int CurrentPage
+    {
+        get;
+        set => SetField(ref field, value);
+    }
 
     public ICommand SetPageCommand { get; }
 
