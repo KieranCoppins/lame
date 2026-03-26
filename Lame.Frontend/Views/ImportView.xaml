@@ -114,6 +114,44 @@
                                 </DataTemplate>
                             </CheckBox.ContentTemplate>
                         </CheckBox>
+
+                        <CheckBox Style="{StaticResource Body}"
+                                  IsChecked="{Binding OverwriteExistingAssets}">
+                            <CheckBox.ToolTip>
+                                <TextBlock Style="{StaticResource Body}">
+                                    If the asset already exists (by Id), overwrite internal name and context notes with
+                                    <LineBreak />
+                                    the values inside the import file?
+                                </TextBlock>
+                            </CheckBox.ToolTip>
+
+                            <CheckBox.ContentTemplate>
+                                <DataTemplate>
+                                    <TextBlock Style="{StaticResource Body}"
+                                               Foreground="{StaticResource Brush.DarkGrey}"
+                                               TextWrapping="Wrap"
+                                               Margin="8, 0">
+
+                                        <Run Text="Overwrite existing asset properties" />
+
+                                        <InlineUIContainer BaselineAlignment="Center">
+                                            <Border Width="16"
+                                                    Height="16"
+                                                    Background="{StaticResource Brush.LightGrey}"
+                                                    CornerRadius="8"
+                                                    Cursor="Hand">
+                                                <TextBlock Text="?"
+                                                           FontSize="10"
+                                                           FontWeight="Bold"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"
+                                                           TextAlignment="Center" />
+                                            </Border>
+                                        </InlineUIContainer>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </CheckBox.ContentTemplate>
+                        </CheckBox>
                     </StackPanel>
                 </Border>
 

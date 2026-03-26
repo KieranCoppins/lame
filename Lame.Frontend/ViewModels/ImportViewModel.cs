@@ -60,6 +60,12 @@ public class ImportViewModel : PageViewModel
         set => SetField(ref field, value);
     }
 
+    public bool OverwriteExistingAssets
+    {
+        get;
+        set => SetField(ref field, value);
+    }
+
     public IImportViewModel? Importer
     {
         get;
@@ -81,7 +87,8 @@ public class ImportViewModel : PageViewModel
             {
                 ImportData = importData,
                 ContainsMajorChanges = ContainsMajorChanges,
-                CreateMissingAssets = CreateMissingAssets
+                CreateMissingAssets = CreateMissingAssets,
+                OverwriteExistingAssetProperties = OverwriteExistingAssets
             };
 
             var createdTranslations = await _importsService.Import(importOptions);
