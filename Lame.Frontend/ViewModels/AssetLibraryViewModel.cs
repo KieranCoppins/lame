@@ -5,6 +5,7 @@ using Lame.Backend.Languages;
 using Lame.DomainModel;
 using Lame.Frontend.Commands;
 using Lame.Frontend.Enums;
+using Lame.Frontend.Models;
 using Lame.Frontend.Services;
 
 namespace Lame.Frontend.ViewModels;
@@ -29,6 +30,14 @@ public class AssetLibraryViewModel : PageViewModel
         _notificationService = notificationService;
 
         Assets = [];
+        PageNumbers = [];
+        CurrentPage = 0;
+
+        SetPageCommand = new AsyncRelayCommand<int>(async page =>
+        {
+            CurrentPage = page;
+            await LoadAssets();
+        });
 
         ViewAssetDetailsCommand = new RelayCommand<AssetDto>(OnViewAssetDetails);
         Page = AppPage.Library;
@@ -38,6 +47,16 @@ public class AssetLibraryViewModel : PageViewModel
     }
 
     public Task? SearchQueryTask { get; private set; }
+
+    public ObservableCollection<PageNumber> PageNumbers { get; }
+
+    public ICommand SetPageCommand { get; }
+
+    public int CurrentPage
+    {
+        get;
+        set => SetField(ref field, value);
+    }
 
     public bool IsLoading
     {
@@ -100,10 +119,18 @@ public class AssetLibraryViewModel : PageViewModel
         try
         {
             List<AssetDto> assets;
+            PageNumbers.Clear();
             if (string.IsNullOrEmpty(SearchQuery))
-                assets = await _assets.Get();
+            {
+                var response = await _assets.Get(CurrentPage, 25);
+                assets = response.Items;
+
+                for (var i = 0; i < response.TotalPages; i++) PageNumbers.Add(new PageNumber { Number = i });
+            }
             else
+            {
                 assets = await _assets.Get(SearchQuery);
+            }
 
             Assets.Clear();
             foreach (var asset in assets) Assets.Add(asset);

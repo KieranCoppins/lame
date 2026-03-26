@@ -34,11 +34,48 @@ public class AssetsLocalEFTests
         var assetsLocalEf = new AssetsLocalEf(serviceProvider);
 
         // Act
-        var result = await assetsLocalEf.Get();
+        var result = await assetsLocalEf.Get(0, 25);
 
         // Assert
-        Assert.Single(result);
-        Assert.Equal(assets[0].Id, result[0].Id);
+        Assert.Single(result.Items);
+        Assert.Equal(assets[0].Id, result.Items[0].Id);
+    }
+
+    [Fact]
+    public async Task Get_WithMultiplePages_ReturnsCorrectPage()
+    {
+        // Arrange
+        var dbName = Guid.NewGuid().ToString();
+        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var assets = new List<AssetEntity>
+        {
+            new() { Id = Guid.NewGuid(), InternalName = "asset_a", Status = AssetStatus.Active },
+            new() { Id = Guid.NewGuid(), InternalName = "asset_a", Status = AssetStatus.Active },
+            new() { Id = Guid.NewGuid(), InternalName = "asset_a", Status = AssetStatus.Active },
+            new() { Id = Guid.NewGuid(), InternalName = "asset_a", Status = AssetStatus.Active },
+            new() { Id = Guid.NewGuid(), InternalName = "asset_a", Status = AssetStatus.Active },
+            new() { Id = Guid.NewGuid(), InternalName = "asset_a", Status = AssetStatus.Active }
+        };
+
+        context.Assets.AddRange(assets);
+
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var assetsLocalEf = new AssetsLocalEf(serviceProvider);
+
+        // Act
+        var result = await assetsLocalEf.Get(1, 2);
+
+        // Assert
+        Assert.Equal(2, result.Items.Count);
+        Assert.Equal(3, result.TotalPages);
+        Assert.Equal(1, result.Page);
+        Assert.Equal(assets[2].Id, result.Items[0].Id);
     }
 
     [Fact]

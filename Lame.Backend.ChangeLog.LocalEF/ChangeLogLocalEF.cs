@@ -46,7 +46,7 @@ public class ChangeLogLocalEF : IChangeLog
                 .Select(c => (ChangeLogEntry)c)
                 .ToListAsync();
 
-            paginatedResponse.TotalPages = totalLogs / pageSize;
+            paginatedResponse.TotalPages = (int)Math.Ceiling((double)totalLogs / pageSize);
             paginatedResponse.Items = logEntries;
 
             return paginatedResponse;

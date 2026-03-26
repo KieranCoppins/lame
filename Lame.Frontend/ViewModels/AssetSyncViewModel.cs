@@ -29,6 +29,13 @@ public class AssetSyncViewModel : PageViewModel
         Page = AppPage.AssetSync;
 
         AssetLinks = [];
+        PageNumbers = [];
+
+        SetPageCommand = new AsyncRelayCommand<int>(async page =>
+        {
+            CurrentPage = page;
+            await LoadAssetLinks();
+        });
 
         ReviewAssetLinkCommand = new RelayCommand<PopulatedAssetLink>(populatedAssetLink =>
         {
@@ -37,6 +44,16 @@ public class AssetSyncViewModel : PageViewModel
     }
 
     public ObservableCollection<PopulatedAssetLink> AssetLinks { get; }
+
+    public ObservableCollection<PageNumber> PageNumbers { get; }
+
+    public ICommand SetPageCommand { get; }
+
+    public int CurrentPage
+    {
+        get;
+        set => SetField(ref field, value);
+    }
 
     public ICommand ReviewAssetLinkCommand { get; set; }
 
@@ -50,7 +67,12 @@ public class AssetSyncViewModel : PageViewModel
     {
         try
         {
-            var assetLinks = (await _assetLinksService.GetAssetLinks())
+            var response = await _assetLinksService.GetAssetLinks(CurrentPage, 25);
+
+            PageNumbers.Clear();
+            for (var i = 0; i < response.TotalPages; i++) PageNumbers.Add(new PageNumber { Number = i });
+
+            var assetLinks = response.Items
                 .OrderBy(link => link.Synced)
                 .ToList();
 
