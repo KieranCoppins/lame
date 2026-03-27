@@ -24,7 +24,8 @@ public static class TranslationHelpers
             var fileExtension = Path.GetExtension(translation.Content);
             var fileName = $"{translation.Id}{fileExtension}";
 
-            translation.Content = await fileStorageService.Save(data, fileName);
+            await fileStorageService.Save(data, fileName);
+            translation.Content = fileName;
         }
 
         await translationService.Create(translation);
