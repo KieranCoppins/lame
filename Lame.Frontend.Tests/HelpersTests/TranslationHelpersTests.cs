@@ -36,7 +36,7 @@ public class TranslationHelpersTests
         );
 
         // Assert
-        Assert.Equal("stored_path.mp3", translation.Content);
+        Assert.Equal($"{translation.Id}.mp3", translation.Content);
         translationService.Verify(x => x.Create(translation), Times.Once);
     }
 
