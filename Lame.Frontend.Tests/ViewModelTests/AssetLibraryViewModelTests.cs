@@ -1,6 +1,7 @@
 ﻿using Lame.Backend.Assets;
 using Lame.Backend.Languages;
 using Lame.DomainModel;
+using Lame.Frontend.Commands;
 using Lame.Frontend.Services;
 using Lame.Frontend.Tests.ViewModelFactories;
 using Lame.Frontend.ViewModels;
@@ -29,7 +30,8 @@ public class AssetLibraryViewModelTests
         };
 
         var assetsService = new Mock<IAssets>();
-        assetsService.Setup(x => x.Get()).ReturnsAsync(assets);
+        assetsService.Setup(x => x.Get(It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(new PaginatedResponseBuilder<AssetDto>(assets).Build());
 
         var languagesService = new Mock<ILanguages>();
         languagesService.Setup(x => x.Get()).ReturnsAsync(languages);
@@ -51,7 +53,7 @@ public class AssetLibraryViewModelTests
         // Arrange
 
         var assetsService = new Mock<IAssets>();
-        assetsService.Setup(x => x.Get()).ThrowsAsync(new Exception("Test exception"));
+        assetsService.Setup(x => x.Get(It.IsAny<int>(), It.IsAny<int>())).ThrowsAsync(new Exception("Test exception"));
 
         var languagesService = new Mock<ILanguages>();
         languagesService.Setup(x => x.Get()).ReturnsAsync([]);
@@ -78,7 +80,8 @@ public class AssetLibraryViewModelTests
     {
         // Arrange
         var assetsService = new Mock<IAssets>();
-        assetsService.Setup(x => x.Get()).ReturnsAsync([]);
+        assetsService.Setup(x => x.Get(It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(new PaginatedResponseBuilder<AssetDto>([]).Build());
 
         var languagesService = new Mock<ILanguages>();
         languagesService.Setup(x => x.Get()).ThrowsAsync(new Exception("Test exception"));
@@ -145,5 +148,49 @@ public class AssetLibraryViewModelTests
                 )
             ),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task SetPageCommand_WithPageNumber_SetsCurrentPage()
+    {
+        // Arrange
+        var vm = AssetLibraryViewModelFactory.Create();
+
+        // Act
+        vm.SetPageCommand.Execute(2);
+
+        // Assert
+        await ((AsyncRelayCommand<int>)vm.SetPageCommand).CommandTask!;
+
+        Assert.Equal(2, vm.CurrentPage);
+    }
+
+    [Fact]
+    public async Task SetPageCommand_WhenCalled_LoadsAssetsOfPage()
+    {
+        // Arrange
+        var assets = new List<AssetDto>
+        {
+            new AssetDtoBuilder().Build(),
+            new AssetDtoBuilder().Build()
+        };
+
+        var paginatedAssets = new PaginatedResponseBuilder<AssetDto>(assets)
+            .WithTotalPages(5)
+            .Build();
+
+        var assetsService = new Mock<IAssets>();
+        assetsService.Setup(x => x.Get(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(paginatedAssets);
+
+        var vm = AssetLibraryViewModelFactory.Create(assetsService.Object);
+
+        // Act
+        vm.SetPageCommand.Execute(2);
+
+        // Assert
+        await ((AsyncRelayCommand<int>)vm.SetPageCommand).CommandTask!;
+
+        Assert.Equal(5, vm.PageNumbers.Count);
+        assetsService.Verify(x => x.Get(2, It.IsAny<int>()), Times.Once);
     }
 }

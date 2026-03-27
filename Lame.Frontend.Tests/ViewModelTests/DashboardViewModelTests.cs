@@ -1,5 +1,9 @@
-﻿using Lame.Backend.Statistics;
+﻿using Lame.Backend.ChangeLog;
+using Lame.Backend.Statistics;
+using Lame.DomainModel;
+using Lame.Frontend.Services;
 using Lame.Frontend.Tests.ViewModelFactories;
+using Lame.Frontend.ViewModels;
 using Lame.TestingHelpers;
 using Moq;
 
@@ -8,17 +12,25 @@ namespace Lame.Frontend.Tests.ViewModelTests;
 public class DashboardViewModelTests
 {
     [Fact]
-    public async Task OnNavigatedTo_WhenCalled_ShouldLoadStatistics()
+    public async Task OnNavigatedTo_WhenCalled_ShouldLoadStatisticsAndChangeLog()
     {
         // Arrange
-        var statisticsServiceMock = new Mock<IStatistics>();
-        var vm = DashboardViewModelFactory.Create(statisticsServiceMock.Object);
+        var statisticsService = new Mock<IStatistics>();
+        var changeLogService = new Mock<IChangeLog>();
+
+        changeLogService.Setup(c => c.Get(0, It.IsAny<int>()))
+            .ReturnsAsync(new PaginatedResponse<ChangeLogEntry> { Items = [] });
+
+        var vm = DashboardViewModelFactory.Create(
+            statisticsService.Object,
+            changeLogService: changeLogService.Object);
 
         // Act
         await vm.OnNavigatedTo();
 
         // Assert
-        statisticsServiceMock.Verify(s => s.GetProjectStatistics(), Times.Once);
+        statisticsService.Verify(s => s.GetProjectStatistics(), Times.Once);
+        changeLogService.Verify(c => c.Get(0, It.IsAny<int>()), Times.Once);
     }
 
     [Fact]
@@ -78,5 +90,22 @@ public class DashboardViewModelTests
 
         // Assert
         Assert.Equal(50, vm.TotalTranslations);
+    }
+
+    [Fact]
+    public void SearchTagCommand_WhenExecuted_NavigatesToAssetLibraryViewModelWithTagName()
+    {
+        // Arrange
+        var navigationServiceMock = new Mock<INavigationService>();
+        var statisticsServiceMock = new Mock<IStatistics>();
+        var vm = DashboardViewModelFactory.Create(statisticsServiceMock.Object, navigationServiceMock.Object);
+
+        var tag = new TagBuilder().WithName("TestTag").Build();
+
+        // Act
+        vm.SearchTagCommand.Execute(tag);
+
+        // Assert
+        navigationServiceMock.Verify(ns => ns.NavigateTo<AssetLibraryViewModel>("TestTag"), Times.Once);
     }
 }

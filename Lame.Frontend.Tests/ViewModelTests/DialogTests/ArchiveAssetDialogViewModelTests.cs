@@ -1,4 +1,6 @@
 ﻿using Lame.Backend.Assets;
+using Lame.Backend.ChangeLog;
+using Lame.DomainModel;
 using Lame.Frontend.Commands;
 using Lame.Frontend.Services;
 using Lame.Frontend.Tests.ViewModelFactories.Dialog;
@@ -10,15 +12,18 @@ namespace Lame.Frontend.Tests.ViewModelTests.DialogTests;
 public class ArchiveAssetDialogViewModelTests
 {
     [Fact]
-    public async Task ArchiveCommand_WithAsset_ArchivesAsset()
+    public async Task ArchiveCommand_WithAsset_ArchivesAssetAndCreatesChangeLog()
     {
         // Arrange
         var assetsService = new Mock<IAssets>();
         var asset = new AssetDtoBuilder().Build();
 
+        var changeLogService = new Mock<IChangeLog>();
+
         var vm = ArchiveAssetDialogViewModelFactory.Create(
             assetsService: assetsService.Object,
-            asset: asset
+            asset: asset,
+            changeLogService: changeLogService.Object
         );
 
         // Act
@@ -28,6 +33,12 @@ public class ArchiveAssetDialogViewModelTests
         await ((AsyncRelayCommand)vm.ArchiveCommand).CommandTask!;
 
         assetsService.Verify(s => s.Delete(asset.Id), Times.Once);
+        changeLogService.Verify(c => c.Create(It.Is<ChangeLogEntry>(entry =>
+            entry.ResourceAction == ResourceAction.Deleted &&
+            entry.ResourceType == ResourceType.Asset &&
+            entry.ResourceId == asset.Id &&
+            entry.Message.Contains(asset.InternalName)
+        )), Times.Once);
     }
 
     [Fact]

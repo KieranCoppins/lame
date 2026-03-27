@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using Lame.DomainModel;
 using Lame.Frontend.Services;
@@ -53,7 +56,7 @@ public class ImportXliffViewModel : BaseViewModel, IImportViewModel
 
             var source = transUnit.Element(ns + "source")?.Value;
             var target = transUnit.Element(ns + "target")?.Value;
-            var notes = transUnit.Element(ns + "notes")?.Value;
+            var notes = transUnit.Element(ns + "note")?.Value;
 
             var transData = new ImportData
             {

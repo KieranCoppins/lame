@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using Lame.Backend.AssetLinks;
 using Lame.Backend.Assets;
+using Lame.Backend.ChangeLog;
 using Lame.Backend.Languages;
 using Lame.Backend.Tags;
 using Lame.Backend.Translations;
@@ -41,7 +42,7 @@ public class CreateAssetViewModelTests
     }
 
     [Fact]
-    public async Task CreateAsset_WithValidFormData_CreatesAssetAndTranslationSuccessfully()
+    public async Task CreateAsset_WithValidFormData_CreatesAssetAndTranslationSuccessfullyAndCreatesChangeLog()
     {
         // Arrange
         var assetsService = new Mock<IAssets>();
@@ -54,9 +55,13 @@ public class CreateAssetViewModelTests
 
         var translationService = new Mock<ITranslations>();
 
+        var changeLogService = new Mock<IChangeLog>();
+        changeLogService.Setup(c => c.Create(It.IsAny<ChangeLogEntry>())).Returns(Task.CompletedTask);
+
         var vm = CreateAssetViewModelFactory.Create(
             assetsService: assetsService.Object,
-            translationsService: translationService.Object);
+            translationsService: translationService.Object,
+            changeLogService: changeLogService.Object);
 
         var testInternalName = "TestAsset";
         var testAssetType = AssetType.Text;
@@ -87,6 +92,14 @@ public class CreateAssetViewModelTests
                     t.Content == testEnglishContent)
             ),
             Times.Once);
+
+        changeLogService.Verify(c => c.Create(
+            It.Is<ChangeLogEntry>(entry =>
+                entry.ResourceId == createdAssetId &&
+                entry.ResourceType == ResourceType.Asset &&
+                entry.ResourceAction == ResourceAction.Created &&
+                entry.Message.Contains(testInternalName)
+            )), Times.Once);
     }
 
     [Fact]

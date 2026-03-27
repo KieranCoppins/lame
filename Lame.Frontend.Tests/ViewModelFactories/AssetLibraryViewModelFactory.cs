@@ -12,12 +12,14 @@ public class AssetLibraryViewModelFactory
         IAssets? assets = null,
         INavigationService? navigationService = null,
         ILanguages? languagesService = null,
-        INotificationService? notificationService = null)
+        INotificationService? notificationService = null,
+        string? searchQuery = null)
     {
         return new AssetLibraryViewModel(
             assets ?? new Mock<IAssets>().Object,
             navigationService ?? new Mock<INavigationService>().Object,
             languagesService ?? new Mock<ILanguages>().Object,
-            notificationService ?? new Mock<INotificationService>().Object);
+            notificationService ?? new Mock<INotificationService>().Object,
+            searchQuery);
     }
 }

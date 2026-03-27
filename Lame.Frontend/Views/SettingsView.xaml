@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModels="clr-namespace:Lame.Frontend.ViewModels"
+             xmlns:controls="clr-namespace:Lame.Frontend.Controls"
              mc:Ignorable="d"
              d:DesignHeight="1080" d:DesignWidth="1920"
              d:DataContext="{d:DesignInstance Type=viewModels:SettingsViewModel}">
@@ -67,6 +68,17 @@
                                            Foreground="{StaticResource Brush.Primary}" />
                             </Button>
                         </Border>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource CardBorderStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Storage Path"
+                                   Style="{StaticResource Header2}" />
+                        <TextBlock Text="Configure where LAME should store your localization assets."
+                                   Style="{StaticResource Subtitle}" />
+
+                        <controls:FileBrowserInput FilePath="{Binding AppBaseDirectory}" />
                     </StackPanel>
                 </Border>
             </StackPanel>

@@ -1,8 +1,13 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Lame.Backend.AssetLinks;
 using Lame.Backend.Assets;
+using Lame.Backend.ChangeLog;
 using Lame.Backend.FileStorage;
 using Lame.Backend.Languages;
 using Lame.Backend.Tags;
@@ -20,6 +25,7 @@ public class AssetDetailsViewModel : BaseViewModel
 {
     private readonly IAssetLinks _assetLinksService;
     private readonly IAssets _assetsService;
+    private readonly IChangeLog _changeLogService;
     private readonly IDialogService _dialogService;
     private readonly IFileStorage _fileStorageService;
     private readonly ILanguages _languagesService;
@@ -29,6 +35,8 @@ public class AssetDetailsViewModel : BaseViewModel
     private readonly ISystemIO _systemIo;
     private readonly ITags _tagsService;
     private readonly ITranslations _translationsService;
+
+    private readonly List<string> Changes;
 
     public AssetDetailsViewModel(
         INavigationService navigationService,
@@ -41,6 +49,7 @@ public class AssetDetailsViewModel : BaseViewModel
         ISystemIO systemIo,
         IAssetLinks assetLinksService,
         ILanguages languagesService,
+        IChangeLog changeLogService,
         AssetDto asset)
     {
         _navigationService = navigationService;
@@ -53,10 +62,12 @@ public class AssetDetailsViewModel : BaseViewModel
         _systemIo = systemIo;
         _assetLinksService = assetLinksService;
         _languagesService = languagesService;
+        _changeLogService = changeLogService;
 
         Translations = [];
         LinkedAssets = [];
         Tags = [];
+        Changes = [];
 
         Asset = asset;
 
@@ -117,6 +128,8 @@ public class AssetDetailsViewModel : BaseViewModel
             if (string.IsNullOrWhiteSpace(value)) return;
             if (Asset.InternalName == value) return;
 
+            Changes.Add($"- Name updated '{Asset.InternalName}' -> '{value}'");
+
             Asset.InternalName = value;
             OnPropertyChanged();
 
@@ -130,6 +143,9 @@ public class AssetDetailsViewModel : BaseViewModel
         set
         {
             if (Asset.ContextNotes == value) return;
+
+
+            Changes.Add("- Context notes updated");
 
             Asset.ContextNotes = value;
             OnPropertyChanged();
@@ -216,6 +232,15 @@ public class AssetDetailsViewModel : BaseViewModel
                 Synced = link.Synced
             });
 
+            await _changeLogService.Create(new ChangeLogEntry
+            {
+                ResourceId = Asset.Id,
+                ResourceAction = ResourceAction.Created,
+                ResourceType = ResourceType.AssetLink,
+                Message =
+                    $"Asset '{Asset.InternalName}' linked to '{asset.InternalName}'"
+            });
+
             _notificationService.EmitNotification(new Notification
             {
                 Message =
@@ -246,6 +271,15 @@ public class AssetDetailsViewModel : BaseViewModel
 
             var assetLink = Asset.AssetLinks.First(x => x.LinkedContentId == asset.Id);
             Asset.AssetLinks.Remove(assetLink);
+
+            await _changeLogService.Create(new ChangeLogEntry
+            {
+                ResourceId = Asset.Id,
+                ResourceAction = ResourceAction.Deleted,
+                ResourceType = ResourceType.AssetLink,
+                Message =
+                    $"Asset '{Asset.InternalName}' unlinked to '{asset.InternalName}'"
+            });
 
             _notificationService.EmitNotification(new Notification
             {
@@ -281,6 +315,20 @@ public class AssetDetailsViewModel : BaseViewModel
                 CreatedAt = Asset.CreatedAt,
                 Status = Asset.Status
             });
+
+            var message = $"Asset '{Asset.InternalName}' updated";
+            if (Changes.Count > 0)
+                message += ":\n\t" + Changes.Aggregate((a, b) => a + "\n\t" + b);
+
+            await _changeLogService.Create(new ChangeLogEntry
+            {
+                ResourceId = Asset.Id,
+                ResourceAction = ResourceAction.Updated,
+                ResourceType = ResourceType.Asset,
+                Message = message
+            });
+
+            Changes.Clear();
 
             _notificationService.EmitNotification(
                 new Notification
@@ -319,6 +367,26 @@ public class AssetDetailsViewModel : BaseViewModel
                 _tagsService.RemoveTagFromResource(tag.Id, Asset.Id));
 
             await Task.WhenAll(addTasks.Concat(removeTasks));
+
+            var message = $"Asset '{Asset.InternalName}' tags changed:";
+            if (tagsToAdd.Count == 1)
+                message += $"\n\t+ {tagsToAdd.First().Name}";
+            if (tagsToAdd.Count > 1)
+                message += tagsToAdd.Select(t => t.Name).Aggregate((a, b) => "\n\t+ " + a + "\n\t+ " + b);
+
+            if (tagsToRemove.Count == 1)
+                message += $"\n\t+ {tagsToRemove.First().Name}";
+            if (tagsToRemove.Count > 1)
+                message += tagsToRemove.Select(t => t.Name).Aggregate((a, b) => "\n\t- " + a + "\n\t- " + b);
+
+
+            await _changeLogService.Create(new ChangeLogEntry
+            {
+                ResourceId = Asset.Id,
+                ResourceAction = ResourceAction.Updated,
+                ResourceType = ResourceType.Asset,
+                Message = message
+            });
 
             _notificationService.EmitNotification(
                 new Notification

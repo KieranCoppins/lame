@@ -1,10 +1,14 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Lame.Backend.Assets;
 using Lame.Backend.Languages;
 using Lame.DomainModel;
 using Lame.Frontend.Commands;
 using Lame.Frontend.Enums;
+using Lame.Frontend.Models;
 using Lame.Frontend.Services;
 
 namespace Lame.Frontend.ViewModels;
@@ -20,7 +24,8 @@ public class AssetLibraryViewModel : PageViewModel
         IAssets assets,
         INavigationService navigationService,
         ILanguages languagesService,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        string? searchQuery = null)
     {
         _assets = assets;
         _navigationService = navigationService;
@@ -28,12 +33,33 @@ public class AssetLibraryViewModel : PageViewModel
         _notificationService = notificationService;
 
         Assets = [];
+        PageNumbers = [];
+        CurrentPage = 0;
+
+        SetPageCommand = new AsyncRelayCommand<int>(async page =>
+        {
+            CurrentPage = page;
+            await LoadAssets();
+        });
 
         ViewAssetDetailsCommand = new RelayCommand<AssetDto>(OnViewAssetDetails);
         Page = AppPage.Library;
+
+        if (searchQuery != null)
+            SearchQuery = searchQuery;
     }
 
     public Task? SearchQueryTask { get; private set; }
+
+    public ObservableCollection<PageNumber> PageNumbers { get; }
+
+    public ICommand SetPageCommand { get; }
+
+    public int CurrentPage
+    {
+        get;
+        set => SetField(ref field, value);
+    }
 
     public bool IsLoading
     {
@@ -96,10 +122,18 @@ public class AssetLibraryViewModel : PageViewModel
         try
         {
             List<AssetDto> assets;
+            PageNumbers.Clear();
             if (string.IsNullOrEmpty(SearchQuery))
-                assets = await _assets.Get();
+            {
+                var response = await _assets.Get(CurrentPage, 25);
+                assets = response.Items;
+
+                for (var i = 0; i < response.TotalPages; i++) PageNumbers.Add(new PageNumber { Number = i });
+            }
             else
+            {
                 assets = await _assets.Get(SearchQuery);
+            }
 
             Assets.Clear();
             foreach (var asset in assets) Assets.Add(asset);

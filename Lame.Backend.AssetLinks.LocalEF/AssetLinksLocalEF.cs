@@ -15,14 +15,14 @@ public class AssetLinksLocalEF : IAssetLinks
         _serviceProvider = serviceProvider;
     }
 
-    public Task<List<AssetLink>> GetAssetLinks()
+    public Task<PaginatedResponse<AssetLink>> GetAssetLinks(int page, int pageSize)
     {
         return Task.Run(async () =>
         {
             using var scope = _serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            var results = await context.AssetLinks
+            var linkQuery = context.AssetLinks
                 .GroupBy(link => new
                 {
                     AssetId1 = link.AssetEntityId < link.LinkedContentId
@@ -32,16 +32,29 @@ public class AssetLinksLocalEF : IAssetLinks
                         ? link.LinkedContentId
                         : link.AssetEntityId
                 })
-                .Select(g => g.First())
+                .Select(g => g.First());
+
+            var linkCount = await linkQuery.CountAsync();
+
+            var results = await linkQuery
+                .Skip(page * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
-            return results
+            var links = results
                 .Select(entity => new AssetLink
                 {
                     AssetEntityId = entity.AssetEntityId,
                     LinkedContentId = entity.LinkedContentId,
                     Synced = entity.Synced
                 }).ToList();
+
+            return new PaginatedResponse<AssetLink>
+            {
+                Page = page,
+                TotalPages = (int)Math.Ceiling((double)linkCount / pageSize),
+                Items = links
+            };
         });
     }
 

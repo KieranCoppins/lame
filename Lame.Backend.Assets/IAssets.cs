@@ -7,7 +7,7 @@ namespace Lame.Backend.Assets;
 /// </summary>
 public interface IAssets
 {
-    Task<List<AssetDto>> Get();
+    Task<PaginatedResponse<AssetDto>> Get(int page, int pageSize);
     Task<List<AssetDto>> Get(string searchTerm, int limit = 10);
     Task<AssetDto?> Get(Guid id);
     Task<List<AssetDto>> Get(List<Guid> ids);

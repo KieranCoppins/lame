@@ -1,8 +1,12 @@
-﻿using System.Windows;
+﻿using System;
+using System.IO;
+using System.Windows;
 using Lame.Backend.AssetLinks;
 using Lame.Backend.AssetLinks.LocalEF;
 using Lame.Backend.Assets;
 using Lame.Backend.Assets.LocalEF;
+using Lame.Backend.ChangeLog;
+using Lame.Backend.ChangeLog.LocalEF;
 using Lame.Backend.EntityFramework;
 using Lame.Backend.Exports;
 using Lame.Backend.Exports.Exporters;
@@ -36,8 +40,13 @@ public partial class App : Application
     {
         var services = new ServiceCollection();
 
-        services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlite($"Data Source={AppDbContext.GetConnectionString()}"));
+        services.AddSingleton<IUserSettingsService, UserSettingsService>();
+
+        services.AddDbContext<AppDbContext>((provider, options) =>
+        {
+            var connectionPath = provider.GetRequiredService<IUserSettingsService>().UserSettings.BaseDirectory;
+            options.UseSqlite($"Data Source={Path.Combine(connectionPath, "local.db")}");
+        });
 
         // Frontend Services
         services.AddSingleton<INavigationService, NavigationService>();
@@ -58,6 +67,8 @@ public partial class App : Application
         services.AddTransient<IExporterFactory, ExporterFactory>();
         services.AddTransient<JsonExporter>();
         services.AddTransient<Xliff12Exporter>();
+        services.AddScoped<IChangeLog, ChangeLogLocalEF>();
+
 
         // View Models
         services.AddSingleton<MainWindowViewModel>();
@@ -71,6 +82,7 @@ public partial class App : Application
         services.AddTransient<SettingsViewModel>();
         services.AddTransient<ExportViewModel>();
         services.AddTransient<EditTranslationDialogViewModel>();
+        services.AddTransient<ChangeLogViewModel>();
 
         // Build the service provider
         ServiceProvider = services.BuildServiceProvider();

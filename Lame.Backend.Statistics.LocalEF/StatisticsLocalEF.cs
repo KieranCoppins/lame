@@ -78,7 +78,7 @@ public class StatisticsLocalEF : IStatistics
                     Count = t.Assets.Count(a => a.Status != AssetStatus.Deleted)
                 })
                 .OrderByDescending(x => x.Count)
-                .Take(10)
+                .Take(5)
                 .ToDictionaryAsync(x => x.Tag, x => x.Count);
 
             // Asset link out of sync count

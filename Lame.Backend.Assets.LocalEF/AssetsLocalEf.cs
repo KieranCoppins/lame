@@ -15,18 +15,40 @@ public class AssetsLocalEf : IAssets
         _serviceProvider = serviceProvider;
     }
 
-    public async Task<List<AssetDto>> Get()
+    public async Task<PaginatedResponse<AssetDto>> Get(int page, int pageSize)
     {
         return await Task.Run(async () =>
         {
             using var scope = _serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            // TODO consider pagination if the dataset grows large
-            return await context.Assets
-                .Where(a => a.Status != AssetStatus.Deleted)
+            if (pageSize <= 0)
+                return new PaginatedResponse<AssetDto>
+                {
+                    Page = page,
+                    TotalPages = 0,
+                    Items = []
+                };
+
+            var query = context.Assets
+                .Where(a => a.Status != AssetStatus.Deleted);
+
+            var totalAssets = await query.CountAsync();
+
+            var pagedAssets = await query
+                .Skip(page * pageSize)
+                .Take(pageSize)
                 .AsDto()
                 .ToListAsync();
+
+            var totalPages = (int)Math.Ceiling((double)totalAssets / pageSize);
+
+            return new PaginatedResponse<AssetDto>
+            {
+                Page = page,
+                TotalPages = totalPages,
+                Items = pagedAssets
+            };
         });
     }
 
@@ -77,22 +99,6 @@ public class AssetsLocalEf : IAssets
         });
     }
 
-    public async Task<List<AssetDto>> GetLinkedAssets(Guid assetId)
-    {
-        return await Task.Run(() =>
-        {
-            using var scope = _serviceProvider.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-            return context.Assets
-                .Where(entity => entity.Id == assetId)
-                .SelectMany(a => a.LinkedTo.Select(x => x.LinkedAssetEntity)
-                    .Where(linkedAsset => linkedAsset.Status != AssetStatus.Deleted))
-                .AsDto()
-                .ToListAsync();
-        });
-    }
-
     public Task Create(Asset asset)
     {
         return Task.Run(() =>
@@ -138,6 +144,22 @@ public class AssetsLocalEf : IAssets
                 context.Assets.Update(sourceContent);
                 await context.SaveChangesAsync();
             }
+        });
+    }
+
+    public async Task<List<AssetDto>> GetLinkedAssets(Guid assetId)
+    {
+        return await Task.Run(() =>
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            return context.Assets
+                .Where(entity => entity.Id == assetId)
+                .SelectMany(a => a.LinkedTo.Select(x => x.LinkedAssetEntity)
+                    .Where(linkedAsset => linkedAsset.Status != AssetStatus.Deleted))
+                .AsDto()
+                .ToListAsync();
         });
     }
 

@@ -1,5 +1,9 @@
-﻿using System.Windows.Input;
+﻿using System;
+using System.Threading.Tasks;
+using System.Windows.Input;
 using Lame.Backend.AssetLinks;
+using Lame.Backend.ChangeLog;
+using Lame.DomainModel;
 using Lame.Frontend.Commands;
 using Lame.Frontend.Enums;
 using Lame.Frontend.Models;
@@ -12,6 +16,7 @@ public class AssetLinkReviewViewModel : PageViewModel
 {
     private readonly PopulatedAssetLink _assetLink;
     private readonly IAssetLinks _assetLinksService;
+    private readonly IChangeLog _changeLogService;
     private readonly INotificationService _notificationService;
     private readonly IServiceProvider _serviceProvider;
 
@@ -19,12 +24,14 @@ public class AssetLinkReviewViewModel : PageViewModel
         IAssetLinks assetLinksService,
         IServiceProvider serviceProvider,
         PopulatedAssetLink assetLink,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        IChangeLog changeLogService)
     {
         _assetLinksService = assetLinksService;
         _serviceProvider = serviceProvider;
         _assetLink = assetLink;
         _notificationService = notificationService;
+        _changeLogService = changeLogService;
 
         Page = AppPage.AssetSync;
 
@@ -54,6 +61,15 @@ public class AssetLinkReviewViewModel : PageViewModel
         try
         {
             await _assetLinksService.SyncAssetLink(_assetLink.AssetEntityId, _assetLink.LinkedContentId);
+
+            await _changeLogService.Create(new ChangeLogEntry
+            {
+                ResourceId = _assetLink.AssetEntityId,
+                ResourceType = ResourceType.AssetLink,
+                ResourceAction = ResourceAction.Updated,
+                Message =
+                    $"Synced asset link between '{_assetLink.Asset.InternalName}' and '{_assetLink.LinkedAsset.InternalName}'."
+            });
 
             _notificationService.EmitNotification(new Notification
             {

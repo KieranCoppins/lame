@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Lame.Backend.ChangeLog\Lame.Backend.ChangeLog.csproj"/>
         <ProjectReference Include="..\Lame.Backend.EntityFramework\Lame.Backend.EntityFramework.csproj"/>
         <ProjectReference Include="..\Lame.Backend.Imports\Lame.Backend.Imports.csproj"/>
     </ItemGroup>
