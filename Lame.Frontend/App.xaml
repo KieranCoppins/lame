@@ -51,6 +51,9 @@
             <DataTemplate DataType="{x:Type viewModels:ExportViewModel}">
                 <views:ExportView />
             </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:ChangeLogViewModel}">
+                <views:ChangeLogView />
+            </DataTemplate>
             <DataTemplate DataType="{x:Type viewModels:AssetLinkReviewViewModel}">
                 <views:AssetLinkReviewView />
             </DataTemplate>
@@ -84,6 +87,9 @@
             <converters:GuidToColourConverter x:Key="GuidToColourConverter" />
             <converters:IsNullOrWhitespace x:Key="IsNullOrWhitespace" />
             <converters:DateConverter x:Key="DateConverter" />
+            <converters:RelativeTimeConverter x:Key="RelativeTimeConverter" />
+            <converters:TabToSpaceConverter x:Key="TabToSpaceConverter" />
+            <converters:EqualityConverter x:Key="EqualityConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

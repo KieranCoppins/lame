@@ -8,6 +8,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Lame.Backend.FileStorage\Lame.Backend.FileStorage.csproj"/>
+        <ProjectReference Include="..\Lame.Configuration\Lame.Configuration.csproj"/>
     </ItemGroup>
 
 </Project>

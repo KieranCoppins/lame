@@ -82,6 +82,33 @@ namespace Lame.Backend.EntityFramework.Migrations
                     b.ToTable("AssetLinks", (string)null);
                 });
 
+            modelBuilder.Entity("Lame.Backend.EntityFramework.Models.ChangeLogEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ResourceAction")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid?>("ResourceId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("ResourceType")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ChangeLogEntries");
+                });
+
             modelBuilder.Entity("Lame.Backend.EntityFramework.Models.LanguageEntity", b =>
                 {
                     b.Property<string>("LanguageCode")

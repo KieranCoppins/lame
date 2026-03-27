@@ -1,5 +1,8 @@
-﻿using System.Windows.Input;
+﻿using System;
+using System.Threading.Tasks;
+using System.Windows.Input;
 using Lame.Backend.Assets;
+using Lame.Backend.ChangeLog;
 using Lame.DomainModel;
 using Lame.Frontend.Commands;
 using Lame.Frontend.Services;
@@ -9,15 +12,21 @@ namespace Lame.Frontend.ViewModels.Dialogs;
 public class ArchiveAssetDialogViewModel : BaseViewModel
 {
     private readonly IAssets _assetsService;
+    private readonly IChangeLog _changeLogService;
     private readonly IDialogService _dialogService;
     private readonly INotificationService _notificationService;
 
-    public ArchiveAssetDialogViewModel(IDialogService dialogService, IAssets assetsService,
-        INotificationService notificationService, AssetDto asset)
+    public ArchiveAssetDialogViewModel(
+        IDialogService dialogService,
+        IAssets assetsService,
+        INotificationService notificationService,
+        IChangeLog changeLogService,
+        AssetDto asset)
     {
         _dialogService = dialogService;
         _assetsService = assetsService;
         _notificationService = notificationService;
+        _changeLogService = changeLogService;
         Asset = asset;
 
         ArchiveCommand = new AsyncRelayCommand(ArchiveAsset);
@@ -54,6 +63,14 @@ public class ArchiveAssetDialogViewModel : BaseViewModel
         {
             IsLoading = true;
             await _assetsService.Delete(Asset.Id);
+
+            await _changeLogService.Create(new ChangeLogEntry
+            {
+                ResourceAction = ResourceAction.Deleted,
+                ResourceId = Asset.Id,
+                ResourceType = ResourceType.Asset,
+                Message = $"Archived asset '{Asset.InternalName}'"
+            });
 
             _notificationService.EmitNotification(new Notification
             {

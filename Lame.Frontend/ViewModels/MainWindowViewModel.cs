@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Windows.Input;
 using Lame.Frontend.Commands;
@@ -58,6 +59,9 @@ public class MainWindowViewModel : BaseViewModel
         NavigateToExportXliffCommand = new RelayCommand(() =>
             _navigationService.NavigateTo<ExportViewModel>());
 
+        NavigateToChangeLogCommand = new RelayCommand(() =>
+            _navigationService.NavigateTo<ChangeLogViewModel>());
+
         CloseDialogCommand = new RelayCommand(dialogService.CloseDialog);
     }
 
@@ -82,5 +86,6 @@ public class MainWindowViewModel : BaseViewModel
     public ICommand NavigateToSettingsCommand { get; }
     public ICommand NavigateToImportXliffCommand { get; }
     public ICommand NavigateToExportXliffCommand { get; }
+    public ICommand NavigateToChangeLogCommand { get; }
     public ICommand CloseDialogCommand { get; }
 }

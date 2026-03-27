@@ -3,5 +3,9 @@
 public enum ResourceType
 {
     Asset,
-    Translation
+    Translation,
+    TargetedTranslation,
+    AssetLink,
+    Language,
+    Tag
 }

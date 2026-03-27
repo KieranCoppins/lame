@@ -1,4 +1,5 @@
-﻿using Lame.Frontend.ViewModels;
+﻿using System;
+using Lame.Frontend.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Lame.Frontend.Services;

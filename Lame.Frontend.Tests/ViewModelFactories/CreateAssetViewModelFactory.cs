@@ -1,5 +1,6 @@
 ﻿using Lame.Backend.AssetLinks;
 using Lame.Backend.Assets;
+using Lame.Backend.ChangeLog;
 using Lame.Backend.FileStorage;
 using Lame.Backend.Languages;
 using Lame.Backend.Tags;
@@ -21,7 +22,8 @@ public class CreateAssetViewModelFactory
         INotificationService? notificationService = null,
         IFileStorage? fileStorageService = null,
         ISystemIO? systemIo = null,
-        IAssetLinks? assetLinksService = null
+        IAssetLinks? assetLinksService = null,
+        IChangeLog? changeLogService = null
     )
     {
         return new CreateAssetViewModel(
@@ -33,7 +35,8 @@ public class CreateAssetViewModelFactory
             dialogService ?? new Mock<IDialogService>().Object,
             languagesService ?? new Mock<ILanguages>().Object,
             fileStorageService ?? new Mock<IFileStorage>().Object,
-            systemIo ?? new Mock<ISystemIO>().Object
+            systemIo ?? new Mock<ISystemIO>().Object,
+            changeLogService ?? new Mock<IChangeLog>().Object
         );
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Lame.Backend.AssetLinks;
+using Lame.Backend.ChangeLog;
 using Lame.Backend.FileStorage;
 using Lame.Backend.Translations;
 using Lame.DomainModel;
@@ -19,7 +20,8 @@ public class EditTranslationDialogViewModelFactory
         AssetDto? owningAsset = null,
         IFileStorage? fileStorageService = null,
         ISystemIO? systemIo = null,
-        IAssetLinks? assetLinksService = null
+        IAssetLinks? assetLinksService = null,
+        IChangeLog? changeLogService = null
     )
     {
         return new EditTranslationDialogViewModel(
@@ -30,7 +32,8 @@ public class EditTranslationDialogViewModelFactory
             notificationService ?? new Mock<INotificationService>().Object,
             fileStorageService ?? new Mock<IFileStorage>().Object,
             systemIo ?? new Mock<ISystemIO>().Object,
-            assetLinksService ?? new Mock<IAssetLinks>().Object
+            assetLinksService ?? new Mock<IAssetLinks>().Object,
+            changeLogService ?? new Mock<IChangeLog>().Object
         );
     }
 }

@@ -1,4 +1,7 @@
-﻿namespace Lame.Frontend.Commands;
+﻿using System;
+using System.Threading.Tasks;
+
+namespace Lame.Frontend.Commands;
 
 public class AsyncRelayCommand<T> : BaseRelayCommand<T>
 {

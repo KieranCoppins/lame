@@ -9,7 +9,14 @@ public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
     {
         var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
 
-        optionsBuilder.UseSqlite($"Data Source={AppDbContext.GetConnectionString()}");
+        // Default location for design time:
+        var documents = Environment.GetFolderPath(
+            Environment.SpecialFolder.MyDocuments);
+
+        var path = Path.Combine(documents, "LAME", "local.db");
+
+
+        optionsBuilder.UseSqlite($"Data Source={path}");
 
         return new AppDbContext(optionsBuilder.Options);
     }

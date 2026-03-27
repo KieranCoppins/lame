@@ -1,4 +1,5 @@
-﻿using Lame.Frontend.Enums;
+﻿using System.Threading.Tasks;
+using Lame.Frontend.Enums;
 
 namespace Lame.Frontend.ViewModels;
 

@@ -363,11 +363,11 @@ public class AssetLinksLocalEFTests
         var assetLinksLocalEf = new AssetLinksLocalEF(serviceProvider);
 
         // Act
-        var links = await assetLinksLocalEf.GetAssetLinks();
+        var links = await assetLinksLocalEf.GetAssetLinks(0, 25);
 
         // Assert
-        Assert.Single(links);
-        Assert.Contains(links, l =>
+        Assert.Single(links.Items);
+        Assert.Contains(links.Items, l =>
             (l.AssetEntityId == assetA.Id && l.LinkedContentId == assetB.Id) ||
             (l.AssetEntityId == assetB.Id && l.LinkedContentId == assetA.Id));
     }
@@ -386,10 +386,10 @@ public class AssetLinksLocalEFTests
         var assetLinksLocalEf = new AssetLinksLocalEF(serviceProvider);
 
         // Act
-        var links = await assetLinksLocalEf.GetAssetLinks();
+        var links = await assetLinksLocalEf.GetAssetLinks(0, 25);
 
         // Assert
-        Assert.Empty(links);
+        Assert.Empty(links.Items);
     }
 
     [Fact]
@@ -420,17 +420,58 @@ public class AssetLinksLocalEFTests
         var assetLinksLocalEf = new AssetLinksLocalEF(serviceProvider);
 
         // Act
-        var links = await assetLinksLocalEf.GetAssetLinks();
-
+        var links = await assetLinksLocalEf.GetAssetLinks(0, 25);
 
         // Assert
-        Assert.Equal(2, links.Count);
-        Assert.Contains(links, l =>
+        Assert.Equal(2, links.Items.Count);
+        Assert.Contains(links.Items, l =>
             (l.AssetEntityId == assetA.Id && l.LinkedContentId == assetB.Id) ||
             (l.AssetEntityId == assetB.Id && l.LinkedContentId == assetA.Id));
-        Assert.Contains(links, l =>
+        Assert.Contains(links.Items, l =>
             (l.AssetEntityId == assetA.Id && l.LinkedContentId == assetC.Id) ||
             (l.AssetEntityId == assetC.Id && l.LinkedContentId == assetA.Id));
+    }
+
+    [Fact]
+    public async Task GetAssetLinks_WithMultiplePages_ReturnsCorrectPage()
+    {
+        // Arrange
+        var dbName = Guid.NewGuid().ToString();
+        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var assetA = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
+        var assetB = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
+        var assetC = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
+        var assetD = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
+        var assetE = new AssetEntityBuilder().WithStatus(AssetStatus.Active).Build();
+
+        var linkAB = new AssetLinkEntityBuilder(assetA, assetB).WithSynced(true).Build();
+        var linkBA = new AssetLinkEntityBuilder(assetB, assetA).WithSynced(true).Build();
+        var linkAC = new AssetLinkEntityBuilder(assetA, assetC).WithSynced(false).Build();
+        var linkCA = new AssetLinkEntityBuilder(assetC, assetA).WithSynced(false).Build();
+        var linkAD = new AssetLinkEntityBuilder(assetA, assetD).WithSynced(false).Build();
+        var linkDA = new AssetLinkEntityBuilder(assetD, assetA).WithSynced(false).Build();
+        var linkAE = new AssetLinkEntityBuilder(assetA, assetE).WithSynced(false).Build();
+        var linkEA = new AssetLinkEntityBuilder(assetE, assetA).WithSynced(false).Build();
+
+        context.Assets.AddRange(assetA, assetB, assetC, assetD, assetE);
+        context.AssetLinks.AddRange(linkAB, linkBA, linkAC, linkCA, linkAD, linkDA, linkAE, linkEA);
+
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var assetLinksLocalEf = new AssetLinksLocalEF(serviceProvider);
+
+        // Act
+        var links = await assetLinksLocalEf.GetAssetLinks(1, 2);
+
+        // Assert
+        Assert.Equal(2, links.Items.Count);
+        Assert.Equal(2, links.TotalPages);
+        Assert.Equal(1, links.Page);
     }
 
     [Fact]

@@ -1,4 +1,5 @@
 ﻿using Lame.Backend.Assets;
+using Lame.Backend.ChangeLog;
 using Lame.DomainModel;
 using Lame.Frontend.Services;
 using Lame.Frontend.ViewModels.Dialogs;
@@ -12,6 +13,7 @@ public class ArchiveAssetDialogViewModelFactory
         IDialogService? dialogService = null,
         IAssets? assetsService = null,
         INotificationService? notificationService = null,
+        IChangeLog? changeLogService = null,
         AssetDto? asset = null
     )
     {
@@ -19,6 +21,7 @@ public class ArchiveAssetDialogViewModelFactory
             dialogService ?? new Mock<IDialogService>().Object,
             assetsService ?? new Mock<IAssets>().Object,
             notificationService ?? new Mock<INotificationService>().Object,
+            changeLogService ?? new Mock<IChangeLog>().Object,
             asset
         );
     }

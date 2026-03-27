@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModels="clr-namespace:Lame.Frontend.ViewModels"
+             xmlns:controls="clr-namespace:Lame.Frontend.Controls"
              mc:Ignorable="d"
              d:DesignHeight="1920" d:DesignWidth="1080"
              d:DataContext="{d:DesignInstance viewModels:AssetSyncViewModel }">
@@ -71,6 +72,11 @@
 
                             </DataGrid.Columns>
                         </DataGrid>
+
+                        <controls:PageNavigationControl CurrentPage="{Binding CurrentPage}"
+                                                        PageCommand="{Binding SetPageCommand}"
+                                                        PageNumbers="{Binding PageNumbers}" />
+
                         <Control HorizontalAlignment="Center"
                                  VerticalAlignment="Center"
                                  Margin="16">
