@@ -9,6 +9,7 @@ namespace Lame.Backend.ChangeLog.LocalEF;
 public class ChangeLogLocalEF : IChangeLog
 {
     private readonly IServiceProvider _serviceProvider;
+    private IChangeLog _changeLogImplementation;
 
     public ChangeLogLocalEF(IServiceProvider serviceProvider)
     {
@@ -36,6 +37,45 @@ public class ChangeLogLocalEF : IChangeLog
 
             var logQuery = context.ChangeLogEntries
                 .AsNoTracking()
+                .OrderByDescending(c => c.Date);
+
+            var totalLogs = await logQuery.CountAsync();
+
+            var logEntries = await logQuery
+                .Skip(page * pageSize)
+                .Take(pageSize)
+                .Select(c => (ChangeLogEntry)c)
+                .ToListAsync();
+
+            paginatedResponse.TotalPages = (int)Math.Ceiling((double)totalLogs / pageSize);
+            paginatedResponse.Items = logEntries;
+
+            return paginatedResponse;
+        });
+    }
+
+    public Task<PaginatedResponse<ChangeLogEntry>> Get(List<Guid> resourceIds, int page, int pageSize)
+    {
+        return Task.Run(async () =>
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            var paginatedResponse = new PaginatedResponse<ChangeLogEntry>
+            {
+                Page = page
+            };
+
+            if (pageSize <= 0)
+            {
+                paginatedResponse.TotalPages = 0;
+                paginatedResponse.Items = [];
+                return paginatedResponse;
+            }
+
+            var logQuery = context.ChangeLogEntries
+                .AsNoTracking()
+                .Where(c => c.ResourceId.HasValue && resourceIds.Contains(c.ResourceId.Value))
                 .OrderByDescending(c => c.Date);
 
             var totalLogs = await logQuery.CountAsync();
