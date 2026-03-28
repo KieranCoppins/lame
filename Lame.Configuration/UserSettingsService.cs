@@ -65,6 +65,7 @@ public class UserSettingsService : IUserSettingsService
         {
             var defaults = CreateDefault();
             SaveToFile(defaults);
+            Directory.CreateDirectory(defaults.BaseDirectory);
             return defaults;
         }
 
