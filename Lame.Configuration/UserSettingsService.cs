@@ -22,14 +22,19 @@ public class UserSettingsService : IUserSettingsService
 
         _filePath = Path.Combine(folder, "usersettings.json");
 
-        UserSettings = Load();
+        Load();
     }
 
-    public UserSettings UserSettings { get; }
+    public UserSettings UserSettings { get; private set; }
 
     public void Save()
     {
-        SaveToFile(UserSettings);
+        var json = JsonSerializer.Serialize(UserSettings, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
+
+        File.WriteAllText(_filePath, json);
     }
 
     public string SetBaseDirectory(string newDirectory)
@@ -59,19 +64,22 @@ public class UserSettingsService : IUserSettingsService
         return dir;
     }
 
-    private UserSettings Load()
+    private void Load()
     {
-        if (!File.Exists(_filePath))
+        if (File.Exists(_filePath))
         {
-            var defaults = CreateDefault();
-            SaveToFile(defaults);
-            Directory.CreateDirectory(defaults.BaseDirectory);
-            return defaults;
+            var json = File.ReadAllText(_filePath);
+            UserSettings = JsonSerializer.Deserialize<UserSettings>(json);
         }
 
-        var json = File.ReadAllText(_filePath);
-        return JsonSerializer.Deserialize<UserSettings>(json)
-               ?? CreateDefault();
+        if (UserSettings == null)
+        {
+            UserSettings = CreateDefault();
+            Save();
+        }
+
+        // Ensure base directory exists
+        Directory.CreateDirectory(UserSettings.BaseDirectory);
     }
 
     private UserSettings CreateDefault()
@@ -83,15 +91,5 @@ public class UserSettingsService : IUserSettingsService
         {
             BaseDirectory = Path.Combine(documents, "LAME")
         };
-    }
-
-    private void SaveToFile(UserSettings settings)
-    {
-        var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions
-        {
-            WriteIndented = true
-        });
-
-        File.WriteAllText(_filePath, json);
     }
 }

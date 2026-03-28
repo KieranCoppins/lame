@@ -386,5 +386,17 @@
                 </ItemsControl>
             </StackPanel>
         </Border>
+
+        <Border Style="{StaticResource CardBorderStyle}">
+            <StackPanel>
+                <TextBlock Text="Recent Activity" Style="{StaticResource Header2}" />
+
+                <controls:ChangeLogControl Entries="{Binding ChangeLogEntries}" />
+
+                <controls:PageNavigationControl CurrentPage="{Binding CurrentPage}"
+                                                PageCommand="{Binding SetPageCommand}"
+                                                PageNumbers="{Binding PageNumbers}" />
+            </StackPanel>
+        </Border>
     </StackPanel>
 </UserControl>
