@@ -16,7 +16,7 @@ public class ChangeLogLocalEF : IChangeLog
         _serviceProvider = serviceProvider;
     }
 
-    public Task<PaginatedResponse<ChangeLogEntry>> Get(int page, int pageSize)
+    public Task<PaginatedResponse<ChangeLogEntry>> Get(int page, int pageSize, List<Guid>? resourceIds = null)
     {
         return Task.Run(async () =>
         {
@@ -37,6 +37,7 @@ public class ChangeLogLocalEF : IChangeLog
 
             var logQuery = context.ChangeLogEntries
                 .AsNoTracking()
+                .Where(c => resourceIds == null || (c.ResourceId.HasValue && resourceIds.Contains(c.ResourceId.Value)))
                 .OrderByDescending(c => c.Date);
 
             var totalLogs = await logQuery.CountAsync();
@@ -51,6 +52,29 @@ public class ChangeLogLocalEF : IChangeLog
             paginatedResponse.Items = logEntries;
 
             return paginatedResponse;
+        });
+    }
+
+    public Task Create(ChangeLogEntry changeLog)
+    {
+        return Task.Run(() =>
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            var entity = new ChangeLogEntity
+            {
+                Id = Guid.NewGuid(),
+                Date = DateTime.UtcNow,
+                Message = changeLog.Message,
+                ResourceAction = changeLog.ResourceAction,
+                ResourceId = changeLog.ResourceId,
+                ResourceType = changeLog.ResourceType
+            };
+
+            context.ChangeLogEntries.Add(entity);
+
+            return context.SaveChangesAsync();
         });
     }
 
@@ -90,29 +114,6 @@ public class ChangeLogLocalEF : IChangeLog
             paginatedResponse.Items = logEntries;
 
             return paginatedResponse;
-        });
-    }
-
-    public Task Create(ChangeLogEntry changeLog)
-    {
-        return Task.Run(() =>
-        {
-            using var scope = _serviceProvider.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-            var entity = new ChangeLogEntity
-            {
-                Id = Guid.NewGuid(),
-                Date = DateTime.UtcNow,
-                Message = changeLog.Message,
-                ResourceAction = changeLog.ResourceAction,
-                ResourceId = changeLog.ResourceId,
-                ResourceType = changeLog.ResourceType
-            };
-
-            context.ChangeLogEntries.Add(entity);
-
-            return context.SaveChangesAsync();
         });
     }
 }

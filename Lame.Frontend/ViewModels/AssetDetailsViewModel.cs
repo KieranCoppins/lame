@@ -483,7 +483,7 @@ public class AssetDetailsViewModel : BaseViewModel
         var relatedIds = (await _translationsService.GetAllForAsset(Asset.Id)).Select(t => t.Id).ToList();
         relatedIds.Add(Asset.Id);
 
-        var assetChanges = await _changeLogService.Get(relatedIds, CurrentPage, 25);
+        var assetChanges = await _changeLogService.Get(CurrentPage, 25, relatedIds);
 
         ChangeLogEntries.Clear();
         foreach (var entry in assetChanges.Items) ChangeLogEntries.Add(entry);

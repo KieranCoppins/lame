@@ -1,6 +1,7 @@
 ﻿using Lame.Backend.EntityFramework;
 using Lame.Backend.EntityFramework.Models;
 using Lame.Backend.EntityFramework.Tests;
+using Lame.Backend.EntityFramework.Tests.EntityBuilders;
 using Lame.DomainModel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -511,5 +512,97 @@ public class TranslationsLocalEFTests
         Assert.Equal("Updated Content", result.Content);
         Assert.Equal(2, result.MajorVersion);
         Assert.Equal(1, result.MinorVersion);
+    }
+
+    [Fact]
+    public async Task GetAllForAsset_AssetWithMultipleTranslations_ReturnsAllOrderedByVersion()
+    {
+        // Arrange
+        var dbName = Guid.NewGuid().ToString();
+        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var asset = new AssetEntityBuilder().Build();
+        var translations = new List<TranslationEntity>
+        {
+            new TranslationEntityBuilder(asset).WithLanguage("en").WithVersion(2, 0).Build(),
+            new TranslationEntityBuilder(asset).WithLanguage("en").WithVersion(1, 5).Build(),
+            new TranslationEntityBuilder(asset).WithLanguage("en").WithVersion(2, 1).Build()
+        };
+
+        context.Assets.AddRange(asset);
+        context.Translations.AddRange(translations);
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var translationsLocalEf = new TranslationsLocalEF(serviceProvider);
+
+        // Act
+        var result = await translationsLocalEf.GetAllForAsset(asset.Id);
+
+        // Assert
+        Assert.Equal(3, result.Count);
+        Assert.Equal(translations[2].Id, result[0].Id);
+        Assert.Equal(translations[0].Id, result[1].Id);
+        Assert.Equal(translations[1].Id, result[2].Id);
+    }
+
+    [Fact]
+    public async Task GetAllForAsset_AssetWithNoTranslations_ReturnsEmptyList()
+    {
+        // Arrange
+        var dbName = Guid.NewGuid().ToString();
+        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var assetId = Guid.NewGuid();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var translationsLocalEf = new TranslationsLocalEF(serviceProvider);
+
+        // Act
+        var result = await translationsLocalEf.GetAllForAsset(assetId);
+
+        // Assert
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task GetAllForAsset_TranslationsForOtherAssets_IgnoresOtherAssets()
+    {
+        // Arrange
+        var dbName = Guid.NewGuid().ToString();
+        await using var context = EntityFrameworkTestingHelpers.CreateMemoryDatabase(dbName);
+
+        var assetA = new AssetEntityBuilder().Build();
+        var assetB = new AssetEntityBuilder().Build();
+
+        var translations = new List<TranslationEntity>
+        {
+            new TranslationEntityBuilder(assetA).WithVersion(1, 0).Build(),
+            new TranslationEntityBuilder(assetB).WithVersion(1, 0).Build()
+        };
+
+        context.Assets.AddRange(assetA, assetB);
+        context.Translations.AddRange(translations);
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(dbName))
+            .BuildServiceProvider();
+
+        var translationsLocalEf = new TranslationsLocalEF(serviceProvider);
+
+        // Act
+        var result = await translationsLocalEf.GetAllForAsset(assetA.Id);
+
+        // Assert
+        Assert.Single(result);
+        Assert.Equal(translations[0].Id, result[0].Id);
     }
 }
