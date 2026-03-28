@@ -68,6 +68,8 @@ public class AssetDetailsViewModel : BaseViewModel
         LinkedAssets = [];
         Tags = [];
         Changes = [];
+        ChangeLogEntries = [];
+        PageNumbers = [];
 
         Asset = asset;
 
@@ -88,6 +90,12 @@ public class AssetDetailsViewModel : BaseViewModel
         _dialogService.ActiveDialogChanged += DialogServiceOnActiveDialogChanged;
 
         DownloadTranslationCommand = new AsyncRelayCommand<TranslationDto>(DownloadTranslation);
+
+        SetPageCommand = new AsyncRelayCommand<int>(async page =>
+        {
+            CurrentPage = page;
+            await LoadAssetChangeLog();
+        });
     }
 
     public int SupportedLanguagesCount
@@ -104,6 +112,15 @@ public class AssetDetailsViewModel : BaseViewModel
 
     public ObservableCollection<TranslationDto> Translations { get; }
     public ObservableCollection<PopulatedAssetLink> LinkedAssets { get; }
+    public ObservableCollection<ChangeLogEntry> ChangeLogEntries { get; }
+
+    public ObservableCollection<PageNumber> PageNumbers { get; }
+
+    public int CurrentPage
+    {
+        get;
+        set => SetField(ref field, value);
+    }
 
     public ObservableCollection<Tag> Tags
     {
@@ -111,6 +128,7 @@ public class AssetDetailsViewModel : BaseViewModel
         set => SetField(ref field, value);
     }
 
+    public ICommand SetPageCommand { get; }
     public ICommand ViewLinkedAssetDetails { get; }
     public ICommand OpenLinkAssetDialogCommand { get; }
     public ICommand RemoveAssetLinkCommand { get; }
@@ -172,7 +190,12 @@ public class AssetDetailsViewModel : BaseViewModel
         // Refresh the state of the asset also
         Asset = await _assetsService.Get(Asset.Id);
 
-        await Task.WhenAll(LoadTranslations(), LoadLinkedAssets(), LoadTags(), LoadSupportedLanguages());
+        await Task.WhenAll(
+            LoadTranslations(),
+            LoadLinkedAssets(),
+            LoadTags(),
+            LoadSupportedLanguages(),
+            LoadAssetChangeLog());
     }
 
     private async Task LoadTranslations()
@@ -453,5 +476,19 @@ public class AssetDetailsViewModel : BaseViewModel
     {
         var languages = await _languagesService.Get();
         SupportedLanguagesCount = languages.Count;
+    }
+
+    private async Task LoadAssetChangeLog()
+    {
+        var relatedIds = (await _translationsService.GetAllForAsset(Asset.Id)).Select(t => t.Id).ToList();
+        relatedIds.Add(Asset.Id);
+
+        var assetChanges = await _changeLogService.Get(CurrentPage, 25, relatedIds);
+
+        ChangeLogEntries.Clear();
+        foreach (var entry in assetChanges.Items) ChangeLogEntries.Add(entry);
+
+        PageNumbers.Clear();
+        for (var i = 0; i < assetChanges.TotalPages; i++) PageNumbers.Add(new PageNumber { Number = i });
     }
 }

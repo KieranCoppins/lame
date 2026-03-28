@@ -63,6 +63,22 @@ public class TranslationsLocalEF : ITranslations
         });
     }
 
+    public Task<List<TranslationDto>> GetAllForAsset(Guid assetId)
+    {
+        return Task.Run(() =>
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            return context.Translations
+                .Where(t => t.AssetId == assetId)
+                .AsDto()
+                .OrderByDescending(t => t.MajorVersion)
+                .ThenByDescending(t => t.MinorVersion)
+                .ToListAsync();
+        });
+    }
+
     public Task SetTargetTranslation(Guid translationId)
     {
         return Task.Run(() =>

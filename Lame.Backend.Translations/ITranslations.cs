@@ -25,6 +25,14 @@ public interface ITranslations
     Task<List<TranslationDto>> GetAllForLanguageForAsset(Guid assetId, string language);
 
     /// <summary>
+    ///     Gets all the translation for the given asset, including all versions. Does not include missing translations with
+    ///     empty content
+    /// </summary>
+    /// <param name="assetId"></param>
+    /// <returns></returns>
+    Task<List<TranslationDto>> GetAllForAsset(Guid assetId);
+
+    /// <summary>
     ///     Sets the given translation as the targeted translation for its asset and language
     /// </summary>
     /// <param name="translationId"></param>
