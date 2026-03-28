@@ -22,7 +22,8 @@ namespace Lame.Frontend.Tests.ViewModelTests;
 public class AssetDetailsViewModelTests
 {
     [Fact]
-    public async Task LoadAssets_WhenCalled_LoadsLinkedAssetsAndTranslationsAndTagsAndLanguagesAndGetsAssetAgain()
+    public async Task
+        LoadAssets_WhenCalled_LoadsLinkedAssetsAndTranslationsAndTagsAndLanguagesAndChangeLogAndGetsAssetAgain()
     {
         // Arrange
         var linkedAssets = new List<AssetDto>
@@ -56,6 +57,14 @@ public class AssetDetailsViewModelTests
             new LanguageBuilder().WithLanguageCode("es").Build()
         };
 
+        var changes = new List<ChangeLogEntry>
+        {
+            new ChangeLogEntryBuilder().WithResourceId(asset.Id).Build(),
+            new ChangeLogEntryBuilder().WithResourceId(asset.Id).Build(),
+            new ChangeLogEntryBuilder().WithResourceId(asset.Id).Build(),
+            new ChangeLogEntryBuilder().WithResourceId(asset.Id).Build()
+        };
+
 
         var assetsService = new Mock<IAssets>();
         assetsService.Setup(x => x.Get(
@@ -72,6 +81,7 @@ public class AssetDetailsViewModelTests
 
         var translationsService = new Mock<ITranslations>();
         translationsService.Setup(x => x.GetTargetedForAsset(asset.Id)).ReturnsAsync(translations);
+        translationsService.Setup(x => x.GetAllForAsset(asset.Id)).ReturnsAsync(translations);
 
         var tagsService = new Mock<ITags>();
         tagsService.Setup(x => x.GetTagsForResource(asset.Id)).ReturnsAsync(tags);
@@ -79,12 +89,17 @@ public class AssetDetailsViewModelTests
         var languagesService = new Mock<ILanguages>();
         languagesService.Setup(x => x.Get()).ReturnsAsync(languages);
 
+        var changeLogService = new Mock<IChangeLog>();
+        changeLogService.Setup(x => x.Get(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<List<Guid>>()))
+            .ReturnsAsync(new PaginatedResponseBuilder<ChangeLogEntry>(changes).WithTotalPages(3).Build());
+
         var vm = AssetDetailsViewModelFactory.Create(
             asset,
             assetsService: assetsService.Object,
             translationsService: translationsService.Object,
             tagsService: tagsService.Object,
-            languagesService: languagesService.Object);
+            languagesService: languagesService.Object,
+            changeLogService: changeLogService.Object);
 
         // Act
         await vm.LoadAsset();
@@ -94,6 +109,8 @@ public class AssetDetailsViewModelTests
         Assert.Equal(2, vm.LinkedAssets.Count);
         Assert.Equal(2, vm.Tags.Count);
         Assert.Equal(3, vm.SupportedLanguagesCount);
+        Assert.Equal(4, vm.ChangeLogEntries.Count);
+        Assert.Equal(3, vm.PageNumbers.Count);
     }
 
     // TODO how to unit test destructors?
@@ -924,5 +941,51 @@ public class AssetDetailsViewModelTests
                 It.Is<Notification>(notif =>
                     notif.Type == NotificationType.Success && notif.Title == "Download Complete")),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task SetPageCommand_WithPageNumber_SetsCurrentPageAndLoadsAssetChanges()
+    {
+        // Arrange
+        var asset = new AssetDtoBuilder().Build();
+
+        var translations = new List<TranslationDto>
+        {
+            new TranslationDtoBuilder().WithAssetId(asset.Id).WithLanguageCode("en").Build(),
+            new TranslationDtoBuilder().WithAssetId(asset.Id).WithLanguageCode("fr").Build(),
+            new TranslationDtoBuilder().WithAssetId(asset.Id).WithLanguageCode("es").Build()
+        };
+
+        var changes = new List<ChangeLogEntry>
+        {
+            new ChangeLogEntryBuilder().WithResourceId(asset.Id).Build(),
+            new ChangeLogEntryBuilder().WithResourceId(asset.Id).Build(),
+            new ChangeLogEntryBuilder().WithResourceId(asset.Id).Build(),
+            new ChangeLogEntryBuilder().WithResourceId(translations[0].Id).Build(),
+            new ChangeLogEntryBuilder().WithResourceId(translations[1].Id).Build(),
+            new ChangeLogEntryBuilder().WithResourceId(translations[2].Id).Build()
+        };
+
+        var translationsService = new Mock<ITranslations>();
+        translationsService.Setup(x => x.GetAllForAsset(asset.Id)).ReturnsAsync(translations);
+
+        var changeLogService = new Mock<IChangeLog>();
+        changeLogService.Setup(x => x.Get(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<List<Guid>>()))
+            .ReturnsAsync(new PaginatedResponseBuilder<ChangeLogEntry>(changes).WithTotalPages(3).Build());
+
+
+        var vm = AssetDetailsViewModelFactory.Create(asset,
+            translationsService: translationsService.Object,
+            changeLogService: changeLogService.Object);
+
+        // Act
+        vm.SetPageCommand.Execute(2);
+
+        // Assert
+        await ((AsyncRelayCommand<int>)vm.SetPageCommand).CommandTask!;
+
+        Assert.Equal(2, vm.CurrentPage);
+        Assert.Equal(6, vm.ChangeLogEntries.Count);
+        changeLogService.Verify(x => x.Get(2, It.IsAny<int>(), It.IsAny<List<Guid>>()), Times.Once);
     }
 }

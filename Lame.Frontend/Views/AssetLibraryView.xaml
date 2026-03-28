@@ -43,8 +43,13 @@
                             <DataGridTemplateColumn Header="Asset" Width="2*">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding InternalName}"
-                                                   Style="{StaticResource Body}" />
+                                        <Button Style="{StaticResource ClickableText}"
+                                                Command="{Binding DataContext.ViewAssetDetailsCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                CommandParameter="{Binding}">
+                                            <TextBlock Text="{Binding InternalName}"
+                                                       Style="{StaticResource Link}"
+                                                       Foreground="{StaticResource Brush.Primary}" />
+                                        </Button>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -107,20 +112,6 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-
-                            <DataGridTemplateColumn Header="Actions" Width="*">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Button Style="{StaticResource ClickableText}"
-                                                Command="{Binding DataContext.ViewAssetDetailsCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                CommandParameter="{Binding}">
-                                            <TextBlock Text="View Details"
-                                                       Style="{StaticResource Link}" />
-                                        </Button>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-
                         </DataGrid.Columns>
                     </DataGrid>
 

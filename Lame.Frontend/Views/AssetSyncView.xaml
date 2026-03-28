@@ -64,7 +64,8 @@
                                                     Command="{Binding DataContext.ReviewAssetLinkCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                     CommandParameter="{Binding}">
                                                 <TextBlock Text="Review"
-                                                           Style="{StaticResource Link}" />
+                                                           Style="{StaticResource Link}"
+                                                           Foreground="{StaticResource Brush.Primary}" />
                                             </Button>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>

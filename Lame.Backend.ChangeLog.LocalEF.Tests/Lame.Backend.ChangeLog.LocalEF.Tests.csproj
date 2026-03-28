@@ -21,6 +21,7 @@
     <ItemGroup>
         <ProjectReference Include="..\Lame.Backend.ChangeLog.LocalEF\Lame.Backend.ChangeLog.LocalEF.csproj"/>
         <ProjectReference Include="..\Lame.Backend.EntityFramework.Tests\Lame.Backend.EntityFramework.Tests.csproj"/>
+        <ProjectReference Include="..\Lame.TestingHelpers\Lame.TestingHelpers.csproj"/>
     </ItemGroup>
 
 </Project>
